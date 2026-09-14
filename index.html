@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PR Plástico Reciclável | Polímeros Reciclados</title>
+
+<meta name="description" content="PR Plástico Reciclável — soluções em polímeros reciclados, desenvolvimento de cores e materiais para a indústria.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+  --blue:#083f73;
+  --blue2:#0d65a8;
+  --green:#5ba91b;
+  --dark:#101828;
+  --text:#526173;
+  --light:#f5f8fb;
+  --line:#e6edf3;
+  --white:#fff;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  font-family:Inter,Arial,sans-serif;
+  color:var(--dark);
+  line-height:1.6;
+  background:#fff;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+.container{
+  width:min(1180px,92%);
+  margin:auto;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  z-index:1000;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+
+nav{
+  min-height:82px;
+  display:flex;
+  align-items:center;
+  gap:28px;
+}
+
+.logo{
+  width:180px;
+  height:68px;
+  display:flex;
+  align-items:center;
+}
+
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:left center;
+}
+
+.nav-links{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:25px;
+  font-size:14px;
+  font-weight:600;
+}
+
+.nav-links a{
+  transition:.2s;
+}
+
+.nav-links a:hover{
+  color:var(--blue2);
+}
+
+.whatsapp-btn{
+  background:#25b95b;
+  color:white;
+  padding:11px 18px;
+  border-radius:8px;
+}
+
+.menu{
+  display:none;
+  background:none;
+  border:0;
+  font-size:28px;
+  cursor:pointer;
+  margin-left:auto;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  min-height:720px;
+  padding-top:82px;
+  display:flex;
+  align-items:center;
+
+  background:
+  linear-gradient(
+    90deg,
+    rgba(4,44,79,.97) 0%,
+    rgba(7,66,116,.91) 52%,
+    rgba(8,69,119,.48) 100%
+  ),
+
+  url("https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1800&q=85")
+  center/cover;
+}
+
+.hero-content{
+  max-width:730px;
+  color:white;
+  padding:80px 0;
+}
+
+.tag{
+  display:inline-block;
+  border:1px solid rgba(255,255,255,.35);
+  background:rgba(255,255,255,.08);
+  padding:7px 14px;
+  border-radius:30px;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:1px;
+  margin-bottom:22px;
+}
+
+.hero h1{
+  font-size:clamp(44px,6vw,72px);
+  line-height:1.02;
+  letter-spacing:-3px;
+  margin-bottom:23px;
+}
+
+.hero h1 span{
+  color:#83cf3c;
+}
+
+.hero p{
+  font-size:18px;
+  max-width:650px;
+  color:rgba(255,255,255,.86);
+  margin-bottom:32px;
+}
+
+.buttons{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  display:inline-block;
+  padding:14px 23px;
+  border-radius:8px;
+  font-weight:700;
+  transition:.25s;
+}
+
+.btn-green{
+  background:var(--green);
+  color:#fff;
+}
+
+.btn-green:hover{
+  transform:translateY(-2px);
+  filter:brightness(.94);
+}
+
+.btn-outline{
+  border:1px solid rgba(255,255,255,.6);
+  color:#fff;
+}
+
+.btn-outline:hover{
+  background:#fff;
+  color:var(--blue);
+}
+
+
+/* =========================
+   DESTAQUES
+========================= */
+
+.highlights{
+  margin-top:-45px;
+  position:relative;
+  z-index:5;
+}
+
+.highlight-box{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 12px 38px rgba(16,24,40,.12);
+  overflow:hidden;
+}
+
+.highlight{
+  padding:28px;
+  text-align:center;
+  border-right:1px solid var(--line);
+}
+
+.highlight:last-child{
+  border:0;
+}
+
+.highlight strong{
+  display:block;
+  color:var(--blue);
+  font-size:25px;
+}
+
+.highlight span{
+  font-size:12px;
+  color:var(--text);
+}
+
+
+/* =========================
+   SEÇÕES
+========================= */
+
+section{
+  padding:100px 0;
+}
+
+.eyebrow{
+  color:var(--green);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+}
+
+.section-title{
+  margin-bottom:45px;
+  max-width:760px;
+}
+
+.section-title.center{
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.section-title h2{
+  font-size:clamp(34px,4vw,49px);
+  line-height:1.12;
+  letter-spacing:-1.7px;
+  margin-top:9px;
+}
+
+.section-title p{
+  color:var(--text);
+  margin-top:16px;
+  font-size:16px;
+}
+
+
+/* =========================
+   EMPRESA
+========================= */
+
+.about-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:65px;
+  align-items:center;
+}
+
+.about-img{
+  height:500px;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+.about-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.about h2{
+  font-size:44px;
+  line-height:1.15;
+  margin:8px 0 22px;
+}
+
+.about p{
+  color:var(--text);
+  margin-bottom:15px;
+}
+
+.checks{
+  display:grid;
+  gap:12px;
+  margin-top:25px;
+}
+
+.check{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  font-weight:600;
+}
+
+.check i{
+  font-style:normal;
+  color:var(--green);
+  background:#eaf7df;
+  border-radius:50%;
+  width:27px;
+  height:27px;
+  display:grid;
+  place-items:center;
+}
+
+
+/* =========================
+   PRODUTOS
+========================= */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 25px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  transition: .25s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(16,24,40,.08);
+}
+
+.icon {
+  min-width: 55px;
+  width: 55px;
+  height: 55px;
+  border-radius: 10px;
+  background: #eaf3fa;
+  color: var(--blue);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  margin: 0;
+}
+
+.card h3 {
+  font-size: 18px;
+  margin-bottom: 7px;
+}
+
+.card p {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+
+.products h2 {
+  font-size: 25px;
+  margin-bottom: 7px;
+}
+
+/* =========================
+   APLICAÇÕES
+========================= */
+
+.app-grid{
+  display:grid;
+  grid-template-columns:2.05fr 1fr;
+  gap: 200px;
+  align-items:center;
+}
+
+.app-grid img{
+  width:100%;
+  height:700px;
+  object-fit:cover;
+  border-radius:16px;
+}
+
+.app-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.app-item {
+  background: #f5f8fb;
+  padding: 40px 80px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+  border: 1px solid #69a0d0;
+  transition: 0.3s;
+}
+
+.app-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   SÓCIOS
+========================= */
+
+.socios{
+  background:linear-gradient(
+    160deg,
+    #f7fafc 0%,
+    #fff 100%
+  );
+}
+
+.socios-intro{
+  display:grid;
+  grid-template-columns:1fr .55fr;
+  gap:50px;
+  align-items:end;
+  margin-bottom:36px;
+}
+
+.socios-intro h2{
+  font-size:clamp(22px,4.5vw,30px);
+  line-height:1.08;
+  letter-spacing:-2px;
+  margin-top:8px;
+}
+
+.socios-intro p{
+  color:var(--text);
+  font-size:16px;
+}
+
+.socios-note{
+  background:var(--blue);
+  color:white;
+  border-radius:12px;
+  padding:25px;
+
+  background-image:
+  linear-gradient(
+    145deg,
+    rgba(13,101,168,.9),
+    rgba(4,48,87,.98)
+  );
+}
+
+.socios-note small{
+  letter-spacing:3px;
+  font-weight:600;
+  color:#9dd75d;
+}
+
+.socios-note strong{
+  display:block;
+  font-size:20px;
+  line-height:1.25;
+  margin-top:12px;
+}
+
+.socios-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+
+.socio-card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 8px 28px rgba(16,24,40,.05);
+  text-align:left;
+}
+
+.socio-photo {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 15px;
+  border: 4px solid #fff;
+  box-shadow: 0 5px 23px rgba(16,24,40,.12);
+}
+
+.socio-photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.socio-card h3 {
+  font-size: 20px;
+  color: var(--blue);
+  text-align: center;
+  margin: 0;
+}
+
+.role {
+  text-align: center;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  margin: 4px 0 10px;
+}
+
+.socio-card p {
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.edit-note{
+  margin-top:22px;
+  text-align:center;
+  color:#7b8794;
+  font-size:10px;
+}
+
+
+/* =========================
+   SUSTENTABILIDADE
+========================= */
+
+.sustain{
+  background:var(--blue);
+  color:#fff;
+}
+
+.sustain-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:60px;
+  align-items:center;
+}
+
+.sustain h2{
+  font-size:46px;
+  line-height:1.12;
+  margin:8px 0 20px;
+}
+
+.sustain p{
+  color:rgba(255,255,255,.76);
+  margin-bottom:16px;
+}
+
+.sustain img{
+  width:100%;
+  height:440px;
+  object-fit:cover;
+  border-radius:16px;
+}
+
+
+/* =========================
+   CTA
+========================= */
+
+.cta{
+  padding:80px 0;
+}
+
+.cta-box{
+  background:
+    linear-gradient(
+      135deg,
+      #063761,
+      #0d67aa
+    );
+
+  color:#fff;
+  border-radius:20px;
+  text-align:center;
+  padding:65px 25px;
+}
+
+.cta-box h2{
+  font-size:42px;
+}
+
+.cta-box p{
+  max-width:650px;
+  margin:12px auto 26px;
+  color:rgba(255,255,255,.78);
+}
+
+
+/* =========================
+   CONTATO
+========================= */
+
+.contact{
+  background:var(--light);
+}
+
+.contact-grid{
+  display:grid;
+  grid-template-columns:.8fr 1.2fr;
+  gap:60px;
+}
+
+.contact-info h2{
+  font-size:42px;
+  line-height:1.15;
+  margin:8px 0 18px;
+}
+
+.contact-info p{
+  color:var(--text);
+  margin-bottom:27px;
+}
+
+.contact-item{
+  margin:15px 0;
+}
+
+.contact-item b{
+  display:block;
+  color:var(--blue);
+  font-size:13px;
+}
+
+.form{
+  background:#fff;
+  padding:34px;
+  border-radius:14px;
+  box-shadow:0 8px 30px rgba(16,24,40,.06);
+}
+
+.field{
+  margin-bottom:16px;
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.field input,
+.field textarea{
+  width:100%;
+  border:1px solid #d7e0e8;
+  border-radius:7px;
+  padding:12px;
+  font:inherit;
+  outline:none;
+}
+
+.field textarea{
+  min-height:120px;
+  resize:vertical;
+}
+
+.form .btn{
+  border:0;
+  cursor:pointer;
+  width:100%;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+  background:#0b1727;
+  color:#fff;
+  padding:55px 0 22px;
+}
+
+.footer-grid{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr;
+  gap:50px;
+  margin-bottom:40px;
+}
+
+.footer-logo{
+  width:180px;
+  height:70px;
+  margin-bottom:14px;
+}
+
+.footer-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:left center;
+
+  filter:
+  brightness(0)
+  invert(1)
+  grayscale(1)
+  brightness(2);
+}
+
+footer p,
+footer a{
+  color:#aab6c5;
+  font-size:13px;
+}
+
+.footer-links{
+  display:grid;
+  gap:8px;
+}
+
+.footer-links a:hover{
+  color:#fff;
+}
+
+.copyright{
+  border-top:1px solid rgba(255,255,255,.08);
+  padding-top:20px;
+  text-align:center;
+  color:#8492a5;
+  font-size:11px;
+}
+
+
+/* =========================
+   WHATSAPP
+========================= */
+
+.float{
+  position:fixed;
+  right:22px;
+  bottom:22px;
+
+  width:58px;
+  height:58px;
+
+  border-radius:50%;
+
+  background:#25d366;
+  color:white;
+
+  display:grid;
+  place-items:center;
+
+  font-size:25px;
+
+  z-index:999;
+
+  box-shadow:
+  0 7px 22px rgba(0,0,0,.2);
+}
+
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media(max-width:900px){
+
+  .nav-links{
+    display:none;
+
+    position:absolute;
+
+    left:0;
+    top:82px;
+
+    width:100%;
+
+    background:#fff;
+
+    padding:22px 4%;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    box-shadow:
+    0 12px 25px rgba(0,0,0,.08);
+  }
+
+  .nav-links.active{
+    display:flex;
+  }
+
+  .menu{
+    display:block;
+  }
+
+  .highlight-box{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .highlight{
+    border-bottom:1px solid var(--line);
+  }
+
+  .highlight:nth-child(2){
+    border-right:0;
+  }
+
+  .about-grid,
+  .app-grid,
+  .sustain-grid,
+  .contact-grid,
+  .socios-intro{
+    grid-template-columns:1fr;
+  }
+
+  .cards,
+  .socios-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .footer-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+
+@media(max-width:600px){
+
+  section{
+    padding:75px 0;
+  }
+
+  .hero{
+    min-height:680px;
+  }
+
+  .hero h1{
+    letter-spacing:-2px;
+  }
+
+  .highlight-box,
+  .cards,
+  .socios-grid,
+  .app-list{
+    grid-template-columns:1fr;
+  }
+
+  .highlight{
+    border-right:0;
+  }
+
+  .about-img,
+  .app-grid img{
+    height:360px;
+  }
+
+  .sustain img{
+    height:340px;
+  }
+
+  .socios-intro h2,
+  .about h2,
+  .sustain h2,
+  .contact-info h2,
+  .cta-box h2{
+    font-size:34px;
+  }
+
+  .socio-photo{
+    width:165px;
+    height:165px;
+  }
+
+  .logo{
+    width:155px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header>
+
+<div class="container">
+
+<nav>
+
+<a class="logo" href="#inicio">
+
+<img
+src="C:\Users\paulo.salles\Documents\Site Recebimento\_imagens\logo.png"
+alt="PR Plástico Reciclável">
+
+</a>
+
+
+<button
+class="menu"
+onclick="document.getElementById('nav').classList.toggle('active')">
+
+☰
+
+</button>
+
+
+<div class="nav-links" id="nav">
+
+<a href="#inicio">Início</a>
+
+<a href="#empresa">A Empresa</a>
+
+<a href="#produtos">Produtos</a>
+
+<a href="#aplicacoes">Aplicações</a>
+
+<a href="#socios">Sócios</a>
+
+<a href="#sustentabilidade">
+Sustentabilidade
+</a>
+
+<a href="#contato">Contato</a>
+
+
+<a
+class="whatsapp-btn"
+href="https://wa.me/5541999999999"
+target="_blank">
+
+Fale Conosco
+
+</a>
+
+</div>
+
+</nav>
+
+</div>
+
+</header>
+
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<section
+class="hero"
+id="inicio">
+
+<div class="container">
+
+<div class="hero-content">
+
+<span class="tag">
+SOLUÇÕES EM POLÍMEROS RECICLADOS
+</span>
+
+
+<h1>
+
+Transforndo plástico em
+
+<span>
+novas possibilidades.
+</span>
+
+</h1>
+
+
+<p>
+
+Desenvolvimento e fornecimento de polímeros reciclados para
+indústrias que buscam qualidade, desempenho, competitividade
+e sustentabilidade.
+
+</p>
+
+
+<div class="buttons">
+
+<a
+href="#produtos"
+class="btn btn-green">
+
+Conheça nossos produtos
+
+</a>
+
+
+<a
+href="#contato"
+class="btn btn-outline">
+
+Solicitar cotação
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     DESTAQUES
+========================= -->
+
+<div class="highlights">
+
+<div class="container">
+
+<div class="highlight-box">
+
+<div class="highlight">
+
+<strong>PP</strong>
+
+<span>
+Polipropileno reciclado
+</span>
+
+</div>
+
+
+<div class="highlight">
+
+<strong>PCR</strong>
+
+<span>
+Matéria-prima reciclada
+</span>
+
+</div>
+
+
+<div class="highlight">
+
+<strong>Cores</strong>
+
+<span>
+Desenvolvimento personalizado
+</span>
+
+</div>
+
+
+<div class="highlight">
+
+<strong>Indústria</strong>
+
+<span>
+Soluções sob medida
+</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- =========================
+     EMPRESA
+========================= -->
+
+<section
+id="empresa"
+class="about">
+
+<div class="container">
+
+<div class="about-grid">
+
+
+<div class="about-img">
+
+<img
+src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=85"
+alt="Indústria">
+
+</div>
+
+
+<div>
+
+<span class="eyebrow">
+PR Plástico Reciclável
+</span>
+
+
+<h2>
+
+Tecnologia, qualidade e sustentabilidade
+para sua indústria.
+
+</h2>
+
+
+<p>
+
+A PR Plástico Reciclável atua no desenvolvimento
+e fornecimento de matérias-primas recicladas
+para diferentes segmentos da indústria.
+
+</p>
+
+
+<p>
+
+Nosso objetivo é entender cada aplicação e oferecer
+uma solução técnica e comercial capaz de gerar
+produtividade, estabilidade de processo e competitividade.
+
+</p>
+
+
+<div class="checks">
+
+
+<div class="check">
+
+<i>✓</i>
+
+Desenvolvimento de polímeros coloridos
+
+</div>
+
+
+<div class="check">
+
+<i>✓</i>
+
+Padronização e controle de qualidade
+
+</div>
+
+
+<div class="check">
+
+<i>✓</i>
+
+Soluções de acordo com cada aplicação
+
+</div>
+
+
+<div class="check">
+
+<i>✓</i>
+
+Atendimento comercial personalizado
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     PRODUTOS
+========================= -->
+
+<section
+class="products"
+id="produtos">
+
+<div class="container">
+
+
+<div class="section-title center">
+
+<span class="eyebrow">
+Nossos produtos
+</span>
+
+
+<h2>
+
+Polímeros desenvolvidos
+para diferentes aplicações
+
+</h2>
+
+
+<p>
+
+Materiais pensados para atender às necessidades
+técnicas, produtivas e comerciais de cada cliente.
+
+</p>
+
+</div>
+
+
+
+<div class="cards">
+
+
+<div class="card">
+
+<div class="icon">
+♻
+</div>
+
+<h3>
+PP Reciclado
+</h3>
+
+<p>
+
+Polipropileno reciclado para aplicações industriais,
+buscando estabilidade, desempenho e competitividade.
+
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="icon">
+●
+</div>
+
+<h3>
+Polímeros Coloridos
+</h3>
+
+<p>
+
+Desenvolvimento de cores conforme referência,
+padrão ou necessidade específica do cliente.
+
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="icon">
+⚙
+</div>
+
+<h3>
+Materiais Técnicos
+</h3>
+
+<p>
+
+Soluções para aplicações que necessitam
+propriedades e características específicas.
+
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="icon">
+◆
+</div>
+
+<h3>
+Produtos Customizados
+</h3>
+
+<p>
+
+Formulações desenvolvidas de acordo com
+o processo produtivo e a aplicação final.
+
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="icon">
+✓
+</div>
+
+<h3>
+Controle de Qualidade
+</h3>
+
+<p>
+
+Monitoramento das principais características
+do material para proporcionar segurança
+e repetibilidade.
+
+</p>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="icon">
+↗
+</div>
+
+<h3>
+Suporte Comercial
+</h3>
+
+<p>
+
+Atendimento próximo para desenvolvimento
+de projetos, homologações e novas oportunidades.
+
+</p>
+
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     APLICAÇÕES
+========================= -->
+
+<section
+id="aplicacoes">
+
+<div class="container">
+
+<div class="app-grid">
+
+
+<div>
+
+<span class="eyebrow">
+Aplicações
+</span>
+
+
+<div class="section-title">
+
+<h2>
+
+Matéria-prima para diferentes
+segmentos da indústria
+
+</h2>
+
+
+<p>
+
+Nossos produtos podem ser desenvolvidos
+para diferentes processos de transformação
+e aplicações industriais.
+
+</p>
+
+</div>
+
+<div class="app-list">
+
+
+<div class="app-item">
+Utilidades domésticas
+</div>
+
+<div class="app-item">
+Automotivo
+</div>
+
+<div class="app-item">
+Eletroeletrônico
+</div>
+
+<div class="app-item">
+Construção civil
+</div>
+
+<div class="app-item">
+Móveis plásticos
+</div>
+
+<div class="app-item">
+Embalagens
+</div>
+
+<div class="app-item">
+Peças técnicas
+</div>
+
+<div class="app-item">
+Injeção plástica
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     SÓCIOS
+========================= -->
+
+<section
+class="socios"
+id="socios">
+
+<div class="container">
+
+
+<div class="socios-intro">
+
+
+<div>
+
+<span class="eyebrow">
+Nossa equipe
+</span>
+
+
+<h2>
+
+Sócios da PR
+Plástico Reciclável
+
+</h2>
+
+
+<p>
+
+A força da PR está nas pessoas.
+Conheça os sócios que lideram,
+desenvolvem e impulsionam nosso
+propósito de transformar plástico
+em novas oportunidades.
+
+</p>
+
+</div>
+
+
+
+<div class="socios-note">
+
+<small>
+Onde NEGÓCIOS
+</small>
+
+
+<strong>
+
+Se transformam em
+
+<small>
+PARCERIAS
+</small>
+
+
+de longo prazo.
+
+</strong>
+
+
+</div>
+
+</div>
+
+
+
+<div class="socios-grid">
+
+
+<!-- SÓCIO 1 -->
+
+<article class="socio-card">
+
+
+<div class="socio-photo">
+
+<img
+src="C:\Users\paulo.salles\Documents\Site Recebimento\_imagens\Paulo Salles.png"
+alt="Paulo Roberto Salles">
+
+</div>
+
+
+<h3>
+Paulo Salles
+</h3>
+
+
+<div class="role">
+Diretor Comercial
+</div>
+
+
+<p>
+
+Responsável pela estratégia comercial
+e pelo relacionamento com clientes,
+com foco no desenvolvimento de novos
+negócios, projetos e parcerias
+de longo prazo.
+
+</p>
+
+</article>
+
+
+
+<!-- SÓCIO 2 -->
+
+<article class="socio-card">
+
+
+<div class="socio-photo">
+
+<img
+src="C:\Users\paulo.salles\Documents\Site Recebimento\_imagens\Jean.png"
+alt="Sócio 2">
+
+</div>
+
+
+<h3>
+Jean Marco
+</h3>
+
+
+<div class="role">
+Diretor Industrial
+</div>
+
+
+<p>
+
+Responsável pela qualidade da 
+produção, manutenção dos processos e desenvolvimento de 
+novos produtos, buscando eficiência, 
+padronização e evolução contínua das soluções da PR Plásticos.
+
+</p>
+
+</article>
+
+
+
+<!-- SÓCIO 3 -->
+
+<article class="socio-card">
+<div class="socio-photo">
+
+<img
+src="C:\Users\paulo.salles\Documents\Site Recebimento\_imagens\Jeferson.png"
+alt="Sócio 3">
+
+</div>
+
+
+<h3>
+Jeferson Bueno
+</h3>
+
+
+<div class="role">
+Diretor de Operações
+</div>
+
+
+<p>
+
+Responsável pelo relacionamento com fornecedores 
+e pela aquisição de matérias-primas, buscando qualidade, 
+competitividade, segurança no abastecimento e parcerias de longo prazo.
+
+</p>
+
+
+</article>
+
+
+</div>
+
+
+<p class="edit-note">
+
+Juntos somos a PR Plásticos
+
+</p>
+
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     SUSTENTABILIDADE
+========================= -->
+
+<section
+class="sustain"
+id="sustentabilidade">
+
+<div class="container">
+
+<div class="sustain-grid">
+
+
+<div>
+
+<span class="eyebrow">
+Economia circular
+</span>
+
+
+<h2>
+
+O plástico pode voltar
+para a indústria.
+
+</h2>
+
+
+<p>
+
+A reciclagem permite transformar resíduos
+em novas matérias-primas, reduzindo
+o consumo de recursos e reinserindo
+materiais na cadeia produtiva.
+
+</p>
+
+
+<p>
+
+Na PR Plástico Reciclável, sustentabilidade
+e desempenho industrial caminham juntos
+para transformar resíduos em novas oportunidades.
+
+</p>
+
+
+<a
+href="#contato"
+class="btn btn-green">
+
+Fale com nossa equipe
+
+</a>
+
+</div>
+
+
+
+<img
+src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=1200&q=85"
+alt="Reciclagem">
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     CTA
+========================= -->
+
+<section class="cta">
+
+<div class="container">
+
+<div class="cta-box">
+
+
+<h2>
+Tem um novo projeto?
+</h2>
+
+
+<p>
+
+Conte para nossa equipe qual material,
+aplicação, cor ou necessidade sua empresa
+possui. Vamos avaliar a melhor solução
+para o seu processo.
+
+</p>
+
+
+<a
+href="#contato"
+class="btn btn-green">
+
+Solicitar atendimento
+
+</a>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     CONTATO
+========================= -->
+
+<section
+class="contact"
+id="contato">
+
+<div class="container">
+
+<div class="contact-grid">
+
+
+<div class="contact-info">
+
+<span class="eyebrow">
+Contato
+</span>
+
+
+<h2>
+
+Vamos desenvolver uma solução
+para sua empresa.
+
+</h2>
+
+
+<p>
+
+Entre em contato para solicitar uma cotação,
+desenvolver um produto ou iniciar uma homologação.
+
+</p>
+
+
+<div class="contact-item">
+
+<b>
+E-mail
+</b>
+
+comercial@prplasticos.com.br
+
+</div>
+
+
+<div class="contact-item">
+
+<b>
+WhatsApp
+</b>
+
+(41) 99138-7782
+
+</div>
+
+
+<div class="contact-item">
+
+<b>
+Site
+</b>
+
+www.prplasticos.com.br
+
+</div>
+
+
+<div class="contact-item">
+
+<b>
+Atendimento
+</b>
+
+Paraná • Santa Catarina • Rio Grande do Sul • São Paulo
+
+</div>
+
+
+</div>
+
+
+
+<form
+class="form"
+onsubmit="sendWhatsApp(event)">
+
+
+<div class="field">
+
+<label>
+Nome
+</label>
+
+<input
+id="nome"
+required
+placeholder="Seu nome">
+
+</div>
+
+
+
+<div class="field">
+
+<label>
+Empresa
+</label>
+
+<input
+id="empresa"
+placeholder="Nome da empresa">
+
+</div>
+
+
+
+<div class="field">
+
+<label>
+Telefone
+</label>
+
+<input
+id="telefone"
+placeholder="(00) 00000-0000">
+
+</div>
+
+
+
+<div class="field">
+
+<label>
+Mensagem
+</label>
+
+<textarea
+id="mensagem"
+required
+placeholder="Conte sobre o material ou projeto que sua empresa procura."></textarea>
+
+</div>
+
+
+
+<button
+class="btn btn-green"
+type="submit">
+
+Enviar solicitação
+
+</button>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+
+<div class="container">
+
+
+<div class="footer-grid">
+
+
+<div>
+
+<div class="footer-logo">
+
+<img
+src="C:\Users\paulo.salles\Documents\Site Recebimento\_imagens\logo.png"
+alt="PR Plástico Reciclável">
+
+</div>
+
+
+<p>
+
+Soluções em polímeros reciclados
+para uma indústria mais eficiente,
+competitiva e sustentável.
+
+</p>
+
+</div>
+
+
+
+<div>
+
+<h4>
+Navegação
+</h4>
+
+
+<div class="footer-links">
+
+<a href="#empresa">
+A Empresa
+</a>
+
+<a href="#produtos">
+Produtos
+</a>
+
+<a href="#aplicacoes">
+Aplicações
+</a>
+
+<a href="#socios">
+Sócios
+</a>
+
+<a href="#sustentabilidade">
+Sustentabilidade
+</a>
+
+</div>
+
+</div>
+
+
+
+<div>
+
+<h4>
+Contato
+</h4>
+
+
+<div class="footer-links">
+
+<a
+href="mailto:comercial@prplasticos.com.br">
+
+comercial@prplasticos.com.br
+
+</a>
+
+
+<a
+href="https://wa.me/5541991387782">
+
+WhatsApp
+
+</a>
+
+
+<a
+href="https://prplasticos.com.br">
+
+prplasticos.com.br
+
+</a>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="copyright">
+
+©
+
+<span id="ano"></span>
+
+PR Plástico Reciclável.
+
+Todos os direitos reservados.
+
+</div>
+
+
+</div>
+
+</footer>
+
+
+
+<!-- WHATSAPP -->
+
+<a
+class="float"
+href="https://wa.me/5541991387782"
+target="_blank"
+aria-label="WhatsApp">
+
+☎
+
+</a>
+
+
+
+<script>
+
+document.getElementById("ano").textContent =
+new Date().getFullYear();
+
+
+function sendWhatsApp(e){
+
+  e.preventDefault();
+
+  /*
+  ====================================
+  ALTERE ESTE NÚMERO
+  ====================================
+  */
+
+  const numero =
+  "554199138-7782";
+
+
+  const nome =
+  document.getElementById("Paulo").value;
+
+
+  const empresa =
+  document.getElementById("PR Plásticos").value;
+
+
+  const telefone =
+  document.getElementById("041991387782").value;
+
+
+  const mensagem =
+  document.getElementById("Olá, como podemos lhe ajudar, certamente temos uma solução para avaliarmos em conjunto contigo?").value;
+
+
+  const texto =
+  `Olá, sou ${nome}.%0A` +
+  `Empresa: ${empresa}%0A` +
+  `Telefone: ${telefone}%0A%0A` +
+  `${mensagem}`;
+
+
+  window.open(
+    `https://wa.me/${numero}?text=${texto}`,
+    "_blank"
+  );
+
+}
+
+</script>
+
+
+</body>
+</html>

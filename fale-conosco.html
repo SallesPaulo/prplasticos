@@ -1,0 +1,171 @@
+<html>
+	<link rel="icon" type="image/png" href="logistica.png">
+	<title>CLEANPLASTIC_REQUISIÇÕES</title>
+	<link rel="stylesheet" href="_css/Style.css">
+</head>
+<body>
+
+	<header>
+		<img src="_imagens/Logo Clen Azul.png" alt="Logo">
+		<h3>QUADRO DE INFORMAÇÕES</h3>
+		<button id="toggle-btn"><span></span></button>
+	</header>
+
+	<div class="sidebar">
+		<ul>
+			<li><a href="index.html">Home</a></li>
+            
+			
+		</ul>
+	</div>
+
+	<div class="container">
+				<div class="Quadro">
+			<img src="_imagens/Vestuário.PNG">
+			<h2><a href=https://forms.office.com/r/H0dDr1Vp2G>Vestuário</a></h2>
+			<p>É expressamente proibida a circulação de pessoas utilizando bermuda, camiseta, sandália, chinelo ou outro calçado que não garanta a proteção adequada</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/EPI.PNG">
+			<h2><a href="fale-conosco.html">Uso de EPI</a></h2>
+			<p>É obrigatório o uso de Equipamento de Proteção Individual (EPI) nas áreas sinalizadas.
+			</p>
+		</div>
+	
+		<div class="Quadro">
+			<img src="_imagens/Alimentação.PNG">
+			<h2><a href="fale-conosco.html">Alimentação</a></h2>
+			<p>É expressamente proibido comer, beber ou fumar nas dependências da empresa, exceto nos locais definidos para este fim.
+			</p>
+		</div>
+		<div class="Quadro">
+			<img src="_imagens/Foto.PNG">
+			<h2><a href="fale-conosco.html">Fotos</a></h2>
+			<p>É proibido tirar fotos, bem como a utilização de laptops ou outros equipamentos eletrônicos sem prévia autorização. 
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Emergência.PNG">
+			<h2><a href="fale-conosco.html">Saída de Emergência</a></h2>
+			<p>Ao ouvir a sirene de emergência (toque longo e contínuo), procure manter a calma e seguir a rota de fuga  “Ponto de Encontro” e aguarde as instruções da Brigada de Incêndio.
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Empilhadeira.PNG">
+			<h2><a href="fale-conosco.html">Empilhadeira</a></h2>
+			<p>Não se aproxime das empilhadeiras ou de qualquer outro equipamento transportador de cargas durante a operação.
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Circulação.PNG">
+			<h2><a href="fale-conosco.html">Faixas de Pedestre</a></h2>
+			<p>Só é permitida a circulação de pedestres nas faixas demarcadas em AZUL e VERMELHO no piso e nas faixas zebradas. Evite quedas, ande, não corra.
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Descarga.PNG">
+			<h2><a href="fale-conosco.html">Descarga</a></h2>
+			<p>Motorista deverá permanecer dentro da cabine do caminhão no momento do descarregamento
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Descarga Limpeza.PNG">
+			<h2><a href="fale-conosco.html">Limpeza Veículo</a></h2>
+			<p>É expressamente proibido o motorista subir na carroceria do caminhão para realizar limpeza da mesma enquanto está sendo descarregado</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Proibido.PNG">
+			<h2><a href="fale-conosco.html">Cobertura Carga</a></h2>
+			<p>Proibido subir na carroceria para desenlonar a carga dentro da empresa
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Foto 2.PNG">
+			<h2><a href="fale-conosco.html">Informações aos fornecedores</a></h2>
+			<p>Utilize o corrimão do lado direito ao subir e descer as escadas de acesso a mezaninos e outros pisos, deixando o outro lado livre para utilização no sentido contrário.
+			</p>
+		</div>
+
+		<div class="Quadro">
+			<img src="_imagens/Lixo.PNG">
+			<h2><a href="fale-conosco.html">Lixo</a></h2>
+			<p>Não jogue lixo no chão, use as lixeiras para este fim.
+			</p>
+		</div>
+
+		
+		
+	</div>
+
+	<div class="container">
+
+	<div class="Plastic">
+		
+		<h2>Plástic - PRODUTOS NÃO PERMITIDOS</h2>
+		<img src="_imagens/Não Pode Plastic.PNG">
+		
+	</div>
+
+	
+	<div class="PlasticPode">
+		
+		<h2>Plástic - PRODUTOS PERMITIDOS</h2>
+		<img src="_imagens/Permitido Plastic.PNG">
+		
+	</div>
+
+	<div class="Plastic">
+		
+		<h2>Bottle - PRODUTOS NÃO PERMITIDOS</h2>
+		<img src="_imagens/Não Pode Bottle.PNG">
+		
+	</div>
+
+	<div class="PlasticPode">
+		
+		<h2>Bottle- PRODUTOS PERMITIDOS</h2>
+		<img src="_imagens/Bottle Pode.PNG">
+		
+	</div>
+	
+</div>
+
+	<main>
+		<!-- main content goes here -->
+	</main>
+
+	<script src="script.js"></script>
+    <script>
+        const toggleBtn = document.getElementById('toggle-btn');
+const sidebar = document.querySelector('.sidebar');
+
+toggleBtn.addEventListener('click', () => {
+	sidebar.classList.toggle('show');
+});
+
+toggleBtn.addEventListener('click', () => {
+	document.body.classList.toggle('dark-theme');
+	toggleBtn.classList.toggle('dark');
+});
+
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+	document.body.classList.add('dark-theme');
+	toggleBtn.classList.add('dark');
+}
+    </script>
+	<script>
+		
+		
+	</script>
+
+
+
+</body></html>
