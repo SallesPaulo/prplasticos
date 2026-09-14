@@ -649,6 +649,7 @@ section{
 
 .contact{
   background:var(--light);
+  padding:90px 0 45px;
 }
 
 .contact-grid{
@@ -680,13 +681,13 @@ section{
 
 .form{
   background:#fff;
-  padding:34px;
+  padding:24px 28px;
   border-radius:14px;
-  box-shadow:0 8px 30px rgba(16,24,40,.06);
+  box-shadow:0 8px 40px rgba(16,24,40,.06);
 }
 
 .field{
-  margin-bottom:16px;
+  margin-bottom:11px;
 }
 
 .field label{
@@ -707,7 +708,7 @@ section{
 }
 
 .field textarea{
-  min-height:120px;
+  min-height:100px;
   resize:vertical;
 }
 
@@ -717,6 +718,27 @@ section{
   width:100%;
 }
 
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  border: 1px solid #d7e0e8;
+  border-radius: 7px;
+  padding: 12px;
+  font: inherit;
+  outline: none;
+  background: #fff;
+}
+
+.field select {
+  cursor: pointer;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-color: #0d65a8;
+}
 
 /* =========================
    FOOTER
@@ -726,7 +748,9 @@ footer{
   background:#0b1727;
   color:#fff;
   padding:55px 0 22px;
+  margin-top:40px;
 }
+
 
 .footer-grid{
   display:grid;
@@ -746,14 +770,10 @@ footer{
   height:100%;
   object-fit:contain;
   object-position:left center;
-
-  filter:
-  brightness(0)
-  invert(1)
-  grayscale(1)
-  brightness(2);
+  filter:none;
 }
 
+ 
 footer p,
 footer a{
   color:#aab6c5;
@@ -922,7 +942,7 @@ footer a{
   }
 
   .logo{
-    width:155px;
+    width:90px;
   }
 
 }
@@ -1019,7 +1039,7 @@ SOLUÇÕES EM POLÍMEROS RECICLADOS
 
 <h1>
 
-Transforndo plástico em
+Transformando plástico em
 
 <span>
 novas possibilidades.
@@ -1617,7 +1637,7 @@ alt="Sócio 2">
 
 
 <h3>
-Jean Marco
+Jean Marcos
 </h3>
 
 
@@ -1885,90 +1905,44 @@ Paraná • Santa Catarina • Rio Grande do Sul • São Paulo
 
 </div>
 
+<form class="form" action="https://formspree.io/f/xzebnaqe" method="POST">
 
+  <div class="field">
+    <label>Nome</label>
+    <input type="text" name="nome" required placeholder="Seu nome">
+  </div>
 
-<form
-class="form"
-onsubmit="sendWhatsApp(event)">
+  <div class="field">
+    <label>Empresa</label>
+    <input type="text" name="empresa" placeholder="Nome da empresa">
+  </div>
 
+  <div class="field">
+    <label>E-mail</label>
+    <input type="email" name="email" required placeholder="seu@email.com">
+  </div>
 
-<div class="field">
+  <div class="field">
+    <label>Telefone</label>
+    <input type="tel" name="telefone" placeholder="(00) 00000-0000">
+  </div>
 
-<label>
-Nome
-</label>
+  <div class="field">
+    <label>Mensagem</label>
+    <textarea name="mensagem" required placeholder="Conte sobre o material ou projeto que sua empresa procura."></textarea>
+  </div>
 
-<input
-id="nome"
-required
-placeholder="Seu nome">
+  <input type="hidden" name="_subject" value="Novo orçamento - PR Plásticos">
 
-</div>
-
-
-
-<div class="field">
-
-<label>
-Empresa
-</label>
-
-<input
-id="empresa"
-placeholder="Nome da empresa">
-
-</div>
-
-
-
-<div class="field">
-
-<label>
-Telefone
-</label>
-
-<input
-id="telefone"
-placeholder="(00) 00000-0000">
-
-</div>
-
-
-
-<div class="field">
-
-<label>
-Mensagem
-</label>
-
-<textarea
-id="mensagem"
-required
-placeholder="Conte sobre o material ou projeto que sua empresa procura."></textarea>
-
-</div>
-
-
-
-<button
-class="btn btn-green"
-type="submit">
-
-Enviar solicitação
-
-</button>
-
+  <button class="btn btn-green" type="submit">
+    Enviar solicitação
+  </button>
 
 </form>
 
-
 </div>
-
 </div>
-
 </section>
-
-
 
 <!-- =========================
      FOOTER
@@ -2060,7 +2034,7 @@ comercial@prplasticos.com.br
 <a
 href="https://wa.me/5541991387782">
 
-WhatsApp
+WhatsApp 041-99138-7782
 
 </a>
 
@@ -2068,7 +2042,7 @@ WhatsApp
 <a
 href="https://prplasticos.com.br">
 
-prplasticos.com.br
+www.prplasticos.com.br
 
 </a>
 
