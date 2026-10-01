@@ -286,8 +286,8 @@ section{
 }
 
 .section-title{
-  margin-bottom:45px;
-  max-width:760px;
+  margin-bottom:60px;
+  max-width:1200px;
 }
 
 .section-title.center{
@@ -297,16 +297,18 @@ section{
 }
 
 .section-title h2{
-  font-size:clamp(34px,4vw,49px);
+  font-size:clamp(24px,4vw,49px);
   line-height:1.12;
   letter-spacing:-1.7px;
   margin-top:9px;
+  text-align:center;
 }
 
 .section-title p{
   color:var(--text);
   margin-top:16px;
   font-size:16px;
+  text-align:center;
 }
 
 
@@ -432,7 +434,7 @@ section{
 .app-grid{
   display:grid;
   grid-template-columns:2.05fr 1fr;
-  gap:200px;
+  gap:300px;
   align-items:center;
 }
 
@@ -446,18 +448,20 @@ section{
 .app-list {
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:20px;
+  gap:25px;
+  
 }
 
 .app-item {
   background:#f5f8fb;
-  padding:40px 80px;
+  padding:30px 90px;
   border-radius:10px;
   text-align:center;
-  font-weight:600;
+  font-weight:100px;
   font-size:18px;
   border:1px solid #69a0d0;
   transition:0.3s;
+  align-items:center;
 }
 
 .app-item:hover {
@@ -614,7 +618,7 @@ section{
 #nosso-processo .processo-tag{
   display:inline-block;
   color:#5ca537;
-  font-size:11px;
+  font-size:20px;
   font-weight:800;
   letter-spacing:2px;
   margin-bottom:7px;
@@ -624,8 +628,8 @@ section{
   color:#17251a;
   font-size:clamp(28px,3vw,38px);
   line-height:1.1;
-  margin:0 0 10px;
-  letter-spacing:-1px;
+  margin:0 0 20px;
+  letter-spacing:-2px;
 }
 
 #nosso-processo .processo-header p{
@@ -672,15 +676,15 @@ section{
 }
 
 #nosso-processo .processo-icon img{
-  width:75%;
-  height:75%;
+  width:100%;
+  height:100%;
   object-fit:contain;
   display:block;
 }
 
 #nosso-processo .processo-numero{
   color:#5ca537;
-  font-size:10px;
+  font-size:20px;
   font-weight:800;
   letter-spacing:1px;
   margin-bottom:3px;
@@ -688,7 +692,7 @@ section{
 
 #nosso-processo .processo-item h3{
   color:#17251a;
-  font-size:13px;
+  font-size:16px;
   line-height:1.2;
   margin:0 0 3px;
 }
@@ -696,7 +700,7 @@ section{
 #nosso-processo .processo-item span{
   display:block;
   color:#7a847b;
-  font-size:10px;
+  font-size:12px;
   line-height:1.3;
 }
 
@@ -803,7 +807,7 @@ section{
   margin:50px auto 0;
   text-align:center;
   color:#667067;
-  font-size:25px;
+  font-size:20px;
   line-height:1.5;
 }
 
@@ -1164,7 +1168,7 @@ footer h4{
 <a href="#inicio" class="logo">
 
 <img
-src="https://www.image2url.com/r2/default/images/1789854344121-6c0f80c5-7bb9-4232-9b57-cb34264c37dc.png"
+src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
 alt="PR Plásticos Recicláveis">
 
 </a>
@@ -1172,12 +1176,21 @@ alt="PR Plásticos Recicláveis">
 
 <div class="nav-links">
 
+<a href="#inicio">
+Inicio
+</a>
+
+
 <a href="#empresa">
 A Empresa
 </a>
 
 <a href="#produtos">
 Produtos
+</a>
+
+<a href="#nosso-processo">
+Nosso Processo
 </a>
 
 <a href="#aplicacoes">
@@ -1188,8 +1201,10 @@ Aplicações
 Sócios
 </a>
 
-<a href="#nosso-processo">
-Nosso Processo
+
+
+<a href="#contato">
+  Contato
 </a>
 
 <a
@@ -1271,73 +1286,6 @@ Conheça nossos produtos
 
 </section>
 
-
-<!-- =========================
-     DESTAQUES
-========================= -->
-
-<section class="highlights">
-
-<div class="container">
-
-<div class="highlight-box">
-
-<div class="highlight">
-
-<strong>
-PP
-</strong>
-
-<span>
-Polipropileno reciclado
-</span>
-
-</div>
-
-
-<div class="highlight">
-
-<strong>
-PE
-</strong>
-
-<span>
-Polietileno reciclado
-</span>
-
-</div>
-
-
-<div class="highlight">
-
-<strong>
-PP / PE
-</strong>
-
-<span>
-Resinas virgens
-</span>
-
-</div>
-
-
-<div class="highlight">
-
-<strong>
-4 estados
-</strong>
-
-<span>
-Atendimento regional
-</span>
-
-</div>
-
-</div>
-
-</div>
-
-</section>
 
 
 <!-- =========================
@@ -1627,8 +1575,7 @@ Aplicações
 </span>
 
 <h2>
-Materiais para diferentes
-segmentos da indústria.
+Materiais para diferentes segmentos da indústria.
 </h2>
 
 <p>
@@ -1646,11 +1593,6 @@ da cadeia industrial.
 
 <div>
 
-<img
-src="https://images.unsplash.com/photo-1567789884554-0b844b597180?auto=format&fit=crop&w=1400&q=85"
-alt="Aplicações industriais">
-
-</div>
 
 
 <div class="app-list">
@@ -1756,7 +1698,7 @@ e operações trabalhando juntos.
 <div class="socio-photo">
 
 <img
-src="https://www.image2url.com/r2/default/images/1789403942438-7a91c46e-1f3d-4d83-a4c7-6d4f5dc9c5d5.png"
+src="https://www.image2url.com/r2/default/images/1789403644371-c53f47df-f023-4324-8740-853d4dd9768f.png"
 alt="Paulo Salles">
 
 </div>
@@ -1771,8 +1713,7 @@ Comercial
 
 <p>
 
-Sou Sócio Proprietário e Diretor Comercial da PR Plásticos,
-atuando na liderança comercial, desenvolvimento de novos negócios
+Responsável pelo comercial, desenvolvimento de novos clientes
 e expansão da empresa no mercado de polímeros.
 
 </p>
@@ -1787,7 +1728,7 @@ e expansão da empresa no mercado de polímeros.
 <div class="socio-photo">
 
 <img
-src="https://www.image2url.com/r2/default/images/1789403996716-1a1cc3f8-b9b1-48a7-a4d7-70e9f4cfaf68.png"
+src="https://www.image2url.com/r2/default/images/1789404036651-5399d5fd-a680-4c8e-ac53-5fcdf76c9178.png"
 alt="Jean Marcos">
 
 </div>
@@ -1832,10 +1773,8 @@ Operações
 
 <p>
 
-Responsável pelo relacionamento com fornecedores,
-aquisição de matérias-primas e
-gestão da produção, buscando qualidade,
-competitividade, eficiência e segurança no abastecimento.
+Gestão da produção, buscando qualidade,
+competitividade, eficiência com menor custo.
 
 </p>
 
@@ -2055,7 +1994,7 @@ Juntos somos a PR Plásticos
         <div class="processo-icon">
 
           <img
-          src="https://www.image2url.com/r2/default/images/png-to-jpg-1790810661004-3fc9922b-7004-4dbb-981e-1aed34aa10e8.jpg"
+          src="https://www.image2url.com/r2/default/images/png-to-jpg-1790822448282-969d2c27-7151-4466-85e0-889f7557b767.jpg"
           alt="Logística">
 
         </div>
@@ -2350,7 +2289,7 @@ method="POST">
 <div class="footer-logo">
 
 <img
-src="https://www.image2url.com/r2/default/images/1789854344121-6c0f80c5-7bb9-4232-9b57-cb34264c37dc.png"
+src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
 alt="PR Plástico Reciclável">
 
 </div>
@@ -2376,6 +2315,10 @@ Navegação
 
 <div class="footer-links">
 
+<a href="#inicio">
+Inicio
+</a>
+
 <a href="#empresa">
 A Empresa
 </a>
@@ -2394,6 +2337,11 @@ Sócios
 
 <a href="#nosso-processo">
 Nosso Processo
+</a>
+
+<a href="#contato">
+  Contato
+</a>
 </a>
 
 </div>
