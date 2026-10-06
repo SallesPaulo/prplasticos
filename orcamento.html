@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitar Orçamento | PR Plásticos Recicláveis</title>
+<style>
+:root{
+  --green:#4f9d4d;
+  --green-dark:#347638;
+  --green-light:#eef7ed;
+  --dark:#17231a;
+  --text:#4b554d;
+  --light:#f7faf7;
+  --white:#fff;
+  --border:#dfe7df;
+  --shadow:0 14px 40px rgba(24,45,28,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--light);line-height:1.5}
+a{text-decoration:none;color:inherit}
+.container{width:min(1120px,92%);margin:auto}
+header{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+.nav{height:76px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center}
+.logo img{width:145px;height:54px;object-fit:contain;object-position:left center;display:block}
+.back{padding:11px 18px;border:1px solid var(--border);border-radius:9px;font-size:14px;font-weight:700}
+.back:hover{border-color:var(--green);color:var(--green-dark)}
+.hero{padding:65px 0 38px;background:linear-gradient(180deg,#fff 0%,#f4faf3 100%);text-align:center}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--green-dark);font-weight:800}
+h1{font-size:42px;color:var(--dark);margin:10px 0 12px}
+.hero p{max-width:680px;margin:auto;color:#687269}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:30px;margin:0 0 24px}
+.card h2{margin:0 0 20px;color:var(--dark);font-size:23px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;font-weight:700;color:#3e493f}
+input,select,textarea{width:100%;border:1px solid #d4ddd5;border-radius:9px;padding:12px 13px;font:inherit;background:#fff;color:#263028;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(79,157,77,.10)}
+textarea{min-height:100px;resize:vertical}
+.items-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.btn{border:0;border-radius:9px;padding:12px 17px;font-weight:800;cursor:pointer;font:inherit}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-dark)}
+.btn-outline{background:#fff;border:1px solid var(--border);color:var(--dark)}
+.item{border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:13px;background:#fbfdfb}
+.item-grid{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:end}
+.remove{background:#fff;border:1px solid #e1cfcf;color:#a14b4b;border-radius:8px;padding:11px 12px;cursor:pointer;font-weight:700}
+.item-total{font-size:14px;color:#59635b;padding:11px 0;font-weight:700}
+.summary{display:flex;justify-content:flex-end;align-items:center;gap:18px;border-top:1px solid var(--border);padding-top:20px;margin-top:20px}
+.total-label{font-size:14px;color:#657066}
+.total{font-size:28px;font-weight:900;color:var(--green-dark)}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.notice{font-size:12px;color:#707a72;margin-top:15px}
+.hidden{display:none!important}
+.form-status{margin-top:14px;padding:12px;border-radius:9px;font-size:14px;display:none}
+.success{background:#eef8ed;color:#2e6d32;display:block}
+.error{background:#fff0f0;color:#9a3838;display:block}
+#formal{background:#fff}
+.formal-head{display:flex;justify-content:space-between;gap:20px;border-bottom:2px solid var(--green);padding-bottom:18px;margin-bottom:22px}
+.formal-head h2{margin:0;color:var(--dark)}
+.order-number{text-align:right;font-size:13px;color:#657066}
+.order-number strong{display:block;color:var(--green-dark);font-size:18px}
+.customer-box{background:#f6faf5;border:1px solid var(--border);border-radius:10px;padding:15px;margin-bottom:20px}
+.customer-box p{margin:4px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--border);padding:11px 8px;text-align:left}
+th{background:#f5f8f5;color:#354037}
+td:last-child,th:last-child{text-align:right}
+.formal-total{text-align:right;margin-top:18px;font-size:22px;font-weight:900;color:var(--green-dark)}
+.formal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.signature{display:grid;grid-template-columns:1fr 1fr;gap:50px;margin-top:55px}
+.sign{border-top:1px solid #89928a;text-align:center;padding-top:8px;font-size:12px;color:#697269}
+.disclaimer{font-size:11px;color:#788078;margin-top:28px;border-top:1px solid var(--border);padding-top:14px}
+footer{padding:30px 0;color:#849087;text-align:center;font-size:12px}
+@media(max-width:760px){
+  h1{font-size:32px}
+  .grid,.item-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .items-head,.formal-head{align-items:flex-start;flex-direction:column}
+  .order-number{text-align:left}
+  .summary{justify-content:space-between}
+  .signature{grid-template-columns:1fr;gap:35px}
+}
+@media print{
+  body{background:#fff}
+  header,.hero,#dados,#produtos-form,#observacoes,.main-actions,footer,.formal-actions,.print-hide{display:none!important}
+  .container{width:100%}
+  .card{box-shadow:none;border:0;padding:0;margin:0}
+  #formal{display:block!important}
+  .disclaimer{margin-top:25px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="logo" href="https://www.prplasticos.com.br/">
+      <img src="https://www.image2url.com/r2/default/images/1789854344121-6c0f80c5-7bb9-4232-9b57-cb34264c37dc.png" alt="PR Plásticos Recicláveis">
+    </a>
+    <a class="back" href="https://www.prplasticos.com.br/">Voltar ao site</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">PR Plásticos Recicláveis</span>
+    <h1>Solicite seu orçamento</h1>
+    <p>Selecione os materiais, informe as quantidades e gere seu pedido formal de orçamento.</p>
+  </div>
+</section>
+
+<main class="container" style="padding:30px 0 60px">
+
+  <section class="card" id="dados">
+    <h2>1. Dados do cliente</h2>
+    <div class="grid">
+      <div class="field">
+        <label for="nome">Nome / Responsável *</label>
+        <input id="nome" required placeholder="Nome do responsável">
+      </div>
+      <div class="field">
+        <label for="empresa">Empresa *</label>
+        <input id="empresa" required placeholder="Nome da empresa">
+      </div>
+      <div class="field">
+        <label for="cnpj">CNPJ</label>
+        <input id="cnpj" placeholder="00.000.000/0000-00">
+      </div>
+      <div class="field">
+        <label for="email">E-mail *</label>
+        <input id="email" type="email" required placeholder="cliente@empresa.com.br">
+      </div>
+      <div class="field">
+        <label for="telefone">Telefone / WhatsApp *</label>
+        <input id="telefone" required placeholder="(00) 00000-0000">
+      </div>
+      <div class="field">
+        <label for="cidade">Cidade / UF</label>
+        <input id="cidade" placeholder="Cidade - Estado">
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="produtos-form">
+    <div class="items-head">
+      <h2 style="margin:0">2. Produtos e quantidades</h2>
+      <button type="button" class="btn btn-green" onclick="adicionarItem()">+ Adicionar produto</button>
+    </div>
+    <div id="items"></div>
+    <div class="summary">
+      <span class="total-label">Total estimado</span>
+      <span class="total" id="totalGeral">R$ 0,00</span>
+    </div>
+    <p class="notice">Os valores apresentados são referenciais. Disponibilidade, impostos, frete, prazo e condições comerciais deverão ser confirmados pela PR Plásticos.</p>
+  </section>
+
+  <section class="card" id="observacoes">
+    <h2>3. Observações</h2>
+    <textarea id="observacoesTexto" placeholder="Informe cor, aplicação, prazo desejado, especificação técnica ou outras informações importantes."></textarea>
+  </section>
+
+  <div class="main-actions" style="margin-bottom:24px">
+    <button type="button" class="btn btn-green" onclick="gerarPedido()">Gerar pedido formal</button>
+  </div>
+
+  <div id="status" class="form-status"></div>
+
+  <section class="card hidden" id="formal">
+    <div class="formal-head">
+      <div>
+        <span class="eyebrow">Pedido formal de orçamento</span>
+        <h2>PR Plásticos Recicláveis</h2>
+      </div>
+      <div class="order-number">
+        <span>Número do orçamento</span>
+        <strong id="numeroPedido"></strong>
+        <span id="dataPedido"></span>
+      </div>
+    </div>
+
+    <div class="customer-box" id="clienteFormal"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Especificação</th>
+          <th>Quantidade</th>
+          <th>Preço/kg</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaFormal"></tbody>
+    </table>
+
+    <div class="formal-total">Total estimado: <span id="totalFormal"></span></div>
+
+    <div style="margin-top:22px">
+      <strong>Observações</strong>
+      <p id="observacoesFormal" style="white-space:pre-wrap"></p>
+    </div>
+
+    <div class="formal-actions">
+      <button type="button" class="btn btn-green" onclick="window.print()">Imprimir / Salvar em PDF</button>
+      <button type="button" class="btn btn-outline" onclick="enviarWhatsApp()">Enviar pelo WhatsApp</button>
+      <button type="button" class="btn btn-outline" onclick="voltarEdicao()">Voltar para edição</button>
+    </div>
+
+    <div class="disclaimer">
+      Este documento representa uma solicitação de orçamento e não constitui confirmação definitiva de venda.
+      Valores, disponibilidade, prazo de entrega, impostos, frete e condições comerciais deverão ser confirmados
+      pela PR Plásticos Recicláveis antes do faturamento.
+    </div>
+
+    <div class="signature">
+      <div class="sign">PR Plásticos Recicláveis</div>
+      <div class="sign">Cliente / Responsável</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  PR Plásticos Recicláveis • www.prplasticos.com.br • comercial@prplasticos.com.br • (41) 99138-7782
+</footer>
+
+<!-- Formspree: endpoint exclusivo dos orçamentos -->
+<form id="emailForm" action="https://formspree.io/f/xljggjbn" method="POST" class="hidden">
+  <input type="hidden" name="_subject" id="emailSubject">
+  <input type="hidden" name="nome" id="emailNome">
+  <input type="hidden" name="empresa" id="emailEmpresa">
+  <input type="hidden" name="cnpj" id="emailCnpj">
+  <input type="hidden" name="email" id="emailCliente">
+  <input type="hidden" name="telefone" id="emailTelefone">
+  <input type="hidden" name="cidade" id="emailCidade">
+  <input type="hidden" name="pedido_numero" id="emailPedido">
+  <input type="hidden" name="data" id="emailData">
+  <input type="hidden" name="itens" id="emailItens">
+  <input type="hidden" name="total" id="emailTotal">
+  <input type="hidden" name="observacoes" id="emailObservacoes">
+  <input type="hidden" name="_replyto" id="emailReplyTo">
+</form>
+
+<script>
+/*
+=========================================================
+TABELA DE PREÇOS
+Altere os valores abaixo quando quiser.
+=========================================================
+*/
+const tabelaProdutos = [
+  { nome: "PP Reciclado Preto", especificacao: "PP reciclado", preco: 5.30 },
+  { nome: "PP Reciclado Natural", especificacao: "PP reciclado", preco: 6.20 },
+  { nome: "PP Reciclado Colorido", especificacao: "PP reciclado", preco: 5.80 },
+  { nome: "PE Reciclado", especificacao: "PE reciclado", preco: 5.90 },
+  { nome: "PP Virgem", especificacao: "PP virgem", preco: 8.50 },
+  { nome: "PE Virgem", especificacao: "PE virgem", preco: 8.30 }
+];
+
+let itemCount = 0;
+let pedidoAtual = null;
+
+function dinheiro(v){
+  return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+function adicionarItem(){
+  itemCount++;
+  const id = itemCount;
+  const div = document.createElement("div");
+  div.className = "item";
+  div.id = "item-"+id;
+
+  const options = tabelaProdutos.map((p,i)=>
+    `<option value="${i}">${p.nome}</option>`
+  ).join("");
+
+  div.innerHTML = `
+    <div class="item-grid">
+      <div class="field">
+        <label>Produto</label>
+        <select id="produto-${id}" onchange="atualizarItem(${id})">
+          ${options}
+        </select>
+      </div>
+      <div class="field">
+        <label>Quantidade (kg)</label>
+        <input id="qtd-${id}" type="number" min="1" step="1" value="1000" oninput="atualizarItem(${id})">
+      </div>
+      <div class="field">
+        <label>Preço/kg</label>
+        <input id="preco-${id}" readonly>
+      </div>
+      <button type="button" class="remove" onclick="removerItem(${id})">Remover</button>
+    </div>
+    <div class="item-total" id="subtotal-${id}">Subtotal: R$ 0,00</div>
+  `;
+  document.getElementById("items").appendChild(div);
+  atualizarItem(id);
+}
+
+function atualizarItem(id){
+  const select = document.getElementById("produto-"+id);
+  const qtd = parseFloat(document.getElementById("qtd-"+id).value) || 0;
+  const produto = tabelaProdutos[parseInt(select.value)];
+
+  document.getElementById("preco-"+id).value = dinheiro(produto.preco);
+  document.getElementById("subtotal-"+id).textContent = "Subtotal: " + dinheiro(qtd * produto.preco);
+  calcularTotal();
+}
+
+function removerItem(id){
+  const el = document.getElementById("item-"+id);
+  if(el) el.remove();
+  calcularTotal();
+}
+
+function obterItens(){
+  return [...document.querySelectorAll(".item")].map(el=>{
+    const id = el.id.replace("item-","");
+    const produto = tabelaProdutos[parseInt(document.getElementById("produto-"+id).value)];
+    const quantidade = parseFloat(document.getElementById("qtd-"+id).value) || 0;
+    return {
+      nome:produto.nome,
+      especificacao:produto.especificacao,
+      quantidade,
+      preco:produto.preco,
+      total:quantidade*produto.preco
+    };
+  }).filter(i=>i.quantidade>0);
+}
+
+function calcularTotal(){
+  const total = obterItens().reduce((s,i)=>s+i.total,0);
+  document.getElementById("totalGeral").textContent = dinheiro(total);
+  return total;
+}
+
+function gerarNumero(){
+  const d = new Date();
+  const ano = d.getFullYear();
+  const mes = String(d.getMonth()+1).padStart(2,"0");
+  const dia = String(d.getDate()).padStart(2,"0");
+  const hora = String(d.getHours()).padStart(2,"0");
+  const min = String(d.getMinutes()).padStart(2,"0");
+  return `ORC-${ano}${mes}${dia}-${hora}${min}`;
+}
+
+function gerarPedido(){
+  const nome = document.getElementById("nome").value.trim();
+  const empresa = document.getElementById("empresa").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const telefone = document.getElementById("telefone").value.trim();
+
+  if(!nome || !empresa || !email || !telefone){
+    mostrarStatus("Preencha Nome, Empresa, E-mail e Telefone/WhatsApp.", "error");
+    return;
+  }
+
+  const itens = obterItens();
+  if(!itens.length){
+    mostrarStatus("Adicione pelo menos um produto com quantidade.", "error");
+    return;
+  }
+
+  const numero = gerarNumero();
+  const agora = new Date();
+  const data = agora.toLocaleString("pt-BR");
+  const total = itens.reduce((s,i)=>s+i.total,0);
+  const observacoes = document.getElementById("observacoesTexto").value.trim();
+
+  pedidoAtual = {
+    numero,
+    data,
+    nome,
+    empresa,
+    cnpj:document.getElementById("cnpj").value.trim(),
+    email,
+    telefone,
+    cidade:document.getElementById("cidade").value.trim(),
+    itens,
+    total,
+    observacoes
+  };
+
+  document.getElementById("numeroPedido").textContent = numero;
+  document.getElementById("dataPedido").textContent = data;
+
+  document.getElementById("clienteFormal").innerHTML = `
+    <p><strong>Responsável:</strong> ${esc(nome)}</p>
+    <p><strong>Empresa:</strong> ${esc(empresa)}</p>
+    ${pedidoAtual.cnpj ? `<p><strong>CNPJ:</strong> ${esc(pedidoAtual.cnpj)}</p>` : ""}
+    <p><strong>E-mail:</strong> ${esc(email)}</p>
+    <p><strong>Telefone:</strong> ${esc(telefone)}</p>
+    ${pedidoAtual.cidade ? `<p><strong>Cidade/UF:</strong> ${esc(pedidoAtual.cidade)}</p>` : ""}
+  `;
+
+  document.getElementById("tabelaFormal").innerHTML = itens.map(i=>`
+    <tr>
+      <td>${esc(i.nome)}</td>
+      <td>${esc(i.especificacao)}</td>
+      <td>${i.quantidade.toLocaleString("pt-BR")} kg</td>
+      <td>${dinheiro(i.preco)}</td>
+      <td>${dinheiro(i.total)}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("totalFormal").textContent = dinheiro(total);
+  document.getElementById("observacoesFormal").textContent = observacoes || "Nenhuma observação informada.";
+
+  preencherEmail(pedidoAtual);
+
+  document.getElementById("formal").classList.remove("hidden");
+  document.getElementById("formal").scrollIntoView({behavior:"smooth",block:"start"});
+
+  enviarEmail(pedidoAtual);
+}
+
+function preencherEmail(p){
+  document.getElementById("emailSubject").value = `Orçamento ${p.numero} - ${p.empresa} - PR Plásticos`;
+  document.getElementById("emailNome").value = p.nome;
+  document.getElementById("emailEmpresa").value = p.empresa;
+  document.getElementById("emailCnpj").value = p.cnpj;
+  document.getElementById("emailCliente").value = p.email;
+  document.getElementById("emailReplyTo").value = p.email;
+  document.getElementById("emailTelefone").value = p.telefone;
+  document.getElementById("emailCidade").value = p.cidade;
+  document.getElementById("emailPedido").value = p.numero;
+  document.getElementById("emailData").value = p.data;
+  document.getElementById("emailItens").value = p.itens.map(i =>
+    `${i.nome} | ${i.especificacao} | ${i.quantidade} kg | ${dinheiro(i.preco)}/kg | ${dinheiro(i.total)}`
+  ).join("\n");
+  document.getElementById("emailTotal").value = dinheiro(p.total);
+  document.getElementById("emailObservacoes").value = p.observacoes || "Nenhuma observação informada.";
+}
+
+async function enviarEmail(p){
+  const form = document.getElementById("emailForm");
+  const data = new FormData(form);
+
+  mostrarStatus("Enviando o orçamento para a PR Plásticos...", "success");
+
+  try{
+    const response = await fetch(form.action,{
+      method:"POST",
+      body:data,
+      headers:{Accept:"application/json"}
+    });
+
+    if(response.ok){
+      mostrarStatus("Orçamento gerado e enviado com sucesso. A PR Plásticos receberá os dados e o cliente poderá receber a cópia conforme a configuração do Formspree.", "success");
+    }else{
+      mostrarStatus("O orçamento foi gerado na tela, mas houve um problema no envio automático por e-mail. Você ainda pode imprimir, salvar em PDF ou enviar pelo WhatsApp.", "error");
+    }
+  }catch(e){
+    mostrarStatus("O orçamento foi gerado na tela, mas não foi possível concluir o envio automático. Você ainda pode imprimir, salvar em PDF ou enviar pelo WhatsApp.", "error");
+  }
+}
+
+function enviarWhatsApp(){
+  if(!pedidoAtual)return;
+
+  let texto =
+`Olá, PR Plásticos!
+
+Gostaria de encaminhar o orçamento ${pedidoAtual.numero}.
+
+Empresa: ${pedidoAtual.empresa}
+Responsável: ${pedidoAtual.nome}
+E-mail: ${pedidoAtual.email}
+Telefone: ${pedidoAtual.telefone}
+
+Produtos:
+`;
+
+  pedidoAtual.itens.forEach(i=>{
+    texto += `• ${i.nome} — ${i.quantidade.toLocaleString("pt-BR")} kg — ${dinheiro(i.preco)}/kg — ${dinheiro(i.total)}\n`;
+  });
+
+  texto += `\nTotal estimado: ${dinheiro(pedidoAtual.total)}`;
+
+  if(pedidoAtual.observacoes){
+    texto += `\n\nObservações: ${pedidoAtual.observacoes}`;
+  }
+
+  window.open("https://wa.me/5541991387782?text="+encodeURIComponent(texto),"_blank");
+}
+
+function voltarEdicao(){
+  document.getElementById("formal").classList.add("hidden");
+  document.getElementById("dados").scrollIntoView({behavior:"smooth"});
+}
+
+function mostrarStatus(msg,tipo){
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = "form-status "+tipo;
+}
+
+function esc(v){
+  return String(v).replace(/[&<>"']/g,m=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+
+adicionarItem();
+</script>
+
+</body>
+</html>
