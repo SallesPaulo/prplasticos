@@ -1225,20 +1225,14 @@
     abrirSecao(id, botaoEncontrado);
   }
 
-
-function criarCampanha(event) {
+    function criarCampanha(event) {
   event.preventDefault();
 
-  const nome = document.getElementById("campanhaNome").value;
-  const assunto = document.getElementById("campanhaAssunto").value;
-  const lista = document.getElementById("campanhaLista").value;
-  const mensagem = document.getElementById("campanhaMensagem").value;
-
   const campanha = {
-    nome,
-    assunto,
-    lista,
-    mensagem,
+    nome: document.getElementById("campanhaNome").value,
+    assunto: document.getElementById("campanhaAssunto").value,
+    lista: document.getElementById("campanhaLista").value,
+    mensagem: document.getElementById("campanhaMensagem").value,
     data: new Date().toLocaleString("pt-BR")
   };
 
@@ -1248,10 +1242,39 @@ function criarCampanha(event) {
 
   localStorage.setItem("campanhasPR", JSON.stringify(campanhas));
 
+  mostrarCampanhas();
+
   alert("Campanha salva com sucesso!");
 
   document.querySelector(".campaign-form").reset();
 }
+
+
+function mostrarCampanhas() {
+  const area = document.getElementById("listaCampanhas");
+
+  if (!area) return;
+
+  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+
+  if (campanhas.length === 0) {
+    area.innerHTML = "<p>Nenhuma campanha criada.</p>";
+    return;
+  }
+
+  area.innerHTML = campanhas.map((campanha, index) => `
+    <div class="panel-box" style="margin-bottom: 15px;">
+      <h3>${campanha.nome}</h3>
+      <p><strong>Assunto:</strong> ${campanha.assunto}</p>
+      <p><strong>Lista:</strong> ${campanha.lista}</p>
+      <p><strong>Data:</strong> ${campanha.data}</p>
+      <button class="primary-button" onclick="alert(${JSON.stringify(campanha.mensagem)})">
+        Ver mensagem
+      </button>
+    </div>
+  `).join("");
+}
+
 
   // ==========================================
   // INICIALIZAÇÃO
