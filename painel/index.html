@@ -1249,7 +1249,9 @@
   document.querySelector(".campaign-form").reset();
 }
 
-
+function mostrarMensagem(mensagem) {
+  alert(mensagem);
+}
 function mostrarCampanhas() {
   const area = document.getElementById("listaCampanhas");
 
@@ -1268,9 +1270,10 @@ function mostrarCampanhas() {
       <p><strong>Assunto:</strong> ${campanha.assunto}</p>
       <p><strong>Lista:</strong> ${campanha.lista}</p>
       <p><strong>Data:</strong> ${campanha.data}</p>
-      <button class="primary-button" onclick="alert(${JSON.stringify(campanha.mensagem)})">
-        Ver mensagem
-      </button>
+      <button class="primary-button" onclick="mostrarMensagem(${JSON.stringify(campanha.mensagem)})">
+  Ver mensagem
+</button>
+     
     </div>
   `).join("");
 }
