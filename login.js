@@ -20,11 +20,12 @@ module.exports = async (req, res) => {
 
     const emailCorreto = process.env.PAINEL_EMAIL;
     const senhaCorreta = process.env.PAINEL_SENHA;
+    const segredo = process.env["SEGREDO DO PAINEL"];
 
-    if (!emailCorreto || !senhaCorreta) {
+    if (!emailCorreto || !senhaCorreta || !segredo) {
       return res.status(500).json({
         sucesso: false,
-        erro: "Login não configurado no servidor."
+        erro: "Login não configurado corretamente no servidor."
       });
     }
 
@@ -37,7 +38,7 @@ module.exports = async (req, res) => {
 
     const token = crypto
       .createHash("sha256")
-      .update(email + senha + process.env.SEGREDO_DO_PAINEL)
+      .update(email + senha + segredo)
       .digest("hex");
 
     res.setHeader(
