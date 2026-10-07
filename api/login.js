@@ -23,7 +23,7 @@ function obterCookie(req, nome) {
     item.substring(nome.length + 1)
   );
 }
-
+ 
 function criarCookieLogin(token) {
   return [
     `painel_token=${encodeURIComponent(token)}`,
