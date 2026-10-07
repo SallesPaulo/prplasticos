@@ -756,7 +756,7 @@
                 + Criar campanha
               </button>
               
-              <div id="listaCampanhas" style="margin-top: 25px;"></div>
+              
               
               <button
                 class="secondary-button"
@@ -855,7 +855,7 @@
             >
               + Nova campanha
             </button>
-
+<div id="listaCampanhas" style="margin-top: 25px;"></div>
           </div>
 
         </section>
@@ -978,7 +978,7 @@
             </form>
 
           </div>
-
+<div id="listaCampanhas" style="margin-top: 25px;"></div>
         </section>
 
 
@@ -1289,7 +1289,10 @@ function mostrarCampanhas() {
     if (formulario) {
       formulario.addEventListener("submit", entrar);
     }
-
+if (id === "campanhas") {
+  mostrarCampanhas();
+}
+    
     verificarSessao();
   });
 
