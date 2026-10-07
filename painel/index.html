@@ -1270,7 +1270,8 @@ function mostrarCampanhas() {
       <p><strong>Assunto:</strong> ${campanha.assunto}</p>
       <p><strong>Lista:</strong> ${campanha.lista}</p>
       <p><strong>Data:</strong> ${campanha.data}</p>
-      <button class="primary-button" onclick="mostrarMensagem(${JSON.stringify(campanha.mensagem)})">
+
+      <button class="primary-button" onclick="mostrarMensagem(decodeURIComponent(this.dataset.mensagem))" data-mensagem="${encodeURIComponent(campanha.mensagem)}">
   Ver mensagem
 </button>
      
