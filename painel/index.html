@@ -820,7 +820,7 @@
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody id="tabelaClientes">
 
                   <tr>
                     <td colspan="5" style="text-align:center;color:#777;">
@@ -1288,7 +1288,34 @@
 
   alert("Cliente cadastrado com sucesso!");
 }
-    
+    function mostrarClientes() {
+  const tabela = document.getElementById("tabelaClientes");
+
+  if (!tabela) return;
+
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  if (clientes.length === 0) {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center;color:#777;">
+          Nenhum cliente cadastrado.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tabela.innerHTML = clientes.map(cliente => `
+    <tr>
+      <td>${cliente.nome}</td>
+      <td>${cliente.empresa}</td>
+      <td>${cliente.email}</td>
+      <td>${cliente.telefone}</td>
+      <td>${cliente.status}</td>
+    </tr>
+  `).join("");
+}
 function mostrarMensagem(mensagem) {
   alert(mensagem);
 }
@@ -1452,6 +1479,7 @@ async function enviarTeste() {
   document.addEventListener("DOMContentLoaded", function () {
 
     mostrarCampanhas();
+    mostrarClientes();
 
     const formulario = document.getElementById("loginForm");
 
