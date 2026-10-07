@@ -1499,9 +1499,11 @@ async function enviarTeste() {
         .split(/\r?\n/)
         .filter(linha => linha.trim() !== "");
 
-      const cabecalho = linhas[0].split(",").map(item =>
-        item.trim().toLowerCase()
-      );
+      const separador = linhas[0].includes(";") ? ";" : ",";
+
+const cabecalho = linhas[0].split(separador).map(item =>
+  item.trim().toLowerCase()
+);
 
       dados = linhas.slice(1).map(linha => {
         const valores = linha.split(",");
