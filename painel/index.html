@@ -1251,31 +1251,129 @@
     abrirSecao(id, botaoEncontrado);
   }
 
-    function criarCampanha(event) {
+async function criarCampanha(event) {
   event.preventDefault();
 
-  const campanha = {
-    nome: document.getElementById("campanhaNome").value,
-    assunto: document.getElementById("campanhaAssunto").value,
-    lista: document.getElementById("campanhaLista").value,
-    mensagem: document.getElementById("campanhaMensagem").value,
-    data: new Date().toLocaleString("pt-BR")
-  };
+  const nome = document.getElementById("campanhaNome").value;
+  const assunto = document.getElementById("campanhaAssunto").value;
+  const lista = document.getElementById("campanhaLista").value;
+  const mensagem = document.getElementById("campanhaMensagem").value;
+  const arquivo = document.getElementById("campanhaImagem")?.files[0];
 
-  let campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
 
-  campanhas.push(campanha);
+  let destinatarios = clientes;
 
-  localStorage.setItem("campanhasPR", JSON.stringify(campanhas));
+  if (lista === "ativos") {
+    destinatarios = clientes.filter(cliente => cliente.status === "Ativo");
+  }
 
-  mostrarCampanhas();
+  if (destinatarios.length === 0) {
+    alert("Nenhum cliente encontrado para esta campanha.");
+    return;
+  }
 
-  alert("Campanha salva com sucesso!");
+  if (!confirm(
+    "A campanha será enviada para " +
+    destinatarios.length +
+    " cliente(s). Deseja continuar?"
+  )) {
+    return;
+  }
 
-  document.querySelector(".campaign-form").reset();
+  try {
+    let imagem = null;
+    let imagemNome = null;
+
+    if (arquivo) {
+      imagemNome = arquivo.name;
+
+      imagem = await new Promise((resolve, reject) => {
+        const leitor = new FileReader();
+
+        leitor.onload = () => {
+          resolve(leitor.result.split(",")[1]);
+        };
+
+        leitor.onerror = reject;
+
+        leitor.readAsDataURL(arquivo);
+      });
+    }
+
+    let mensagemFinal = mensagem;
+
+    if (imagem) {
+      mensagemFinal = `
+        <div>
+          ${mensagem}
+          <br><br>
+          <img src="cid:imagem-campanha"
+               style="max-width:100%;height:auto;">
+        </div>
+      `;
+    }
+
+    let enviados = 0;
+
+    for (const cliente of destinatarios) {
+      const resposta = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          destinatario: cliente.email,
+          assunto: assunto,
+          mensagem: mensagemFinal,
+          imagem: imagem,
+          imagemNome: imagemNome
+        })
+      });
+
+      const resultado = await resposta.json();
+
+      if (resposta.ok && resultado.sucesso) {
+        enviados++;
+      }
+    }
+
+    const campanha = {
+      nome: nome,
+      assunto: assunto,
+      lista: lista,
+      mensagem: mensagem,
+      data: new Date().toLocaleString("pt-BR"),
+      enviados: enviados
+    };
+
+    let campanhas =
+      JSON.parse(localStorage.getItem("campanhasPR")) || [];
+
+    campanhas.push(campanha);
+
+    localStorage.setItem(
+      "campanhasPR",
+      JSON.stringify(campanhas)
+    );
+
+    mostrarCampanhas();
+
+    alert(
+      "Campanha enviada com sucesso para " +
+      enviados +
+      " cliente(s)!"
+    );
+
+    document.querySelector(".campaign-form").reset();
+
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao enviar a campanha.");
+  }
 }
-
-    function adicionarCliente() {
+    
+     function adicionarCliente() {
   const nome = prompt("Nome do cliente:");
   if (!nome) return;
 
