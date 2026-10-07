@@ -1228,8 +1228,27 @@ function criarCampanha(event) {
   event.preventDefault();
 
   const nome = document.getElementById("campanhaNome").value;
+  const assunto = document.getElementById("campanhaAssunto").value;
+  const lista = document.getElementById("campanhaLista").value;
+  const mensagem = document.getElementById("campanhaMensagem").value;
 
-  alert("Campanha criada: " + nome);
+  const campanha = {
+    nome,
+    assunto,
+    lista,
+    mensagem,
+    data: new Date().toLocaleString("pt-BR")
+  };
+
+  let campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+
+  campanhas.push(campanha);
+
+  localStorage.setItem("campanhasPR", JSON.stringify(campanhas));
+
+  alert("Campanha salva com sucesso!");
+
+  document.querySelector(".campaign-form").reset();
 }
 
   // ==========================================
