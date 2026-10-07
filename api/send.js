@@ -34,14 +34,14 @@ module.exports = async (req, res) => {
     };
 
     if (imagem) {
-     email.attachments = [
-  {
-    filename: imagemNome || "imagem-campanha.png",
-    content: imagem,
-    content_id: "imagem-campanha",
-    content_type: "image/png"
-  }
-];
+      email.attachments = [
+        {
+          filename: imagemNome || "imagem-campanha.png",
+          content: imagem,
+          contentId: "imagem-campanha"
+        }
+      ];
+    }
 
     const resultado = await resend.emails.send(email);
 
@@ -50,9 +50,7 @@ module.exports = async (req, res) => {
       resultado
     });
 
-    }
-    
-  catch (erro) {
+  } catch (erro) {
     console.error(erro);
 
     return res.status(500).json({
