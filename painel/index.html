@@ -1506,7 +1506,7 @@ const cabecalho = linhas[0].split(separador).map(item =>
 );
 
       dados = linhas.slice(1).map(linha => {
-        const valores = linha.split(",");
+        const valores = linha.split(separador);
 
         return {
           nome: valores[cabecalho.indexOf("nome")] || "",
