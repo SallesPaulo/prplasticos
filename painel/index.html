@@ -788,9 +788,13 @@
 
             <div class="button-row">
 
-              <button class="primary-button">
-                + Adicionar cliente
-              </button>
+              <button
+                class="primary-button"
+                onclick="adicionarCliente()"
+                    >
+                    + Adicionar cliente
+                  </button>
+                
 
               <button class="secondary-button">
                 📥 Importar CSV
@@ -1258,6 +1262,33 @@
   document.querySelector(".campaign-form").reset();
 }
 
+    function adicionarCliente() {
+  const nome = prompt("Nome do cliente:");
+  if (!nome) return;
+
+  const empresa = prompt("Empresa:");
+  if (!empresa) return;
+
+  const email = prompt("E-mail:");
+  if (!email) return;
+
+  const telefone = prompt("Telefone:");
+
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  clientes.push({
+    nome: nome,
+    empresa: empresa,
+    email: email,
+    telefone: telefone || "",
+    status: "Ativo"
+  });
+
+  localStorage.setItem("clientesPR", JSON.stringify(clientes));
+
+  alert("Cliente cadastrado com sucesso!");
+}
+    
 function mostrarMensagem(mensagem) {
   alert(mensagem);
 }
