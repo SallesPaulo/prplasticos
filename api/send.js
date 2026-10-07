@@ -34,14 +34,14 @@ module.exports = async (req, res) => {
     };
 
     if (imagem) {
-      email.attachments = [
-        {
-          filename: imagemNome || "imagem-campanha.png",
-          content: imagem,
-          content_id: "imagem-campanha"
-        }
-      ];
-    }
+     email.attachments = [
+  {
+    filename: imagemNome || "imagem-campanha.png",
+    content: imagem,
+    content_id: "imagem-campanha",
+    content_type: "image/png"
+  }
+];
 
     const resultado = await resend.emails.send(email);
 
