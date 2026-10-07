@@ -1083,45 +1083,156 @@ alt="PR Plásticos Recicláveis">
       Na próxima etapa vamos proteger o painel
       através do backend da Vercel.
     */
+async function verificarSessao() {
+  try {
+    const resposta = await fetch("/api/verificar-sessao", {
+      method: "GET",
+      credentials: "include"
+    });
 
-    function entrar(event) {
+    if (resposta.ok) {
+      mostrarPainel();
+    } else {
+      mostrarLogin();
+    }
 
-      event.preventDefault();
+  } catch (erro) {
+    console.error("Erro ao verificar sessão:", erro);
+    mostrarLogin();
+  }
+}
+    
+    function mostrarPainel() {
 
-      const email =
-        document.getElementById("loginEmail").value.trim();
+  document.getElementById("loginScreen").style.display = "none";
 
-      const senha =
-        document.getElementById("loginSenha").value.trim();
+  document.getElementById("panelScreen").style.display = "block";
 
-      const erro =
-        document.getElementById("loginError");
+  document.getElementById("loginError").style.display = "none";
+}
 
-      /*
-        Temporariamente qualquer preenchimento
-        abre o painel.
 
-        A autenticação verdadeira será feita
-        no servidor.
-      */
+function mostrarLogin() {
 
-      if (email && senha) {
+  document.getElementById("panelScreen").style.display = "none";
 
-        document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("loginScreen").style.display = "flex";
+}
 
-        document.getElementById("panelScreen").style.display = "block";
 
-        erro.style.display = "none";
+async function entrar(event) {
 
-      } else {
+  event.preventDefault();
 
-        erro.style.display = "block";
+  const email =
+    document.getElementById("loginEmail").value.trim();
 
-      }
+  const senha =
+    document.getElementById("loginSenha").value;
 
+  const erro =
+    document.getElementById("loginError");
+
+  const botao =
+    document.querySelector(".login-button");
+
+
+  erro.style.display = "none";
+
+  botao.disabled = true;
+
+  botao.textContent = "ENTRANDO...";
+
+
+  try {
+
+    const resposta = await fetch("/api/login", {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      credentials: "same-origin",
+
+      body: JSON.stringify({
+        email: email,
+        senha: senha
+      })
+
+    });
+
+
+    const dados = await resposta.json();
+
+
+    if (!resposta.ok || !dados.sucesso) {
+
+      erro.textContent =
+        dados.erro || "E-mail ou senha incorretos.";
+
+      erro.style.display = "block";
+
+      return;
     }
 
 
+    document.getElementById("loginEmail").value = "";
+
+    document.getElementById("loginSenha").value = "";
+
+    mostrarPainel();
+
+
+  } catch (erroInterno) {
+
+    console.error(erroInterno);
+
+    erro.textContent =
+      "Não foi possível conectar ao servidor. Tente novamente.";
+
+    erro.style.display = "block";
+
+
+  } finally {
+
+    botao.disabled = false;
+
+    botao.textContent = "ENTRAR NO PAINEL";
+
+  }
+
+}
+
+
+async function sair() {
+
+  try {
+
+    await fetch("/api/login", {
+
+      method: "DELETE",
+
+      credentials: "same-origin"
+
+    });
+
+  } catch (erro) {
+
+    console.error(erro);
+
+  }
+
+
+  mostrarLogin();
+
+
+  document.getElementById("loginEmail").value = "";
+
+  document.getElementById("loginSenha").value = "";
+
+}
     function sair() {
 
       document.getElementById("panelScreen").style.display = "none";
@@ -1207,6 +1318,11 @@ alt="PR Plásticos Recicláveis">
 
     }
 
+    document.addEventListener(
+  "DOMContentLoaded",
+  verificarSessao
+);
+    
   </script>
 
 </body>
