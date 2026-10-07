@@ -511,7 +511,7 @@ alt="PR Plásticos Recicláveis">
         Painel administrativo
       </div>
 
-      <form onsubmit="entrar(event)">
+      <form id="loginForm">
 
         <div class="field">
           <label>E-mail</label>
@@ -1070,239 +1070,189 @@ alt="PR Plásticos Recicláveis">
 
   <script>
 
-    /*
-      ==========================================
-      LOGIN TEMPORÁRIO
-      ==========================================
+  // ==========================================
+  // AUTENTICAÇÃO DO PAINEL
+  // ==========================================
 
-      Nesta primeira versão o login é apenas
-      uma demonstração da interface.
+  async function verificarSessao() {
+    try {
+      const resposta = await fetch("/api/login", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store"
+      });
 
-      NÃO coloque uma senha real aqui.
+      if (resposta.ok) {
+        mostrarPainel();
+      } else {
+        mostrarLogin();
+      }
 
-      Na próxima etapa vamos proteger o painel
-      através do backend da Vercel.
-    */
-async function verificarSessao() {
-  try {
-    const resposta = await fetch("/api/verificar-sessao", {
-      method: "GET",
-      credentials: "include"
-    });
-
-    if (resposta.ok) {
-      mostrarPainel();
-    } else {
+    } catch (erro) {
+      console.error("Erro ao verificar sessão:", erro);
       mostrarLogin();
     }
+  }
 
-  } catch (erro) {
-    console.error("Erro ao verificar sessão:", erro);
+
+  function mostrarPainel() {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("panelScreen").style.display = "block";
+    document.getElementById("loginError").style.display = "none";
+  }
+
+
+  function mostrarLogin() {
+    document.getElementById("panelScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+  }
+
+
+  async function entrar(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const senha = document.getElementById("loginSenha").value;
+    const elementoErro = document.getElementById("loginError");
+    const botao = document.querySelector(".login-button");
+
+    elementoErro.style.display = "none";
+    botao.disabled = true;
+    botao.textContent = "ENTRANDO...";
+
+    try {
+      const resposta = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          senha: senha
+        })
+      });
+
+      let dados = {};
+
+      try {
+        dados = await resposta.json();
+      } catch (erroJson) {
+        dados = {};
+      }
+
+      if (!resposta.ok || !dados.sucesso) {
+        throw new Error(
+          dados.erro || "E-mail ou senha incorretos."
+        );
+      }
+
+      mostrarPainel();
+
+    } catch (erro) {
+      console.error("Erro no login:", erro);
+
+      elementoErro.textContent =
+        erro.message || "Não foi possível conectar ao servidor.";
+
+      elementoErro.style.display = "block";
+
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "ENTRAR NO PAINEL";
+    }
+  }
+
+
+  async function sair() {
+    try {
+      await fetch("/api/login", {
+        method: "DELETE",
+        credentials: "include",
+        cache: "no-store"
+      });
+    } catch (erro) {
+      console.error("Erro ao sair:", erro);
+    }
+
     mostrarLogin();
+
+    document.getElementById("loginEmail").value = "";
+    document.getElementById("loginSenha").value = "";
   }
-}
-    
-    function mostrarPainel() {
-
-  document.getElementById("loginScreen").style.display = "none";
-
-  document.getElementById("panelScreen").style.display = "block";
-
-  document.getElementById("loginError").style.display = "none";
-}
 
 
-function mostrarLogin() {
+  // ==========================================
+  // NAVEGAÇÃO DO PAINEL
+  // ==========================================
 
-  document.getElementById("panelScreen").style.display = "none";
-
-  document.getElementById("loginScreen").style.display = "flex";
-}
-
-window.entrar = async function entrar(event) {
-  event.preventDefault();
-
-  const email = document
-    .getElementById("loginEmail")
-    .value
-    .trim();
-
-  const senha = document
-    .getElementById("loginSenha")
-    .value;
-
-  const elementoErro = document.getElementById("loginError");
-  const botao = document.querySelector(".login-button");
-
-  elementoErro.style.display = "none";
-  botao.disabled = true;
-  botao.textContent = "ENTRANDO...";
-
-  try {
-    const resposta = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        email: email,
-        senha: senha
-      })
+  function abrirSecao(id, botao) {
+    document.querySelectorAll(".section").forEach(section => {
+      section.classList.remove("active");
     });
 
-    const dados = await resposta.json();
-
-    if (!resposta.ok || !dados.sucesso) {
-      throw new Error(
-        dados.erro || "E-mail ou senha incorretos."
-      );
-    }
-
-    await verificarSessao();
-
-  } catch (erro) {
-    console.error("Erro no login:", erro);
-
-    elementoErro.textContent =
-      erro.message || "Não foi possível conectar ao servidor.";
-
-    elementoErro.style.display = "block";
-
-    botao.disabled = false;
-    botao.textContent = "ENTRAR NO PAINEL";
-  }
-}
-
-  finally {
-
-    botao.disabled = false;
-
-    botao.textContent = "ENTRAR NO PAINEL";
-
-  }
-
-}
-
-
-async function sair() {
-
-  try {
-
-    await fetch("/api/login", {
-
-      method: "DELETE",
-
-      credentials: "same-origin"
-
+    document.querySelectorAll(".menu-button").forEach(button => {
+      button.classList.remove("active");
     });
 
-  } catch (erro) {
+    const secao = document.getElementById(id);
 
-    console.error(erro);
+    if (secao) {
+      secao.classList.add("active");
+    }
 
+    if (botao) {
+      botao.classList.add("active");
+    }
   }
 
 
-  mostrarLogin();
+  function abrirSecaoPorId(id) {
+    const botoes = document.querySelectorAll(".menu-button");
+    let botaoEncontrado = null;
 
+    botoes.forEach(botao => {
+      const onclick = botao.getAttribute("onclick") || "";
 
-  document.getElementById("loginEmail").value = "";
-
-  document.getElementById("loginSenha").value = "";
-
-}
-    function sair() {
-
-      document.getElementById("panelScreen").style.display = "none";
-
-      document.getElementById("loginScreen").style.display = "flex";
-
-      document.getElementById("loginEmail").value = "";
-
-      document.getElementById("loginSenha").value = "";
-
-    }
-
-
-    function abrirSecao(id, botao) {
-
-      document.querySelectorAll(".section").forEach(section => {
-
-        section.classList.remove("active");
-
-      });
-
-      document.querySelectorAll(".menu-button").forEach(button => {
-
-        button.classList.remove("active");
-
-      });
-
-      const secao =
-        document.getElementById(id);
-
-      if (secao) {
-
-        secao.classList.add("active");
-
+      if (onclick.includes("'" + id + "'")) {
+        botaoEncontrado = botao;
       }
+    });
 
-      if (botao) {
+    abrirSecao(id, botaoEncontrado);
+  }
 
-        botao.classList.add("active");
 
-      }
+  function criarCampanha(event) {
+    event.preventDefault();
 
+    const nome = document.getElementById("campanhaNome").value;
+
+    alert(
+      "Campanha criada: " +
+      nome +
+      "
+
+O envio pelo Resend será conectado na próxima etapa."
+    );
+  }
+
+
+  // ==========================================
+  // INICIALIZAÇÃO
+  // ==========================================
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const formulario = document.getElementById("loginForm");
+
+    if (formulario) {
+      formulario.addEventListener("submit", entrar);
     }
 
+    verificarSessao();
+  });
 
-    function abrirSecaoPorId(id) {
-
-      const botoes =
-        document.querySelectorAll(".menu-button");
-
-      let botaoEncontrado = null;
-
-      botoes.forEach(botao => {
-
-        if (
-          botao.getAttribute("onclick") &&
-          botao.getAttribute("onclick").includes("'" + id + "'")
-        ) {
-
-          botaoEncontrado = botao;
-
-        }
-
-      });
-
-      abrirSecao(id, botaoEncontrado);
-
-    }
-
-
-    function criarCampanha(event) {
-
-      event.preventDefault();
-
-      const nome =
-        document.getElementById("campanhaNome").value;
-
-      alert(
-        "Campanha criada: " +
-        nome +
-        "\n\nO envio pelo Resend será conectado na próxima etapa."
-      );
-
-    }
-
-    document.addEventListener(
-  "DOMContentLoaded",
-  verificarSessao
-);
-    
-  </script>
-
+</script>
 </body>
 </html>
