@@ -483,6 +483,8 @@
       }
     }
   </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  
 </head>
 
 <body>
@@ -1526,9 +1528,25 @@ const cabecalho = linhas[0].split(separador).map(item =>
         };
       });
 
-    } else if (extensao === "xlsx" || extensao === "xls") {
-      alert("A leitura de Excel será ativada na próxima etapa.");
-      return;
+      } else if (extensao === "xlsx" || extensao === "xls") {
+  const dadosArray = await arquivo.arrayBuffer();
+
+  const workbook = XLSX.read(dadosArray, {
+    type: "array"
+  });
+
+  const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
+
+  dados = XLSX.utils.sheet_to_json(primeiraAba, {
+    defval: ""
+  }).map(linha => ({
+    nome: linha.nome || linha.Nome || "",
+    empresa: linha.empresa || linha.Empresa || "",
+    email: linha.email || linha.Email || "",
+    telefone: linha.telefone || linha.Telefone || "",
+    status: linha.status || linha.Status || "Ativo"
+  }));
+    
     } else {
       alert("Formato não permitido. Use CSV ou Excel.");
       return;
