@@ -1119,83 +1119,62 @@ function mostrarLogin() {
   document.getElementById("loginScreen").style.display = "flex";
 }
 
-
 async function entrar(event) {
-
   event.preventDefault();
 
-  const email =
-    document.getElementById("loginEmail").value.trim();
+  const email = document
+    .getElementById("loginEmail")
+    .value
+    .trim();
 
-  const senha =
-    document.getElementById("loginSenha").value;
+  const senha = document
+    .getElementById("loginSenha")
+    .value;
 
-  const erro =
-    document.getElementById("loginError");
+  const elementoErro = document.getElementById("loginError");
+  const botao = document.querySelector(".login-button");
 
-  const botao =
-    document.querySelector(".login-button");
-
-
-  erro.style.display = "none";
-
+  elementoErro.style.display = "none";
   botao.disabled = true;
-
   botao.textContent = "ENTRANDO...";
 
-
   try {
-
     const resposta = await fetch("/api/login", {
-
       method: "POST",
-
       headers: {
         "Content-Type": "application/json"
       },
-
-      credentials: "same-origin",
-
+      credentials: "include",
       body: JSON.stringify({
         email: email,
         senha: senha
       })
-
     });
-
 
     const dados = await resposta.json();
 
-
     if (!resposta.ok || !dados.sucesso) {
-
-      erro.textContent =
-        dados.erro || "E-mail ou senha incorretos.";
-
-      erro.style.display = "block";
-
-      return;
+      throw new Error(
+        dados.erro || "E-mail ou senha incorretos."
+      );
     }
 
+    await verificarSessao();
 
-    document.getElementById("loginEmail").value = "";
+  } catch (erro) {
+    console.error("Erro no login:", erro);
 
-    document.getElementById("loginSenha").value = "";
+    elementoErro.textContent =
+      erro.message || "Não foi possível conectar ao servidor.";
 
-    mostrarPainel();
+    elementoErro.style.display = "block";
 
+    botao.disabled = false;
+    botao.textContent = "ENTRAR NO PAINEL";
+  }
+}
 
-  } catch (erroInterno) {
-
-    console.error(erroInterno);
-
-    erro.textContent =
-      "Não foi possível conectar ao servidor. Tente novamente.";
-
-    erro.style.display = "block";
-
-
-  } finally {
+  finally {
 
     botao.disabled = false;
 
