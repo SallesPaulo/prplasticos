@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
       resultado
     });
 
-    }; 
+    }
     
   catch (erro) {
     console.error(erro);
