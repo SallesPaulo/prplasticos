@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
 
     const token = crypto
       .createHash("sha256")
-      .update(email + senha + process.env.PAINEL_SECRET)
+      .update(email + senha + process.env.SEGREDO_DO_PAINEL)
       .digest("hex");
 
     res.setHeader(
