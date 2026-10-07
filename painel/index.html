@@ -795,10 +795,21 @@
                     + Adicionar cliente
                   </button>
                 
+              <input
+  type="file"
+  id="arquivoClientes"
+  accept=".csv,.xlsx,.xls"
+  style="display:none"
+  onchange="importarClientes(event)"
+>
 
-              <button class="secondary-button">
-                📥 Importar CSV
-              </button>
+<button
+  type="button"
+  class="secondary-button"
+  onclick="document.getElementById('arquivoClientes').click()"
+>
+  📥 Importar CSV / Excel
+</button>
 
             </div>
 
@@ -1470,6 +1481,68 @@ async function enviarTeste() {
     alert("Erro de conexão com o servidor.");
     console.error(erro);
   }
+}
+
+    async function importarClientes(event) {
+  const arquivo = event.target.files[0];
+
+  if (!arquivo) return;
+
+  try {
+    const extensao = arquivo.name.split(".").pop().toLowerCase();
+    let dados = [];
+
+    if (extensao === "csv") {
+      const texto = await arquivo.text();
+
+      const linhas = texto
+        .split(/\r?\n/)
+        .filter(linha => linha.trim() !== "");
+
+      const cabecalho = linhas[0].split(",").map(item =>
+        item.trim().toLowerCase()
+      );
+
+      dados = linhas.slice(1).map(linha => {
+        const valores = linha.split(",");
+
+        return {
+          nome: valores[cabecalho.indexOf("nome")] || "",
+          empresa: valores[cabecalho.indexOf("empresa")] || "",
+          email: valores[cabecalho.indexOf("email")] || "",
+          telefone: valores[cabecalho.indexOf("telefone")] || "",
+          status: valores[cabecalho.indexOf("status")] || "Ativo"
+        };
+      });
+
+    } else if (extensao === "xlsx" || extensao === "xls") {
+      alert("A leitura de Excel será ativada na próxima etapa.");
+      return;
+    } else {
+      alert("Formato não permitido. Use CSV ou Excel.");
+      return;
+    }
+
+    const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+    dados.forEach(cliente => {
+      if (cliente.email) {
+        clientes.push(cliente);
+      }
+    });
+
+    localStorage.setItem("clientesPR", JSON.stringify(clientes));
+
+    mostrarClientes();
+
+    alert(dados.length + " cliente(s) importado(s) com sucesso!");
+
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao importar o arquivo.");
+  }
+
+  event.target.value = "";
 }
     
   // ==========================================
