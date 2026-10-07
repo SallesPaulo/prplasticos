@@ -1119,7 +1119,7 @@ function mostrarLogin() {
   document.getElementById("loginScreen").style.display = "flex";
 }
 
-async function entrar(event) {
+window.entrar = async function entrar(event) {
   event.preventDefault();
 
   const email = document
