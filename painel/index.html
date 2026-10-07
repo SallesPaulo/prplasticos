@@ -1329,6 +1329,48 @@ function mostrarCampanhas() {
   janela.document.close();
 }
 
+async function enviarTeste() {
+  const assunto = document.getElementById("campanhaAssunto").value;
+  const mensagem = document.getElementById("campanhaMensagem").value;
+
+  if (!assunto || !mensagem) {
+    alert("Preencha o assunto e a mensagem primeiro.");
+    return;
+  }
+
+  const destinatario = prompt("Digite o e-mail que receberá o teste:");
+
+  if (!destinatario) {
+    return;
+  }
+
+  try {
+    const resposta = await fetch("/api/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        destinatario: destinatario,
+        assunto: assunto,
+        mensagem: mensagem
+      })
+    });
+
+    const resultado = await resposta.json();
+
+    if (resposta.ok && resultado.sucesso) {
+      alert("E-mail de teste enviado com sucesso!");
+    } else {
+      alert("Erro ao enviar: " + (resultado.erro || "Erro desconhecido."));
+    }
+
+  } catch (erro) {
+    alert("Erro de conexão com o servidor.");
+    console.error(erro);
+  }
+}
+    
   // ==========================================
   // INICIALIZAÇÃO
   // ==========================================
