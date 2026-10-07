@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 
     const emailCorreto = process.env.PAINEL_EMAIL;
     const senhaCorreta = process.env.PAINEL_SENHA;
-    const segredo = process.env["SEGREDO DO PAINEL"];
+    const segredo = process.env.SEGREDO_DO_PAINEL;
 
     if (!emailCorreto || !senhaCorreta || !segredo) {
       return res.status(500).json({
