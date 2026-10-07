@@ -953,7 +953,7 @@
                 <button
                   type="button"
                   class="secondary-button"
-                  onclick="alert('Pré-visualização será adicionada na próxima etapa.')"
+                  onclick="preVisualizarCampanha()"
                 >
                   👁 Pré-visualizar
                 </button>
@@ -961,7 +961,7 @@
                 <button
                   type="button"
                   class="secondary-button"
-                  onclick="alert('O envio de teste será conectado ao Resend na próxima etapa.')"
+                  onclick="enviarTeste()"
                 >
                   🧪 Enviar teste
                 </button>
@@ -1279,6 +1279,55 @@ function mostrarCampanhas() {
   `).join("");
 }
 
+    function preVisualizarCampanha() {
+  const assunto = document.getElementById("campanhaAssunto").value;
+  const mensagem = document.getElementById("campanhaMensagem").value;
+
+  if (!assunto || !mensagem) {
+    alert("Preencha o assunto e a mensagem primeiro.");
+    return;
+  }
+
+  const janela = window.open("", "_blank", "width=700,height=600");
+
+  janela.document.write(`
+    <html>
+      <head>
+        <title>Pré-visualização - PR Plásticos</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background: #f4f7fa;
+          }
+          .email {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+          }
+          h2 {
+            color: #064b82;
+          }
+          .mensagem {
+            white-space: pre-wrap;
+            margin-top: 25px;
+            line-height: 1.6;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email">
+          <h2>${assunto}</h2>
+          <div class="mensagem">${mensagem}</div>
+        </div>
+      </body>
+    </html>
+  `);
+
+  janela.document.close();
+}
 
   // ==========================================
   // INICIALIZAÇÃO
