@@ -1324,6 +1324,15 @@
       <td>${cliente.email}</td>
       <td>${cliente.telefone}</td>
       <td>${cliente.status}</td>
+<td>
+  <button
+    type="button"
+    class="secondary-button"
+    onclick="excluirCliente(${clientes.indexOf(cliente)})"
+  >
+    🗑️ Excluir
+  </button>
+</td>
     </tr>
   `).join("");
 }
@@ -1545,6 +1554,20 @@ const cabecalho = linhas[0].split(separador).map(item =>
   }
 
   event.target.value = "";
+}
+
+function excluirCliente(index) {
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  if (!confirm("Deseja realmente excluir este cliente?")) {
+    return;
+  }
+
+  clientes.splice(index, 1);
+
+  localStorage.setItem("clientesPR", JSON.stringify(clientes));
+
+  mostrarClientes();
 }
     
   // ==========================================
