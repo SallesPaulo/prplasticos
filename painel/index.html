@@ -2335,6 +2335,7 @@ document.addEventListener("DOMContentLoaded", function () {
   mostrarCampanhas();
   mostrarClientes();
   atualizarDashboardClientes();
+  desenharMapaClientesUF();
 
   // Clientes
   const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
@@ -2375,9 +2376,94 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-    
+    function desenharMapaClientesUF() {
+
+  const elemento = document.getElementById("mapaClientesUF");
+
+  if (!elemento) return;
+
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  const estados = {
+    "AC": "Acre",
+    "AL": "Alagoas",
+    "AP": "Amapá",
+    "AM": "Amazonas",
+    "BA": "Bahia",
+    "CE": "Ceará",
+    "DF": "Distrito Federal",
+    "ES": "Espírito Santo",
+    "GO": "Goiás",
+    "MA": "Maranhão",
+    "MT": "Mato Grosso",
+    "MS": "Mato Grosso do Sul",
+    "MG": "Minas Gerais",
+    "PA": "Pará",
+    "PB": "Paraíba",
+    "PR": "Paraná",
+    "PE": "Pernambuco",
+    "PI": "Piauí",
+    "RJ": "Rio de Janeiro",
+    "RN": "Rio Grande do Norte",
+    "RS": "Rio Grande do Sul",
+    "RO": "Rondônia",
+    "RR": "Roraima",
+    "SC": "Santa Catarina",
+    "SP": "São Paulo",
+    "SE": "Sergipe",
+    "TO": "Tocantins"
+  };
+
+  const contagem = {};
+
+  clientes.forEach(cliente => {
+    const uf = (cliente.uf || "").trim().toUpperCase();
+    if (estados[uf]) {
+      contagem[uf] = (contagem[uf] || 0) + 1;
+    }
+  });
+
+  google.charts.load("current", { packages: ["geochart"] });
+
+  google.charts.setOnLoadCallback(function () {
+
+    const dados = new google.visualization.DataTable();
+
+    dados.addColumn("string", "Estado");
+    dados.addColumn("number", "Clientes");
+
+    Object.keys(estados).forEach(uf => {
+      dados.addRow(["BR-" + uf, contagem[uf] || 0]);
+    });
+
+    const mapa = new google.visualization.GeoChart(elemento);
+
+    mapa.draw(dados, {
+      region: "BR",
+      resolution: "provinces",
+      displayMode: "regions",
+      colorAxis: {
+        colors: ["#dbeafe", "#0755a6"]
+      },
+      backgroundColor: "#ffffff",
+      datalessRegionColor: "#eeeeee",
+      legend: {
+        textStyle: { color: "#333333" }
+      },
+      tooltip: {
+        textStyle: { color: "#333333" }
+      }
+    });
+
+  });
+}
+
+     
+  
 </script>
 
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+  
+ 
 </body>
 </html>
