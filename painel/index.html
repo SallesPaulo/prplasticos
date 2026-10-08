@@ -677,9 +677,7 @@
                 Clientes cadastrados
               </div>
 
-              <div class="card-value">
-                0
-              </div>
+              <span id="totalCampanhas">0</span>
 
               <div class="card-detail">
                 Nenhum cliente ainda
@@ -692,9 +690,9 @@
                 Campanhas enviadas
               </div>
 
-              <div class="card-value">
+          <div class="card-value" id="totalCampanhas">
                 0
-              </div>
+            </div>
 
               <div class="card-detail">
                 Nenhuma campanha
@@ -1694,7 +1692,15 @@ function excluirCliente(index) {
 
     mostrarCampanhas();
     mostrarClientes();
+    
+const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
 
+const totalCampanhas = document.getElementById("totalCampanhas");
+
+if (totalCampanhas) {
+  totalCampanhas.textContent = campanhas.length;
+}
+    
     const formulario = document.getElementById("loginForm");
 
     if (formulario) {
