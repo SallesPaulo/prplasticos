@@ -2023,12 +2023,16 @@ async function enviarTeste() {
 
       const primeiraAba =
         workbook.Sheets[workbook.SheetNames[0]];
+      
+      console.log("NOME DA ABA:", workbook.SheetNames[0]);
+      console.log("PLANILHA:", primeiraAba);
 
       const linhas =
         XLSX.utils.sheet_to_json(primeiraAba, {
           defval: ""
         });
-
+       console.log("LINHAS LIDAS:", linhas);
+      
       dados = linhas.map(linha => {
 
         const normalizado = {};
