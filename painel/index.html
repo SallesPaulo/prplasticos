@@ -1693,6 +1693,19 @@ function excluirCliente(index) {
 
     mostrarCampanhas();
     mostrarClientes();
+const campanhasEmail = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+
+let totalEmailsEnviados = 0;
+
+campanhasEmail.forEach(campanha => {
+  totalEmailsEnviados += Number(campanha.enviados) || 0;
+});
+
+const totalEmails = document.getElementById("totalEmails");
+
+if (totalEmails) {
+  totalEmails.textContent = totalEmailsEnviados;
+}
     
 const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
 
