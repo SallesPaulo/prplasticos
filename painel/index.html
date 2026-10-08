@@ -757,7 +757,8 @@
               id="mapaClientesUF"
               style="
                 width:100%;
-                min-height:420px;
+                min-height:300px;
+                max-width:750px;
                 display:flex;
                 align-items:center;
                 justify-content:center;
@@ -2439,9 +2440,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const mapa = new google.visualization.GeoChart(elemento);
 
     mapa.draw(dados, {
+      width: "100%",
+      height: 300,
       region: "BR",
       resolution: "provinces",
       displayMode: "regions",
+      
       colorAxis: {
         colors: ["#dbeafe", "#0755a6"]
       },
