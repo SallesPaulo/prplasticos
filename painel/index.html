@@ -2377,111 +2377,75 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-    function desenharMapaClientesUF() {
-
+   
+function desenharMapaClientesUF() {
   const elemento = document.getElementById("mapaClientesUF");
-
   if (!elemento) return;
 
   const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
 
   const estados = {
-    "AC": "Acre",
-    "AL": "Alagoas",
-    "AP": "Amapá",
-    "AM": "Amazonas",
-    "BA": "Bahia",
-    "CE": "Ceará",
-    "DF": "Distrito Federal",
-    "ES": "Espírito Santo",
-    "GO": "Goiás",
-    "MA": "Maranhão",
-    "MT": "Mato Grosso",
-    "MS": "Mato Grosso do Sul",
-    "MG": "Minas Gerais",
-    "PA": "Pará",
-    "PB": "Paraíba",
-    "PR": "Paraná",
-    "PE": "Pernambuco",
-    "PI": "Piauí",
-    "RJ": "Rio de Janeiro",
-    "RN": "Rio Grande do Norte",
-    "RS": "Rio Grande do Sul",
-    "RO": "Rondônia",
-    "RR": "Roraima",
-    "SC": "Santa Catarina",
-    "SP": "São Paulo",
-    "SE": "Sergipe",
-    "TO": "Tocantins"
+    AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas",
+    BA: "Bahia", CE: "Ceará", DF: "Distrito Federal",
+    ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão",
+    MT: "Mato Grosso", MS: "Mato Grosso do Sul",
+    MG: "Minas Gerais", PA: "Pará", PB: "Paraíba",
+    PR: "Paraná", PE: "Pernambuco", PI: "Piauí",
+    RJ: "Rio de Janeiro", RN: "Rio Grande do Norte",
+    RS: "Rio Grande do Sul", RO: "Rondônia",
+    RR: "Roraima", SC: "Santa Catarina",
+    SP: "São Paulo", SE: "Sergipe", TO: "Tocantins"
   };
 
   const contagem = {};
 
-clientes.forEach(cliente => {
-  const uf = (cliente.uf || "").trim().toUpperCase();
+  clientes.forEach(cliente => {
+    const uf = (cliente.uf || "").trim().toUpperCase();
+    if (!estados[uf]) return;
 
-  if (!estados[uf]) return;
+    if (!contagem[uf]) contagem[uf] = { ativos: 0, inativos: 0 };
 
-  if (!contagem[uf]) {
-    contagem[uf] = {
-      ativos: 0,
-      inativos: 0
-    };
-  }
-
-  if ((cliente.status || "Ativo").toLowerCase() === "ativo") {
-    contagem[uf].ativos++;
-  } else {
-    contagem[uf].inativos++;
-  }
-});
+    if ((cliente.status || "Ativo").toLowerCase() === "ativo") {
+      contagem[uf].ativos++;
+    } else {
+      contagem[uf].inativos++;
+    }
+  });
 
   google.charts.load("current", { packages: ["geochart"] });
 
   google.charts.setOnLoadCallback(function () {
+    const dados = new google.visualization.DataTable();
+    dados.addColumn("string", "Estado");
+    dados.addColumn("number", "Total de clientes");
 
-   
-const dados = new google.visualization.DataTable();
+    Object.keys(estados).forEach(uf => {
+      const ativos = contagem[uf]?.ativos || 0;
+      const inativos = contagem[uf]?.inativos || 0;
 
-dados.addColumn("string", "Estado");
-dados.addColumn("number", "Clientes ativos");
-dados.addColumn({ type: "string", role: "tooltip" });
-dados.addColumn("number", "Clientes inativos");
-dados.addColumn({ type: "string", role: "tooltip" });
+      dados.addRow([
+        "BR-" + uf,
+        ativos + inativos
+      ]);
+    });
 
-Object.keys(estados).forEach(uf => {
-  const ativos = contagem[uf]?.ativos || 0;
-  const inativos = contagem[uf]?.inativos || 0;
+    const mapa = new google.visualization.GeoChart(elemento);
 
-  dados.addRow([
-    "BR-" + uf,
-    ativos,
-    estados[uf] + "\nAtivos: " + ativos,
-    inativos,
-    estados[uf] + "\nInativos: " + inativos
-  ]);
-});
-
-const mapa = new google.visualization.GeoChart(elemento);
-
-mapa.draw(dados, {
-  width: "100%",
-  height: 300,
-  region: "BR",
-  resolution: "provinces",
-  displayMode: "regions",
-  colorAxis: {
-    colors: ["#dbeafe", "#0755a6"]
-  },
-  backgroundColor: "#ffffff",
-  datalessRegionColor: "#eeeeee",
-  legend: {
-    textStyle: { color: "#333333" }
-  }
-});
-});
+    mapa.draw(dados, {
+      width: "100%",
+      height: 300,
+      region: "BR",
+      resolution: "provinces",
+      displayMode: "regions",
+      colorAxis: { colors: ["#dbeafe", "#0755a6"] },
+      backgroundColor: "#ffffff",
+      datalessRegionColor: "#eeeeee",
+      legend: { textStyle: { color: "#333333" } },
+      tooltip: { textStyle: { color: "#333333" } }
+    });
+  });
 }
-     
+  
   
 </script>
 
