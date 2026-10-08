@@ -1344,7 +1344,7 @@
 
 
   // ==========================================
-  // NAVEGAÇÃO DO PAINEL
+  // FUNÇÕES DO PAINEL 
   // ==========================================
 
   function abrirSecao(id, botao) {
@@ -1973,6 +1973,46 @@ function excluirCliente(index) {
   atualizarDashboardClientes();
 
   alert("Cliente excluído com sucesso!");
+}
+
+function editarCliente(index) {
+
+  const clientes =
+    JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  const cliente = clientes[index];
+
+  if (!cliente) return;
+
+  document.getElementById("formularioCliente").style.display = "block";
+
+  document.getElementById("clienteNome").value =
+    cliente.nome || "";
+
+  document.getElementById("clienteEmpresa").value =
+    cliente.empresa || "";
+
+  document.getElementById("clienteEmail").value =
+    cliente.email || "";
+
+  document.getElementById("clienteTelefone").value =
+    cliente.telefone || "";
+
+  document.getElementById("clienteCidade").value =
+    cliente.cidade || "";
+
+  document.getElementById("clienteUF").value =
+    cliente.uf || "";
+
+  document.getElementById("clienteStatus").value =
+    cliente.status || "Ativo";
+
+  document.getElementById("clienteObservacao").value =
+    cliente.observacao || "";
+
+  window.clienteEditando = index;
+
+  document.getElementById("clienteNome").focus();
 }
     
   // ==========================================
