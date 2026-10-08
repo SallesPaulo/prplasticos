@@ -2010,60 +2010,7 @@ async function enviarTeste() {
 
     let dados = [];
 
-    if (extensao === "csv") {
-
-      const texto = await arquivo.text();
-
-      const linhas = texto
-        .split(/\r?\n/)
-        .filter(linha => linha.trim() !== "");
-
-      const separador =
-        linhas[0].includes(";") ? ";" : ",";
-
-      const cabecalho =
-        linhas[0]
-          .split(separador)
-          .map(item => item.trim().toLowerCase());
-
-      dados = linhas.slice(1).map(linha => {
-
-        const valores = linha.split(separador);
-
-        return {
-
-          nome:
-            valores[cabecalho.indexOf("nome")] || "",
-
-          empresa:
-            valores[cabecalho.indexOf("empresa")] || "",
-
-          email:
-            valores[cabecalho.indexOf("email")] || "",
-
-          telefone:
-            valores[cabecalho.indexOf("telefone")] || "",
-
-          cidade:
-            valores[cabecalho.indexOf("cidade")] || "",
-
-          uf:
-            valores[cabecalho.indexOf("uf")] || "",
-
-          status:
-            valores[cabecalho.indexOf("status")] || "Ativo",
-
-          observacao:
-            valores[cabecalho.indexOf("observacao")] || ""
-
-        };
-
-      });
-
-    } else if (
-      extensao === "xlsx" ||
-      extensao === "xls"
-    ) {
+    if (extensao === "xlsx" || extensao === "xls") {
 
       const dadosArray =
         await arquivo.arrayBuffer();
@@ -2075,55 +2022,123 @@ async function enviarTeste() {
       const primeiraAba =
         workbook.Sheets[workbook.SheetNames[0]];
 
+      const linhas =
+        XLSX.utils.sheet_to_json(primeiraAba, {
+          defval: ""
+        });
+
+      dados = linhas.map(linha => {
+
+        const normalizado = {};
+
+        Object.keys(linha).forEach(chave => {
+
+          const chaveNormalizada =
+            chave
+              .toString()
+              .trim()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "");
+
+          normalizado[chaveNormalizada] =
+            linha[chave];
+
+        });
+
+        return {
+
+          nome:
+            normalizado.nome || "",
+
+          empresa:
+            normalizado.empresa || "",
+
+          email:
+            normalizado.email || "",
+
+          telefone:
+            normalizado.telefone || "",
+
+          cidade:
+            normalizado.cidade || "",
+
+          uf:
+            normalizado.uf || "",
+
+          status:
+            normalizado.status || "Ativo",
+
+          observacao:
+            normalizado.observacao || ""
+
+        };
+
+      });
+
+    } else if (extensao === "csv") {
+
+      const texto = await arquivo.text();
+
+      const linhas =
+        texto
+          .split(/\r?\n/)
+          .filter(linha => linha.trim() !== "");
+
+      const separador =
+        linhas[0].includes(";") ? ";" : ",";
+
+      const cabecalho =
+        linhas[0]
+          .split(separador)
+          .map(item =>
+            item
+              .trim()
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+          );
+
       dados =
-        XLSX.utils
-          .sheet_to_json(primeiraAba, {
-            defval: ""
-          })
-          .map(linha => ({
+        linhas.slice(1).map(linha => {
 
-            nome:
-              linha.nome ||
-              linha.Nome ||
-              "",
+          const valores =
+            linha.split(separador);
 
-            empresa:
-              linha.empresa ||
-              linha.Empresa ||
-              "",
+          const pegar = nome => {
 
-            email:
-              linha.email ||
-              linha.Email ||
-              "",
+            const indice =
+              cabecalho.indexOf(nome);
 
-            telefone:
-              linha.telefone ||
-              linha.Telefone ||
-              "",
+            return indice >= 0
+              ? valores[indice].trim()
+              : "";
 
-            cidade:
-              linha.cidade ||
-              linha.Cidade ||
-              "",
+          };
 
-            uf:
-              linha.uf ||
-              linha.UF ||
-              "",
+          return {
+
+            nome: pegar("nome"),
+
+            empresa: pegar("empresa"),
+
+            email: pegar("email"),
+
+            telefone: pegar("telefone"),
+
+            cidade: pegar("cidade"),
+
+            uf: pegar("uf"),
 
             status:
-              linha.status ||
-              linha.Status ||
-              "Ativo",
+              pegar("status") || "Ativo",
 
             observacao:
-              linha.observacao ||
-              linha.Observacao ||
-              linha["Observação"] ||
-              ""
+              pegar("observacao")
 
-          }));
+          };
+
+        });
 
     } else {
 
@@ -2143,11 +2158,19 @@ async function enviarTeste() {
 
     dados.forEach(cliente => {
 
-      if (cliente.email) {
+      if (
+        cliente.email &&
+        !clientes.some(
+          existente =>
+            existente.email.toLowerCase() ===
+            cliente.email.toLowerCase()
+        )
+      ) {
 
         clientes.push(cliente);
 
         importados++;
+
       }
 
     });
