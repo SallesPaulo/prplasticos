@@ -2325,13 +2325,16 @@ function editarCliente(index) {
   // INICIALIZAÇÃO
   // ==========================================
 
+
+  // ==========================================
+  // INICIALIZAÇÃO
+  // ==========================================
+
 document.addEventListener("DOMContentLoaded", function () {
 
   mostrarCampanhas();
   mostrarClientes();
-  
-  });
-  
+
   // Clientes
   const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
   const totalClientes = document.getElementById("totalClientes");
@@ -2361,14 +2364,17 @@ document.addEventListener("DOMContentLoaded", function () {
     totalEmails.textContent = emailsEnviados;
   }
 
+   if (id === "campanhas") {
+    mostrarCampanhas();
+  }
   const formulario = document.getElementById("loginForm");
 
   if (formulario) {
     formulario.addEventListener("submit", entrar);
   }
 
-
   verificarSessao();
+
 });
 
     
