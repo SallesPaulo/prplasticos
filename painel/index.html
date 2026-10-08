@@ -489,9 +489,16 @@
 
 <script>
 function atualizarDashboard() {
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
   const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
 
+  const totalEmails = campanhas.reduce((total, campanha) => {
+    return total + (Number(campanha.enviados) || 0);
+  }, 0);
+
+  document.getElementById("totalClientes").textContent = clientes.length;
   document.getElementById("totalCampanhas").textContent = campanhas.length;
+  document.getElementById("totalEmails").textContent = totalEmails;
 }
 
 atualizarDashboard();
