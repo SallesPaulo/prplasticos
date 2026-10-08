@@ -1689,46 +1689,52 @@ function excluirCliente(index) {
   // INICIALIZAÇÃO
   // ==========================================
 
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-    mostrarCampanhas();
-    mostrarClientes();
-const campanhasEmail = JSON.parse(localStorage.getItem("campanhasPR")) || [];
-
-let totalEmailsEnviados = 0;
-
-campanhasEmail.forEach(campanha => {
-  totalEmailsEnviados += Number(campanha.enviados) || 0;
-});
-
-const totalEmails = document.getElementById("totalEmails");
-
-if (totalEmails) {
-  totalEmails.textContent = totalEmailsEnviados;
-}
-    
-const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
-
-const contadorCampanhas = document.querySelector(
-  '#totalCampanhas.card-value'
-);
-
-if (contadorCampanhas) {
-  contadorCampanhas.textContent = campanhas.length;
-}
-    
-    const formulario = document.getElementById("loginForm");
-
-    if (formulario) {
-      formulario.addEventListener("submit", entrar);
-    }
-if (id === "campanhas") {
   mostrarCampanhas();
-}
-    
-    verificarSessao();
+  mostrarClientes();
+
+  // Clientes
+  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+  const totalClientes = document.getElementById("totalClientes");
+
+  if (totalClientes) {
+    totalClientes.textContent = clientes.length;
+  }
+
+  // Campanhas
+  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+  const totalCampanhas = document.getElementById("totalCampanhas");
+
+  if (totalCampanhas) {
+    totalCampanhas.textContent = campanhas.length;
+  }
+
+  // E-mails enviados
+  let emailsEnviados = 0;
+
+  campanhas.forEach(campanha => {
+    emailsEnviados += Number(campanha.enviados) || 0;
   });
 
+  const totalEmails = document.getElementById("totalEmails");
+
+  if (totalEmails) {
+    totalEmails.textContent = emailsEnviados;
+  }
+
+  const formulario = document.getElementById("loginForm");
+
+  if (formulario) {
+    formulario.addEventListener("submit", entrar);
+  }
+
+  if (id === "campanhas") {
+    mostrarCampanhas();
+  }
+
+  verificarSessao();
+});
 </script>
 </body>
 </html>
