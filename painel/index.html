@@ -1566,17 +1566,7 @@ function salvarCliente() {
   const clientes =
     JSON.parse(localStorage.getItem("clientesPR")) || [];
 
-  const emailJaExiste = clientes.some(
-    cliente =>
-      cliente.email.toLowerCase() === email.toLowerCase()
-  );
-
-  if (emailJaExiste) {
-    alert("Já existe um cliente cadastrado com este e-mail.");
-    return;
-  }
-
-  const novoCliente = {
+  const cliente = {
     nome: nome,
     empresa: empresa,
     email: email,
@@ -1587,7 +1577,33 @@ function salvarCliente() {
     observacao: observacao
   };
 
-  clientes.push(novoCliente);
+  if (
+    window.clienteEditando !== undefined &&
+    window.clienteEditando !== null
+  ) {
+
+    clientes[window.clienteEditando] = cliente;
+
+    window.clienteEditando = null;
+
+    alert("Cliente atualizado com sucesso!");
+
+  } else {
+
+    const emailJaExiste = clientes.some(
+      clienteExistente =>
+        clienteExistente.email.toLowerCase() === email.toLowerCase()
+    );
+
+    if (emailJaExiste) {
+      alert("Já existe um cliente cadastrado com este e-mail.");
+      return;
+    }
+
+    clientes.push(cliente);
+
+    alert("Cliente cadastrado com sucesso!");
+  }
 
   localStorage.setItem(
     "clientesPR",
@@ -1597,10 +1613,8 @@ function salvarCliente() {
   mostrarClientes();
   atualizarDashboardClientes();
   fecharFormularioCliente();
-
-  alert("Cliente cadastrado com sucesso!");
 }
-
+    
 function atualizarDashboardClientes() {
 
   const clientes =
