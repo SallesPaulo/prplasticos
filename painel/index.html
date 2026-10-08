@@ -774,216 +774,220 @@
 
 
         <!-- CLIENTES -->
+<section id="clientes" class="section">
 
-        <section id="clientes" class="section">
+  <h1 class="page-title">
+    Clientes
+  </h1>
 
-          <h1 class="page-title">
-            Clientes
-          </h1>
+  <p class="page-subtitle">
+    Lista de clientes que receberão suas campanhas.
+  </p>
 
-          <p class="page-subtitle">
-            Lista de clientes que receberão suas campanhas.
-          </p>
-
-          <div class="panel-box">
-
-  <div class="button-row">
-
-    <button
-      class="primary-button"
-      onclick="abrirFormularioCliente()"
-    >
-      + Adicionar cliente
-    </button>
-
-  </div>
-
-</div>
-
-<div id="formularioCliente" class="panel-box" style="display:none;">
-
-  <h2>Novo cliente</h2>
-
-  <p>Cadastre as informações do cliente.</p>
-
-  <div class="campaign-form">
-
-    <div class="field">
-      <label>Nome do contato</label>
-      <input
-        type="text"
-        id="clienteNome"
-        placeholder="Nome do contato"
-      >
-    </div>
-
-    <div class="field">
-      <label>Empresa</label>
-      <input
-        type="text"
-        id="clienteEmpresa"
-        placeholder="Nome da empresa"
-      >
-    </div>
-
-    <div class="field">
-      <label>E-mail</label>
-      <input
-        type="email"
-        id="clienteEmail"
-        placeholder="cliente@empresa.com.br"
-      >
-    </div>
-
-    <div class="field">
-      <label>Telefone / WhatsApp</label>
-      <input
-        type="text"
-        id="clienteTelefone"
-        placeholder="(41) 99999-9999"
-      >
-    </div>
-
-    <div class="field">
-      <label>Cidade</label>
-      <input
-        type="text"
-        id="clienteCidade"
-        placeholder="Curitiba"
-      >
-    </div>
-
-    <div class="field">
-      <label>UF</label>
-      <select id="clienteUF">
-        <option value="">Selecione</option>
-        <option>PR</option>
-        <option>SC</option>
-        <option>RS</option>
-        <option>SP</option>
-        <option>MG</option>
-        <option>RJ</option>
-        <option>ES</option>
-        <option>BA</option>
-        <option>GO</option>
-        <option>MS</option>
-        <option>MT</option>
-        <option>DF</option>
-        <option>PE</option>
-        <option>CE</option>
-        <option>PA</option>
-        <option>AM</option>
-        <option>MA</option>
-        <option>PB</option>
-        <option>RN</option>
-        <option>AL</option>
-        <option>SE</option>
-        <option>PI</option>
-        <option>RO</option>
-        <option>TO</option>
-        <option>AC</option>
-        <option>AP</option>
-        <option>RR</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Status</label>
-      <select id="clienteStatus">
-        <option value="Ativo">Ativo</option>
-        <option value="Inativo">Inativo</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>Observação</label>
-      <textarea
-        id="clienteObservacao"
-        placeholder="Informações importantes sobre o cliente..."
-        style="min-height:120px;"
-      ></textarea>
-    </div>
+  <!-- BOTÕES -->
+  <div class="panel-box">
 
     <div class="button-row">
 
       <button
-        type="button"
         class="primary-button"
-        onclick="salvarCliente()"
+        onclick="abrirFormularioCliente()"
       >
-        💾 Salvar cliente
+        + Adicionar cliente
       </button>
+
+      <input
+        type="file"
+        id="arquivoClientes"
+        accept=".csv,.xlsx,.xls"
+        style="display:none"
+        onchange="importarClientes(event)"
+      >
 
       <button
         type="button"
         class="secondary-button"
-        onclick="fecharFormularioCliente()"
+        onclick="document.getElementById('arquivoClientes').click()"
       >
-        Cancelar
+        📥 Importar CSV / Excel
       </button>
 
     </div>
 
   </div>
 
-</div>
-                
-              <input
-  type="file"
-  id="arquivoClientes"
-  accept=".csv,.xlsx,.xls"
-  style="display:none"
-  onchange="importarClientes(event)"
->
 
-<button
-  type="button"
-  class="secondary-button"
-  onclick="document.getElementById('arquivoClientes').click()"
->
-  📥 Importar CSV / Excel
-</button>
+  <!-- FORMULÁRIO -->
+  <div
+    id="formularioCliente"
+    class="panel-box"
+    style="display:none;"
+  >
 
-            </div>
+    <h2>Novo cliente</h2>
 
-          </div>
+    <p>Cadastre as informações do cliente.</p>
 
-          <div class="panel-box">
+    <div class="campaign-form">
 
-            <div class="table-wrapper">
+      <div class="field">
+        <label>Nome do contato</label>
+        <input
+          type="text"
+          id="clienteNome"
+          placeholder="Nome do contato"
+        >
+      </div>
 
-              <table>
+      <div class="field">
+        <label>Empresa</label>
+        <input
+          type="text"
+          id="clienteEmpresa"
+          placeholder="Nome da empresa"
+        >
+      </div>
 
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Empresa</th>
-                    <th>E-mail</th>
-                    <th>Telefone</th>
-                    <th>Cidade / UF</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
+      <div class="field">
+        <label>E-mail</label>
+        <input
+          type="email"
+          id="clienteEmail"
+          placeholder="cliente@empresa.com.br"
+        >
+      </div>
 
-                <tbody id="tabelaClientes">
+      <div class="field">
+        <label>Telefone / WhatsApp</label>
+        <input
+          type="text"
+          id="clienteTelefone"
+          placeholder="(41) 99999-9999"
+        >
+      </div>
 
-                  <tr>
-                    <td colspan="5" style="text-align:center;color:#777;">
-                      Nenhum cliente cadastrado.
-                    </td>
-                  </tr>
+      <div class="field">
+        <label>Cidade</label>
+        <input
+          type="text"
+          id="clienteCidade"
+          placeholder="Curitiba"
+        >
+      </div>
 
-                </tbody>
+      <div class="field">
+        <label>UF</label>
+        <select id="clienteUF">
+          <option value="">Selecione</option>
+          <option>PR</option>
+          <option>SC</option>
+          <option>RS</option>
+          <option>SP</option>
+          <option>MG</option>
+          <option>RJ</option>
+          <option>ES</option>
+          <option>BA</option>
+          <option>GO</option>
+          <option>MS</option>
+          <option>MT</option>
+          <option>DF</option>
+          <option>PE</option>
+          <option>CE</option>
+          <option>PA</option>
+          <option>AM</option>
+          <option>MA</option>
+          <option>PB</option>
+          <option>RN</option>
+          <option>AL</option>
+          <option>SE</option>
+          <option>PI</option>
+          <option>RO</option>
+          <option>TO</option>
+          <option>AC</option>
+          <option>AP</option>
+          <option>RR</option>
+        </select>
+      </div>
 
-              </table>
+      <div class="field">
+        <label>Status</label>
+        <select id="clienteStatus">
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+      </div>
 
-            </div>
+      <div class="field">
+        <label>Observação</label>
+        <textarea
+          id="clienteObservacao"
+          placeholder="Informações importantes sobre o cliente..."
+          style="min-height:120px;"
+        ></textarea>
+      </div>
 
-          </div>
+      <div class="button-row">
 
-        </section>
+        <button
+          type="button"
+          class="primary-button"
+          onclick="salvarCliente()"
+        >
+          💾 Salvar cliente
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          onclick="fecharFormularioCliente()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
 
 
+  <!-- LISTA DE CLIENTES -->
+  <div class="panel-box">
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Empresa</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Cidade / UF</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabelaClientes">
+
+          <tr>
+            <td colspan="7" style="text-align:center;color:#777;">
+              Nenhum cliente cadastrado.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+        
         <!-- CAMPANHAS -->
 
         <section id="campanhas" class="section">
