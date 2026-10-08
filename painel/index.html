@@ -1612,34 +1612,62 @@ function atualizarDashboardClientes() {
     totalClientes.textContent = clientes.length;
   }
 }
-    
     function mostrarClientes() {
+
   const tabela = document.getElementById("tabelaClientes");
 
   if (!tabela) return;
 
-  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+  const clientes =
+    JSON.parse(localStorage.getItem("clientesPR")) || [];
 
   if (clientes.length === 0) {
+
     tabela.innerHTML = `
       <tr>
-        <td colspan="5" style="text-align:center;color:#777;">
+        <td colspan="6" style="text-align:center;color:#777;">
           Nenhum cliente cadastrado.
         </td>
       </tr>
     `;
+
     return;
   }
 
-  tabela.innerHTML = clientes.map(cliente => `
+  tabela.innerHTML = clientes.map((cliente, index) => `
+
     <tr>
-      <td>${cliente.nome}</td>
-      <td>${cliente.empresa}</td>
-      <td>${cliente.email}</td>
-      <td>${cliente.telefone}</td>
-      <td>${cliente.status}</td>
-<td>
-  <button
+
+      <td>
+        ${cliente.nome || ""}
+      </td>
+
+      <td>
+        ${cliente.empresa || ""}
+      </td>
+
+      <td>
+        ${cliente.email || ""}
+      </td>
+
+      <td>
+        ${cliente.telefone || ""}
+      </td>
+
+      <td>
+        ${cliente.cidade || ""}${cliente.uf ? " / " + cliente.uf : ""}
+      </td>
+
+      <td>
+        <span style="
+          color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
+          font-weight:bold;
+        ">
+          ${cliente.status || "Ativo"}
+        </span>
+      </td>
+
+<button
     type="button"
     class="secondary-button"
     onclick="excluirCliente(${clientes.indexOf(cliente)})"
@@ -1647,7 +1675,9 @@ function atualizarDashboardClientes() {
     🗑️ Excluir
   </button>
 </td>
+
     </tr>
+
   `).join("");
 }
 function mostrarMensagem(mensagem) {
