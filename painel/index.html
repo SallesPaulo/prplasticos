@@ -487,6 +487,17 @@
   
 </head>
 
+<script>
+function atualizarDashboard() {
+  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+
+  document.getElementById("totalCampanhas").textContent = campanhas.length;
+}
+
+atualizarDashboard();
+</script>
+
+  
 <body>
 
   <!-- =========================
@@ -687,10 +698,9 @@
             </div>
 
 
-            <div class="card">
-              <div class="card-label">
-                Campanhas enviadas
-              </div>
+            <div class="card-value" id="totalCampanhas">
+                      0
+                </div>
 
               <div class="card-value">
                 0
