@@ -1998,85 +1998,185 @@ async function enviarTeste() {
 }
 
     async function importarClientes(event) {
+
   const arquivo = event.target.files[0];
 
   if (!arquivo) return;
 
   try {
-    const extensao = arquivo.name.split(".").pop().toLowerCase();
+
+    const extensao =
+      arquivo.name.split(".").pop().toLowerCase();
+
     let dados = [];
 
     if (extensao === "csv") {
+
       const texto = await arquivo.text();
 
       const linhas = texto
         .split(/\r?\n/)
         .filter(linha => linha.trim() !== "");
 
-      const separador = linhas[0].includes(";") ? ";" : ",";
+      const separador =
+        linhas[0].includes(";") ? ";" : ",";
 
-const cabecalho = linhas[0].split(separador).map(item =>
-  item.trim().toLowerCase()
-);
+      const cabecalho =
+        linhas[0]
+          .split(separador)
+          .map(item => item.trim().toLowerCase());
 
       dados = linhas.slice(1).map(linha => {
+
         const valores = linha.split(separador);
 
         return {
-          nome: valores[cabecalho.indexOf("nome")] || "",
-          empresa: valores[cabecalho.indexOf("empresa")] || "",
-          email: valores[cabecalho.indexOf("email")] || "",
-          telefone: valores[cabecalho.indexOf("telefone")] || "",
-          status: valores[cabecalho.indexOf("status")] || "Ativo"
+
+          nome:
+            valores[cabecalho.indexOf("nome")] || "",
+
+          empresa:
+            valores[cabecalho.indexOf("empresa")] || "",
+
+          email:
+            valores[cabecalho.indexOf("email")] || "",
+
+          telefone:
+            valores[cabecalho.indexOf("telefone")] || "",
+
+          cidade:
+            valores[cabecalho.indexOf("cidade")] || "",
+
+          uf:
+            valores[cabecalho.indexOf("uf")] || "",
+
+          status:
+            valores[cabecalho.indexOf("status")] || "Ativo",
+
+          observacao:
+            valores[cabecalho.indexOf("observacao")] || ""
+
         };
+
       });
 
-      } else if (extensao === "xlsx" || extensao === "xls") {
-  const dadosArray = await arquivo.arrayBuffer();
+    } else if (
+      extensao === "xlsx" ||
+      extensao === "xls"
+    ) {
 
-  const workbook = XLSX.read(dadosArray, {
-    type: "array"
-  });
+      const dadosArray =
+        await arquivo.arrayBuffer();
 
-  const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
+      const workbook = XLSX.read(dadosArray, {
+        type: "array"
+      });
 
-  dados = XLSX.utils.sheet_to_json(primeiraAba, {
-    defval: ""
-  }).map(linha => ({
-    nome: linha.nome || linha.Nome || "",
-    empresa: linha.empresa || linha.Empresa || "",
-    email: linha.email || linha.Email || "",
-    telefone: linha.telefone || linha.Telefone || "",
-    status: linha.status || linha.Status || "Ativo"
-  }));
-    
+      const primeiraAba =
+        workbook.Sheets[workbook.SheetNames[0]];
+
+      dados =
+        XLSX.utils
+          .sheet_to_json(primeiraAba, {
+            defval: ""
+          })
+          .map(linha => ({
+
+            nome:
+              linha.nome ||
+              linha.Nome ||
+              "",
+
+            empresa:
+              linha.empresa ||
+              linha.Empresa ||
+              "",
+
+            email:
+              linha.email ||
+              linha.Email ||
+              "",
+
+            telefone:
+              linha.telefone ||
+              linha.Telefone ||
+              "",
+
+            cidade:
+              linha.cidade ||
+              linha.Cidade ||
+              "",
+
+            uf:
+              linha.uf ||
+              linha.UF ||
+              "",
+
+            status:
+              linha.status ||
+              linha.Status ||
+              "Ativo",
+
+            observacao:
+              linha.observacao ||
+              linha.Observacao ||
+              linha["Observação"] ||
+              ""
+
+          }));
+
     } else {
-      alert("Formato não permitido. Use CSV ou Excel.");
+
+      alert(
+        "Formato não permitido. Use CSV ou Excel."
+      );
+
       return;
     }
 
-    const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+    const clientes =
+      JSON.parse(
+        localStorage.getItem("clientesPR")
+      ) || [];
+
+    let importados = 0;
 
     dados.forEach(cliente => {
+
       if (cliente.email) {
+
         clientes.push(cliente);
+
+        importados++;
       }
+
     });
 
-    localStorage.setItem("clientesPR", JSON.stringify(clientes));
+    localStorage.setItem(
+      "clientesPR",
+      JSON.stringify(clientes)
+    );
 
     mostrarClientes();
 
-    alert(dados.length + " cliente(s) importado(s) com sucesso!");
+    alert(
+      importados +
+      " cliente(s) importado(s) com sucesso!"
+    );
 
   } catch (erro) {
+
     console.error(erro);
-    alert("Erro ao importar o arquivo.");
+
+    alert(
+      "Erro ao importar o arquivo."
+    );
+
   }
 
   event.target.value = "";
 }
-
+    
 function excluirCliente(index) {
   const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
 
