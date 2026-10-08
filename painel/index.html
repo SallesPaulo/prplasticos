@@ -2031,7 +2031,10 @@ async function enviarTeste() {
         XLSX.utils.sheet_to_json(primeiraAba, {
           defval: ""
         });
-       console.log("LINHAS LIDAS:", linhas);
+      
+      alert(
+  "Linhas encontradas: " + linhas.length
+);
       
       dados = linhas.map(linha => {
 
