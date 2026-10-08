@@ -953,7 +953,24 @@
 
   <!-- LISTA DE CLIENTES -->
   <div class="panel-box">
+<div style="margin-bottom:20px;">
 
+  <input
+    type="text"
+    id="buscaClientes"
+    placeholder="🔎 Buscar por nome, empresa, e-mail ou cidade..."
+    oninput="filtrarClientes()"
+    style="
+      width:100%;
+      padding:12px 15px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      font-size:14px;
+      box-sizing:border-box;
+    "
+  >
+
+</div>
     <div class="table-wrapper">
 
       <table>
@@ -1714,6 +1731,115 @@ function atualizarDashboardClientes() {
 
   `).join("");
 }
+
+function filtrarClientes() {
+
+  const busca =
+    document.getElementById("buscaClientes").value
+      .toLowerCase()
+      .trim();
+
+  const clientes =
+    JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  const clientesFiltrados = clientes.filter(cliente => {
+
+    const texto = `
+      ${cliente.nome || ""}
+      ${cliente.empresa || ""}
+      ${cliente.email || ""}
+      ${cliente.telefone || ""}
+      ${cliente.cidade || ""}
+      ${cliente.uf || ""}
+    `.toLowerCase();
+
+    return texto.includes(busca);
+
+  });
+
+  const tabela =
+    document.getElementById("tabelaClientes");
+
+  if (!tabela) return;
+
+  if (clientesFiltrados.length === 0) {
+
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="7"
+            style="text-align:center;color:#777;padding:30px;">
+          Nenhum cliente encontrado.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tabela.innerHTML = clientesFiltrados.map(cliente => {
+
+    const index = clientes.indexOf(cliente);
+
+    return `
+      <tr>
+
+        <td>${cliente.nome || ""}</td>
+
+        <td>${cliente.empresa || ""}</td>
+
+        <td>${cliente.email || ""}</td>
+
+        <td>${cliente.telefone || ""}</td>
+
+        <td>
+          ${cliente.cidade || ""}
+          ${cliente.uf ? " / " + cliente.uf : ""}
+        </td>
+
+        <td>
+          <span style="
+            color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
+            font-weight:bold;
+          ">
+            ${cliente.status || "Ativo"}
+          </span>
+        </td>
+
+        <td>
+
+          <button
+            onclick="editarCliente(${index})"
+            style="
+              border:none;
+              background:none;
+              cursor:pointer;
+              font-size:18px;
+            "
+            title="Editar"
+          >
+            ✏️
+          </button>
+
+          <button
+            onclick="excluirCliente(${index})"
+            style="
+              border:none;
+              background:none;
+              cursor:pointer;
+              font-size:18px;
+            "
+            title="Excluir"
+          >
+            🗑️
+          </button>
+
+        </td>
+
+      </tr>
+    `;
+
+  }).join("");
+}
     
 function mostrarMensagem(mensagem) {
   alert(mensagem);
@@ -2032,6 +2158,8 @@ function editarCliente(index) {
 
   document.getElementById("clienteNome").focus();
 }
+
+    
     
   // ==========================================
   // INICIALIZAÇÃO
