@@ -1999,6 +1999,8 @@ async function enviarTeste() {
 
     async function importarClientes(event) {
 
+      console.log("IMPORTAÇÃO INICIADA");
+
   const arquivo = event.target.files[0];
 
   if (!arquivo) return;
