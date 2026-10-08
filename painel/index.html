@@ -484,6 +484,16 @@
     }
   </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script>
+function atualizarDashboard() {
+  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+
+  document.getElementById("totalCampanhas").textContent = campanhas.length;
+}
+
+atualizarDashboard();
+</script>
   
 </head>
 
@@ -1731,21 +1741,6 @@ function excluirCliente(index) {
 
     const formulario = document.getElementById("loginForm");
 
-function atualizarDashboard() {
-  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
-  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
-
-  const totalEmails = campanhas.reduce((total, campanha) => {
-    return total + (Number(campanha.enviados) || 0);
-  }, 0);
-
-  document.getElementById("totalClientes").textContent = clientes.length;
-  document.getElementById("totalCampanhas").textContent = campanhas.length;
-  document.getElementById("totalEmails").textContent = totalEmails;
-}
-
-atualizarDashboard();
-    }
     
     if (formulario) {
       formulario.addEventListener("submit", entrar);
