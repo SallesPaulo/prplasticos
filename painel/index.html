@@ -961,7 +961,7 @@
                     <th>E-mail</th>
                     <th>Telefone</th>
                     <th>Cidade / UF</th>
-                    <th>Status</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
 
@@ -1613,6 +1613,7 @@ function atualizarDashboardClientes() {
     totalClientes.textContent = clientes.length;
   }
 }
+
     function mostrarClientes() {
 
   const tabela = document.getElementById("tabelaClientes");
@@ -1626,7 +1627,7 @@ function atualizarDashboardClientes() {
 
     tabela.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align:center;color:#777;">
+        <td colspan="7" style="text-align:center;color:#777;">
           Nenhum cliente cadastrado.
         </td>
       </tr>
@@ -1639,24 +1640,17 @@ function atualizarDashboardClientes() {
 
     <tr>
 
-      <td>
-        ${cliente.nome || ""}
-      </td>
+      <td>${cliente.nome || ""}</td>
+
+      <td>${cliente.empresa || ""}</td>
+
+      <td>${cliente.email || ""}</td>
+
+      <td>${cliente.telefone || ""}</td>
 
       <td>
-        ${cliente.empresa || ""}
-      </td>
-
-      <td>
-        ${cliente.email || ""}
-      </td>
-
-      <td>
-        ${cliente.telefone || ""}
-      </td>
-
-      <td>
-        ${cliente.cidade || ""}${cliente.uf ? " / " + cliente.uf : ""}
+        ${cliente.cidade || ""}
+        ${cliente.uf ? " / " + cliente.uf : ""}
       </td>
 
       <td>
@@ -1668,19 +1662,41 @@ function atualizarDashboardClientes() {
         </span>
       </td>
 
-<button
-    type="button"
-    class="secondary-button"
-    onclick="excluirCliente(${clientes.indexOf(cliente)})"
-  >
-    🗑️ Excluir
-  </button>
-</td>
+      <td>
+
+        <button
+          onclick="editarCliente(${index})"
+          style="
+            border:none;
+            background:none;
+            cursor:pointer;
+            font-size:18px;
+          "
+          title="Editar"
+        >
+          ✏️
+        </button>
+
+        <button
+          onclick="excluirCliente(${index})"
+          style="
+            border:none;
+            background:none;
+            cursor:pointer;
+            font-size:18px;
+          "
+          title="Excluir"
+        >
+          🗑️
+        </button>
+
+      </td>
 
     </tr>
 
   `).join("");
 }
+    
 function mostrarMensagem(mensagem) {
   alert(mensagem);
 }
@@ -1924,11 +1940,39 @@ function excluirCliente(index) {
     return;
   }
 
-  clientes.splice(index, 1);
+    clientes.splice(index, 1);
 
   localStorage.setItem("clientesPR", JSON.stringify(clientes));
 
   mostrarClientes();
+}
+
+    function excluirCliente(index) {
+
+  const clientes =
+    JSON.parse(localStorage.getItem("clientesPR")) || [];
+
+  const cliente = clientes[index];
+
+  if (!cliente) return;
+
+  const confirmar = confirm(
+    `Deseja realmente excluir o cliente "${cliente.empresa}"?`
+  );
+
+  if (!confirmar) return;
+
+  clientes.splice(index, 1);
+
+  localStorage.setItem(
+    "clientesPR",
+    JSON.stringify(clientes)
+  );
+
+  mostrarClientes();
+  atualizarDashboardClientes();
+
+  alert("Cliente excluído com sucesso!");
 }
     
   // ==========================================
