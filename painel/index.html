@@ -1709,10 +1709,12 @@ if (totalEmails) {
     
 const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
 
-const totalCampanhas = document.getElementById("totalCampanhas");
+const contadorCampanhas = document.querySelector(
+  '#totalCampanhas.card-value'
+);
 
-if (totalCampanhas) {
-  totalCampanhas.textContent = campanhas.length;
+if (contadorCampanhas) {
+  contadorCampanhas.textContent = campanhas.length;
 }
     
     const formulario = document.getElementById("loginForm");
