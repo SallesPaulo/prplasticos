@@ -1719,7 +1719,17 @@ function excluirCliente(index) {
   mostrarClientes();
 }
 
+    
+  // ==========================================
+  // INICIALIZAÇÃO
+  // ==========================================
 
+  document.addEventListener("DOMContentLoaded", function () {
+
+    mostrarCampanhas();
+    mostrarClientes();
+
+    const formulario = document.getElementById("loginForm");
 
 function atualizarDashboard() {
   const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
@@ -1737,17 +1747,6 @@ function atualizarDashboard() {
 atualizarDashboard();
     }
     
-  // ==========================================
-  // INICIALIZAÇÃO
-  // ==========================================
-
-  document.addEventListener("DOMContentLoaded", function () {
-
-    mostrarCampanhas();
-    mostrarClientes();
-
-    const formulario = document.getElementById("loginForm");
-
     if (formulario) {
       formulario.addEventListener("submit", entrar);
     }
