@@ -2417,12 +2417,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const contagem = {};
 
-  clientes.forEach(cliente => {
-    const uf = (cliente.uf || "").trim().toUpperCase();
-    if (estados[uf]) {
-      contagem[uf] = (contagem[uf] || 0) + 1;
-    }
-  });
+clientes.forEach(cliente => {
+  const uf = (cliente.uf || "").trim().toUpperCase();
+
+  if (!estados[uf]) return;
+
+  if (!contagem[uf]) {
+    contagem[uf] = {
+      ativos: 0,
+      inativos: 0
+    };
+  }
+
+  if ((cliente.status || "Ativo").toLowerCase() === "ativo") {
+    contagem[uf].ativos++;
+  } else {
+    contagem[uf].inativos++;
+  }
+});
 
   google.charts.load("current", { packages: ["geochart"] });
 
