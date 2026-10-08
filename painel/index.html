@@ -2378,6 +2378,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
    
+
 function desenharMapaClientesUF() {
   const elemento = document.getElementById("mapaClientesUF");
   if (!elemento) return;
@@ -2403,7 +2404,9 @@ function desenharMapaClientesUF() {
     const uf = (cliente.uf || "").trim().toUpperCase();
     if (!estados[uf]) return;
 
-    if (!contagem[uf]) contagem[uf] = { ativos: 0, inativos: 0 };
+    if (!contagem[uf]) {
+      contagem[uf] = { ativos: 0, inativos: 0 };
+    }
 
     if ((cliente.status || "Ativo").toLowerCase() === "ativo") {
       contagem[uf].ativos++;
@@ -2416,17 +2419,38 @@ function desenharMapaClientesUF() {
 
   google.charts.setOnLoadCallback(function () {
     const dados = new google.visualization.DataTable();
+
     dados.addColumn("string", "Estado");
     dados.addColumn("number", "Total de clientes");
+    dados.addColumn({
+      type: "string",
+      role: "tooltip",
+      p: { html: true }
+    });
 
     Object.keys(estados).forEach(uf => {
       const ativos = contagem[uf]?.ativos || 0;
       const inativos = contagem[uf]?.inativos || 0;
+      const total = ativos + inativos;
 
-      dados.addRow([
-        "BR-" + uf,
-        ativos + inativos
-      ]);
+      const tooltip = `
+        <div style="padding:10px 14px;font-family:Arial;min-width:160px;">
+          <div style="font-size:15px;font-weight:bold;margin-bottom:8px;">
+            ${estados[uf]} (${uf})
+          </div>
+          <div style="margin-bottom:6px;">
+            Total: <strong>${total}</strong> cliente(s)
+          </div>
+          <div style="color:#218838;margin-bottom:4px;">
+            ● Ativos: <strong>${ativos}</strong>
+          </div>
+          <div style="color:#d93025;">
+            ● Inativos: <strong>${inativos}</strong>
+          </div>
+        </div>
+      `;
+
+      dados.addRow(["BR-" + uf, total, tooltip]);
     });
 
     const mapa = new google.visualization.GeoChart(elemento);
@@ -2437,11 +2461,13 @@ function desenharMapaClientesUF() {
       region: "BR",
       resolution: "provinces",
       displayMode: "regions",
-      colorAxis: { colors: ["#dbeafe", "#0755a6"] },
+      colorAxis: {
+        colors: ["#dbeafe", "#93c5fd"]
+      },
       backgroundColor: "#ffffff",
       datalessRegionColor: "#eeeeee",
       legend: { textStyle: { color: "#333333" } },
-      tooltip: { textStyle: { color: "#333333" } }
+      tooltip: { isHtml: true }
     });
   });
 }
