@@ -484,6 +484,7 @@
     }
   </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
   
 </head>
 
@@ -741,7 +742,34 @@
             <h2>
               PR Plásticos Painel
             </h2>
+          <!-- MAPA DE CLIENTES POR UF -->
 
+          <div class="panel-box">
+
+            <h2>
+              Clientes por localização
+            </h2>
+
+            <p>
+              Distribuição dos clientes cadastrados por estado.
+            </p>
+
+            <div
+              id="mapaClientesUF"
+              style="
+                width:100%;
+                min-height:420px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                margin-top:20px;
+              "
+            >
+              Carregando mapa...
+            </div>
+
+          </div>
+            
             <p>
               Aqui você poderá administrar seus clientes,
               criar campanhas comerciais e enviar mensagens
@@ -2291,6 +2319,121 @@ function editarCliente(index) {
   document.getElementById("clienteNome").focus();
 }
 
+    async function carregarMapaClientesUF() {
+
+  const elemento =
+    document.getElementById("mapaClientesUF");
+
+  if (!elemento) return;
+
+  try {
+
+    const resposta = await fetch(
+      "https://cdn.jsdelivr.net/npm/echarts@5/map/json/brazil.js"
+    );
+
+    const texto = await resposta.text();
+
+    eval(texto);
+
+    const clientes =
+      JSON.parse(
+        localStorage.getItem("clientesPR")
+      ) || [];
+
+    const contagemUF = {};
+
+    clientes.forEach(cliente => {
+
+      const uf =
+        (cliente.uf || "")
+          .trim()
+          .toUpperCase();
+
+      if (uf) {
+        contagemUF[uf] =
+          (contagemUF[uf] || 0) + 1;
+      }
+
+    });
+
+    const dadosMapa = Object.entries(contagemUF)
+      .map(([uf, quantidade]) => ({
+        name: uf,
+        value: quantidade
+      }));
+
+    const mapa =
+      echarts.init(elemento);
+
+    mapa.setOption({
+
+      tooltip: {
+        trigger: "item",
+        formatter: function(param) {
+
+          const quantidade =
+            param.value || 0;
+
+          return `
+            <strong>${param.name}</strong><br>
+            ${quantidade} cliente(s)
+          `;
+
+        }
+      },
+
+      visualMap: {
+        min: 0,
+        max: Math.max(
+          1,
+          ...Object.values(contagemUF)
+        ),
+        left: "left",
+        bottom: "10%",
+        calculable: true
+      },
+
+      series: [
+
+        {
+          name: "Clientes",
+          type: "map",
+          map: "Brazil",
+          roam: false,
+
+          emphasis: {
+            label: {
+              show: true
+            }
+          },
+
+          data: dadosMapa
+
+        }
+
+      ]
+
+    });
+
+    window.addEventListener(
+      "resize",
+      () => mapa.resize()
+    );
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao carregar mapa:",
+      erro
+    );
+
+    elemento.innerHTML =
+      "Não foi possível carregar o mapa.";
+
+  }
+
+}
     
     
   // ==========================================
@@ -2301,6 +2444,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   mostrarCampanhas();
   mostrarClientes();
+  carregarMapaClientesUF();
 
   // Clientes
   const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
@@ -2343,6 +2487,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   verificarSessao();
 });
+
+    
 </script>
 </body>
 </html>
