@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
     });
   }
 
-  const url = process.env.SUPABASE_URL;
+  const url = process.env.SUPABASE_URL.replace(/\/rest\/?$/, "");
   const chave = process.env.CHAVE_SECRETA_SUPABASE;
 
   if (!url || !chave) {
