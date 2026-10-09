@@ -1661,6 +1661,41 @@ function atualizarDashboardClientes() {
   }
 }
 
+let clientesBanco = [];
+
+
+async function carregarClientesDoBanco() {
+  try {
+    const resposta = await fetch("/api/clientes", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Erro ao carregar clientes."
+      );
+    }
+
+    clientesBanco = resultado.clientes || [];
+
+    mostrarClientes();
+    atualizarDashboardClientes();
+
+    if (typeof desenharMapaClientesUF === "function") {
+      desenharMapaClientesUF();
+    }
+  } catch (erro) {
+    console.error("Erro ao carregar clientes do banco:", erro);
+    alert(
+      "Não foi possível carregar os clientes do banco. Atualize a página e tente novamente."
+    );
+  }
+}
+
     
 function mostrarClientes() {
   const tabela = document.getElementById("tabelaClientes");
