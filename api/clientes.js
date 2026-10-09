@@ -46,26 +46,34 @@ module.exports = async (req, res) => {
     });
   }
 
- const url = process.env.SUPABASE_URL.replace(/\/rest\/v1\/?$/, "").replace(/\/rest\/?$/, "");
-  const chave = process.env.CHAVE_SECRETA_SUPABASE;
+  const urlBase = process.env.SUPABASE_URL;
 
-  if (!url || !chave) {
+  if (!urlBase || !process.env.CHAVE_SECRETA_SUPABASE) {
     return res.status(500).json({
       sucesso: false,
       erro: "Configuração do banco não encontrada."
     });
   }
 
+  const url = urlBase
+    .replace(/\/rest\/v1\/?$/, "")
+    .replace(/\/rest\/?$/, "")
+    .replace(/\/+$/, "");
+
+  const chave = process.env.CHAVE_SECRETA_SUPABASE;
+  const endpoint = `${url}/rest/v1/clientes`;
+
+  const headers = {
+    apikey: chave,
+    Authorization: `Bearer ${chave}`,
+    "Content-Type": "application/json"
+  };
+
   try {
     if (req.method === "GET") {
       const resposta = await fetch(
-        `${url}/rest/v1/clientes?select=*&order=created_at.desc`,
-        {
-          headers: {
-            apikey: chave,
-            Authorization: `Bearer ${chave}`
-          }
-        }
+        `${endpoint}?select=*&order=created_at.desc`,
+        { headers }
       );
 
       const dados = await resposta.json();
@@ -94,12 +102,10 @@ module.exports = async (req, res) => {
         });
       }
 
-      const resposta = await fetch(`${url}/rest/v1/clientes`, {
+      const resposta = await fetch(endpoint, {
         method: "POST",
         headers: {
-          apikey: chave,
-          Authorization: `Bearer ${chave}`,
-          "Content-Type": "application/json",
+          ...headers,
           Prefer: "return=representation"
         },
         body: JSON.stringify({
@@ -120,7 +126,7 @@ module.exports = async (req, res) => {
         console.error("Erro ao salvar cliente:", dados);
         return res.status(502).json({
           sucesso: false,
-          erro: "O banco não conseguiu salvar o cliente. Verifique os dados."
+          erro: "Não foi possível salvar o cliente."
         });
       }
 
@@ -130,7 +136,106 @@ module.exports = async (req, res) => {
       });
     }
 
-    res.setHeader("Allow", "GET, POST");
+    if (req.method === "PATCH") {
+      const body = req.body || {};
+      const id = Number(body.id);
+      const cliente = body.cliente || {};
+
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: "ID do cliente inválido."
+        });
+      }
+
+      if (!cliente.nome || !cliente.empresa || !cliente.email) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: "Nome, empresa e e-mail são obrigatórios."
+        });
+      }
+
+      const resposta = await fetch(
+        `${endpoint}?id=eq.${id}&select=*`,
+        {
+          method: "PATCH",
+          headers: {
+            ...headers,
+            Prefer: "return=representation"
+          },
+          body: JSON.stringify({
+            nome: cliente.nome,
+            empresa: cliente.empresa,
+            email: cliente.email,
+            telefone: cliente.telefone || "",
+            cidade: cliente.cidade || "",
+            uf: cliente.uf || "",
+            status: cliente.status || "Ativo",
+            observacao: cliente.observacao || ""
+          })
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        console.error("Erro ao editar cliente:", dados);
+        return res.status(502).json({
+          sucesso: false,
+          erro: "Não foi possível editar o cliente."
+        });
+      }
+
+      if (!dados.length) {
+        return res.status(404).json({
+          sucesso: false,
+          erro: "Cliente não encontrado."
+        });
+      }
+
+      return res.status(200).json({
+        sucesso: true,
+        cliente: dados[0]
+      });
+    }
+
+    if (req.method === "DELETE") {
+      const id = Number(req.query?.id);
+
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: "ID do cliente inválido."
+        });
+      }
+
+      const resposta = await fetch(
+        `${endpoint}?id=eq.${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            ...headers,
+            Prefer: "return=representation"
+          }
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        console.error("Erro ao excluir cliente:", dados);
+        return res.status(502).json({
+          sucesso: false,
+          erro: "Não foi possível excluir o cliente."
+        });
+      }
+
+      return res.status(200).json({
+        sucesso: true
+      });
+    }
+
+    res.setHeader("Allow", "GET, POST, PATCH, DELETE");
     return res.status(405).json({
       sucesso: false,
       erro: "Método não permitido."
