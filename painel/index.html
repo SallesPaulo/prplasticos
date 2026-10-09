@@ -1564,10 +1564,14 @@ async function criarCampanha(event) {
     alert("Erro ao enviar a campanha.");
   }
 }
-    function abrirFormularioCliente() {
+    
+function abrirFormularioCliente() {
+  window.clienteEditando = null;
+
   document.getElementById("formularioCliente").style.display = "block";
   document.getElementById("clienteNome").focus();
 }
+
 
 function fecharFormularioCliente() {
   document.getElementById("formularioCliente").style.display = "none";
