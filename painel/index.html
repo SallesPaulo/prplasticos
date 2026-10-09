@@ -1452,7 +1452,7 @@ async function criarCampanha(event) {
   const mensagem = document.getElementById("campanhaMensagem").value;
   const arquivo = document.getElementById("campanhaImagem")?.files[0];
 
-  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+  const clientes = clientesBanco || [];
 
   let destinatarios = clientes;
 
@@ -1650,13 +1650,11 @@ async function salvarCliente() {
   }
 }
     
+
 function atualizarDashboardClientes() {
+  const clientes = clientesBanco || [];
 
-  const clientes =
-    JSON.parse(localStorage.getItem("clientesPR")) || [];
-
-  const totalClientes =
-    document.getElementById("totalClientes");
+  const totalClientes = document.getElementById("totalClientes");
 
   if (totalClientes) {
     totalClientes.textContent = clientes.length;
@@ -1712,113 +1710,74 @@ function mostrarClientes() {
     </tr>
   `).join("");
 }
+
 function filtrarClientes() {
+  const termo = document
+    .getElementById("buscaClientes")
+    .value
+    .toLowerCase()
+    .trim();
 
-  const busca =
-    document.getElementById("buscaClientes").value
-      .toLowerCase()
-      .trim();
-
-  const clientes =
-    JSON.parse(localStorage.getItem("clientesPR")) || [];
-
-  const clientesFiltrados = clientes.filter(cliente => {
-
-    const texto = `
-      ${cliente.nome || ""}
-      ${cliente.empresa || ""}
-      ${cliente.email || ""}
-      ${cliente.telefone || ""}
-      ${cliente.cidade || ""}
-      ${cliente.uf || ""}
-    `.toLowerCase();
-
-    return texto.includes(busca);
-
-  });
-
-  const tabela =
-    document.getElementById("tabelaClientes");
-
+  const tabela = document.getElementById("tabelaClientes");
   if (!tabela) return;
 
-  if (clientesFiltrados.length === 0) {
+  const clientes = clientesBanco || [];
 
+  const filtrados = clientes.filter(cliente => {
+    return [
+      cliente.nome,
+      cliente.empresa,
+      cliente.email,
+      cliente.telefone,
+      cliente.cidade,
+      cliente.uf,
+      cliente.status
+    ].some(valor =>
+      String(valor || "").toLowerCase().includes(termo)
+    );
+  });
+
+  if (filtrados.length === 0) {
     tabela.innerHTML = `
       <tr>
-        <td colspan="7"
-            style="text-align:center;color:#777;padding:30px;">
+        <td colspan="7" style="text-align:center;color:#777;">
           Nenhum cliente encontrado.
         </td>
       </tr>
     `;
-
     return;
   }
 
-  tabela.innerHTML = clientesFiltrados.map(cliente => {
-
-    const index = clientes.indexOf(cliente);
-
-    return `
-      <tr>
-
-        <td>${cliente.nome || ""}</td>
-
-        <td>${cliente.empresa || ""}</td>
-
-        <td>${cliente.email || ""}</td>
-
-        <td>${cliente.telefone || ""}</td>
-
-        <td>
-          ${cliente.cidade || ""}
-          ${cliente.uf ? " / " + cliente.uf : ""}
-        </td>
-
-        <td>
-          <span style="
-            color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
-            font-weight:bold;
-          ">
-            ${cliente.status || "Ativo"}
-          </span>
-        </td>
-
-        <td>
-
-          <button
-            onclick="editarCliente(${index})"
-            style="
-              border:none;
-              background:none;
-              cursor:pointer;
-              font-size:18px;
-            "
-            title="Editar"
-          >
-            ✏️
-          </button>
-
-          <button
-            onclick="excluirCliente(${index})"
-            style="
-              border:none;
-              background:none;
-              cursor:pointer;
-              font-size:18px;
-            "
-            title="Excluir"
-          >
-            🗑️
-          </button>
-
-        </td>
-
-      </tr>
-    `;
-
-  }).join("");
+  tabela.innerHTML = filtrados.map(cliente => `
+    <tr>
+      <td>${cliente.nome || ""}</td>
+      <td>${cliente.empresa || ""}</td>
+      <td>${cliente.email || ""}</td>
+      <td>${cliente.telefone || ""}</td>
+      <td>
+        ${cliente.cidade || ""}
+        ${cliente.uf ? " / " + cliente.uf : ""}
+      </td>
+      <td>
+        <span style="
+          color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
+          font-weight:bold;
+        ">
+          ${cliente.status || "Ativo"}
+        </span>
+      </td>
+      <td>
+        <button
+          onclick="editarCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Editar">✏️</button>
+        <button
+          onclick="excluirCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Excluir">🗑️</button>
+      </td>
+    </tr>
+  `).join("");
 }
     
 function mostrarMensagem(mensagem) {
@@ -1977,240 +1936,165 @@ async function enviarTeste() {
   }
 }
 
-    async function importarClientes(event) {
-
-      console.log("IMPORTAÇÃO INICIADA");
-
+  
+async function importarClientes(event) {
   const arquivo = event.target.files[0];
-
   if (!arquivo) return;
 
   try {
-
-    const extensao =
-      arquivo.name.split(".").pop().toLowerCase();
-
+    const extensao = arquivo.name.split(".").pop().toLowerCase();
     let dados = [];
 
     if (extensao === "xlsx" || extensao === "xls") {
+      const dadosArray = await arquivo.arrayBuffer();
+      const workbook = XLSX.read(dadosArray, { type: "array" });
+      const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
 
-      const dadosArray =
-        await arquivo.arrayBuffer();
-
-      const workbook = XLSX.read(dadosArray, {
-        type: "array"
+      const linhas = XLSX.utils.sheet_to_json(primeiraAba, {
+        defval: ""
       });
 
-      const primeiraAba =
-        workbook.Sheets[workbook.SheetNames[0]];
-      
-      console.log("NOME DA ABA:", workbook.SheetNames[0]);
-      console.log("PLANILHA:", primeiraAba);
-
-      const linhas =
-        XLSX.utils.sheet_to_json(primeiraAba, {
-          defval: ""
-        });
-      
-      alert(
-  "Linhas encontradas: " + linhas.length
-);
-      
       dados = linhas.map(linha => {
-
         const normalizado = {};
 
         Object.keys(linha).forEach(chave => {
+          const chaveNormalizada = chave.toString().trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
-          const chaveNormalizada =
-            chave
-              .toString()
-              .trim()
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "");
-
-          normalizado[chaveNormalizada] =
-            linha[chave];
-
+          normalizado[chaveNormalizada] = linha[chave];
         });
 
         return {
-
-          nome:
-            normalizado.nome || "",
-
-          empresa:
-            normalizado.empresa || "",
-
-          email:
-            normalizado.email || "",
-
-          telefone:
-            normalizado.telefone || "",
-
-          cidade:
-            normalizado.cidade || "",
-
-          uf:
-            normalizado.uf || "",
-
-          status:
-            normalizado.status || "Ativo",
-
-          observacao:
-            normalizado.observacao || ""
-
+          nome: String(normalizado.nome || "").trim(),
+          empresa: String(normalizado.empresa || "").trim(),
+          email: String(normalizado.email || "").trim(),
+          telefone: String(normalizado.telefone || "").trim(),
+          cidade: String(normalizado.cidade || "").trim(),
+          uf: String(normalizado.uf || "").trim().toUpperCase(),
+          status: String(normalizado.status || "Ativo").trim(),
+          observacao: String(normalizado.observacao || "").trim()
         };
-
       });
 
     } else if (extensao === "csv") {
-
       const texto = await arquivo.text();
+      const linhas = texto.split(/\r?\n/).filter(linha => linha.trim() !== "");
 
-      const linhas =
-        texto
-          .split(/\r?\n/)
-          .filter(linha => linha.trim() !== "");
+      if (linhas.length < 2) {
+        alert("O arquivo CSV não contém clientes para importar.");
+        return;
+      }
 
-      const separador =
-        linhas[0].includes(";") ? ";" : ",";
-
-      const cabecalho =
-        linhas[0]
-          .split(separador)
-          .map(item =>
-            item
-              .trim()
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "")
-          );
-
-      dados =
-        linhas.slice(1).map(linha => {
-
-          const valores =
-            linha.split(separador);
-
-          const pegar = nome => {
-
-            const indice =
-              cabecalho.indexOf(nome);
-
-            return indice >= 0
-              ? valores[indice].trim()
-              : "";
-
-          };
-
-          return {
-
-            nome: pegar("nome"),
-
-            empresa: pegar("empresa"),
-
-            email: pegar("email"),
-
-            telefone: pegar("telefone"),
-
-            cidade: pegar("cidade"),
-
-            uf: pegar("uf"),
-
-            status:
-              pegar("status") || "Ativo",
-
-            observacao:
-              pegar("observacao")
-
-          };
-
-        });
-
-    } else {
-
-      alert(
-        "Formato não permitido. Use CSV ou Excel."
+      const separador = linhas[0].includes(";") ? ";" : ",";
+      const cabecalho = linhas[0].split(separador).map(item =>
+        item.trim().toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
       );
 
+      dados = linhas.slice(1).map(linha => {
+        const valores = linha.split(separador);
+        const pegar = nome => {
+          const indice = cabecalho.indexOf(nome);
+          return indice >= 0 ? valores[indice].trim() : "";
+        };
+
+        return {
+          nome: pegar("nome"),
+          empresa: pegar("empresa"),
+          email: pegar("email"),
+          telefone: pegar("telefone"),
+          cidade: pegar("cidade"),
+          uf: pegar("uf").toUpperCase(),
+          status: pegar("status") || "Ativo",
+          observacao: pegar("observacao")
+        };
+      });
+
+    } else {
+      alert("Formato não permitido. Use CSV ou Excel.");
       return;
     }
 
-    const clientes =
-      JSON.parse(
-        localStorage.getItem("clientesPR")
-      ) || [];
+    const respostaAtual = await fetch("/api/clientes", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    const resultadoAtual = await respostaAtual.json();
+
+    if (!respostaAtual.ok || !resultadoAtual.sucesso) {
+      throw new Error("Não foi possível consultar os clientes existentes.");
+    }
+
+    const existentes = resultadoAtual.clientes || [];
+    const emailsExistentes = new Set(
+      existentes.map(c => (c.email || "").trim().toLowerCase()).filter(Boolean)
+    );
+
+    const novos = [];
+    let duplicados = 0;
+
+    dados.forEach(cliente => {
+      const email = cliente.email.toLowerCase();
+
+      if (!cliente.nome || !cliente.empresa || !email || emailsExistentes.has(email)) {
+        duplicados++;
+        return;
+      }
+
+      emailsExistentes.add(email);
+      novos.push(cliente);
+    });
 
     let importados = 0;
 
-    dados.forEach(cliente => {
+    for (const cliente of novos) {
+      const resposta = await fetch("/api/clientes", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente)
+      });
 
-      if (
-        cliente.email &&
-        !clientes.some(
-          existente =>
-            existente.email.toLowerCase() ===
-            cliente.email.toLowerCase()
-        )
-      ) {
+      const resultado = await resposta.json();
 
-        clientes.push(cliente);
-
-        importados++;
-
+      if (!resposta.ok || !resultado.sucesso) {
+        throw new Error(
+          resultado.erro || "Falha ao importar um cliente. Atualize a lista e confira os registros antes de tentar novamente."
+        );
       }
 
-    });
+      importados++;
+    }
 
-    localStorage.setItem(
-      "clientesPR",
-      JSON.stringify(clientes)
-    );
-
-    mostrarClientes();
+    await carregarClientesDoBanco();
 
     alert(
-      importados +
-      " cliente(s) importado(s) com sucesso!"
+      importados + " cliente(s) importado(s) com sucesso." +
+      (duplicados ? "\n" + duplicados + " linha(s) ignorada(s) por falta de dados obrigatórios ou e-mail duplicado." : "")
     );
 
   } catch (erro) {
-
-    console.error(erro);
-
-    alert(
-      "Erro ao importar o arquivo."
-    );
-
+    console.error("Erro ao importar clientes:", erro);
+    alert(erro.message || "Erro ao importar o arquivo.");
+  } finally {
+    event.target.value = "";
   }
-
-  event.target.value = "";
 }
-    
-function excluirCliente(index) {
-  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
 
-  if (!confirm("Deseja realmente excluir este cliente?")) {
+async function excluirCliente(id) {
+  const cliente = clientesBanco.find(
+    c => String(c.id) === String(id)
+  );
+
+  if (!cliente) {
+    alert("Cliente não encontrado no banco.");
     return;
   }
-
-    clientes.splice(index, 1);
-
-  localStorage.setItem("clientesPR", JSON.stringify(clientes));
-
-  mostrarClientes();
-}
-
-    function excluirCliente(index) {
-
-  const clientes =
-    JSON.parse(localStorage.getItem("clientesPR")) || [];
-
-  const cliente = clientes[index];
-
-  if (!cliente) return;
 
   const confirmar = confirm(
     `Deseja realmente excluir o cliente "${cliente.empresa}"?`
@@ -2218,59 +2102,57 @@ function excluirCliente(index) {
 
   if (!confirmar) return;
 
-  clientes.splice(index, 1);
+  try {
+    const resposta = await fetch(
+      `/api/clientes?id=${encodeURIComponent(id)}`,
+      {
+        method: "DELETE",
+        credentials: "include"
+      }
+    );
 
-  localStorage.setItem(
-    "clientesPR",
-    JSON.stringify(clientes)
-  );
+    const resultado = await resposta.json();
 
-  mostrarClientes();
-  atualizarDashboardClientes();
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Não foi possível excluir o cliente."
+      );
+    }
 
-  alert("Cliente excluído com sucesso!");
+    await carregarClientesDoBanco();
+
+    alert("Cliente excluído com sucesso!");
+  } catch (erro) {
+    console.error("Erro ao excluir cliente:", erro);
+    alert(erro.message || "Erro ao excluir cliente do banco.");
+  }
 }
 
-function editarCliente(index) {
+    function editarCliente(id) {
+  const cliente = clientesBanco.find(
+    c => String(c.id) === String(id)
+  );
 
-  const clientes =
-    JSON.parse(localStorage.getItem("clientesPR")) || [];
-
-  const cliente = clientes[index];
-
-  if (!cliente) return;
+  if (!cliente) {
+    alert("Cliente não encontrado no banco.");
+    return;
+  }
 
   document.getElementById("formularioCliente").style.display = "block";
 
-  document.getElementById("clienteNome").value =
-    cliente.nome || "";
+  document.getElementById("clienteNome").value = cliente.nome || "";
+  document.getElementById("clienteEmpresa").value = cliente.empresa || "";
+  document.getElementById("clienteEmail").value = cliente.email || "";
+  document.getElementById("clienteTelefone").value = cliente.telefone || "";
+  document.getElementById("clienteCidade").value = cliente.cidade || "";
+  document.getElementById("clienteUF").value = cliente.uf || "";
+  document.getElementById("clienteStatus").value = cliente.status || "Ativo";
+  document.getElementById("clienteObservacao").value = cliente.observacao || "";
 
-  document.getElementById("clienteEmpresa").value =
-    cliente.empresa || "";
-
-  document.getElementById("clienteEmail").value =
-    cliente.email || "";
-
-  document.getElementById("clienteTelefone").value =
-    cliente.telefone || "";
-
-  document.getElementById("clienteCidade").value =
-    cliente.cidade || "";
-
-  document.getElementById("clienteUF").value =
-    cliente.uf || "";
-
-  document.getElementById("clienteStatus").value =
-    cliente.status || "Ativo";
-
-  document.getElementById("clienteObservacao").value =
-    cliente.observacao || "";
-
-  window.clienteEditando = index;
+  window.clienteEditando = cliente.id;
 
   document.getElementById("clienteNome").focus();
 }
-
     
     
     
@@ -2291,7 +2173,7 @@ document.addEventListener("DOMContentLoaded", function () {
   desenharMapaClientesUF();
 
   // Clientes
-  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+  const clientes = clientesBanco || [];
   const totalClientes = document.getElementById("totalClientes");
 
   if (totalClientes) {
@@ -2335,7 +2217,8 @@ function desenharMapaClientesUF() {
   const elemento = document.getElementById("mapaClientesUF");
   if (!elemento) return;
 
-  const clientes = JSON.parse(localStorage.getItem("clientesPR")) || [];
+ 
+const clientes = clientesBanco || [];
 
   const estados = {
     AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas",
