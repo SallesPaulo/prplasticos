@@ -1314,11 +1314,13 @@
   }
 
 
-  function mostrarPainel() {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("panelScreen").style.display = "block";
-    document.getElementById("loginError").style.display = "none";
-  }
+ function mostrarPainel() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("panelScreen").style.display = "block";
+  document.getElementById("loginError").style.display = "none";
+
+  carregarClientesDoBanco();
+}
 
 
   function mostrarLogin() {
@@ -1580,97 +1582,72 @@ function fecharFormularioCliente() {
   document.getElementById("clienteObservacao").value = "";
 }
 
-function salvarCliente() {
 
-  const nome =
-    document.getElementById("clienteNome").value.trim();
+async function salvarCliente() {
+  const nome = document.getElementById("clienteNome").value.trim();
+  const empresa = document.getElementById("clienteEmpresa").value.trim();
+  const email = document.getElementById("clienteEmail").value.trim();
+  const telefone = document.getElementById("clienteTelefone").value.trim();
+  const cidade = document.getElementById("clienteCidade").value.trim();
+  const uf = document.getElementById("clienteUF").value;
+  const status = document.getElementById("clienteStatus").value;
+  const observacao = document.getElementById("clienteObservacao").value.trim();
 
-  const empresa =
-    document.getElementById("clienteEmpresa").value.trim();
-
-  const email =
-    document.getElementById("clienteEmail").value.trim();
-
-  const telefone =
-    document.getElementById("clienteTelefone").value.trim();
-
-  const cidade =
-    document.getElementById("clienteCidade").value.trim();
-
-  const uf =
-    document.getElementById("clienteUF").value;
-
-  const status =
-    document.getElementById("clienteStatus").value;
-
-  const observacao =
-    document.getElementById("clienteObservacao").value.trim();
-
-  if (!nome) {
-    alert("Informe o nome do contato.");
-    return;
-  }
-
-  if (!empresa) {
-    alert("Informe a empresa.");
-    return;
-  }
-
-  if (!email) {
-    alert("Informe o e-mail.");
-    return;
-  }
-
-  const clientes =
-    JSON.parse(localStorage.getItem("clientesPR")) || [];
+  if (!nome) return alert("Informe o nome do contato.");
+  if (!empresa) return alert("Informe a empresa.");
+  if (!email) return alert("Informe o e-mail.");
 
   const cliente = {
-    nome: nome,
-    empresa: empresa,
-    email: email,
-    telefone: telefone,
-    cidade: cidade,
-    uf: uf,
-    status: status,
-    observacao: observacao
+    nome, empresa, email, telefone, cidade, uf, status, observacao
   };
 
+  const idEditando = window.clienteEditando;
+
   if (
-    window.clienteEditando !== undefined &&
-    window.clienteEditando !== null
+    idEditando === undefined ||
+    idEditando === null
   ) {
-
-    clientes[window.clienteEditando] = cliente;
-
-    window.clienteEditando = null;
-
-    alert("Cliente atualizado com sucesso!");
-
-  } else {
-
-    const emailJaExiste = clientes.some(
-      clienteExistente =>
-        clienteExistente.email.toLowerCase() === email.toLowerCase()
+    const emailJaExiste = clientesBanco.some(
+      c => (c.email || "").toLowerCase() === email.toLowerCase()
     );
 
     if (emailJaExiste) {
-      alert("Já existe um cliente cadastrado com este e-mail.");
-      return;
+      return alert("Já existe um cliente cadastrado com este e-mail.");
     }
-
-    clientes.push(cliente);
-
-    alert("Cliente cadastrado com sucesso!");
   }
 
-  localStorage.setItem(
-    "clientesPR",
-    JSON.stringify(clientes)
-  );
+  try {
+    const resposta = await fetch("/api/clientes", {
+      method: idEditando !== undefined && idEditando !== null ? "PATCH" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        idEditando !== undefined && idEditando !== null
+          ? { id: idEditando, cliente }
+          : cliente
+      )
+    });
 
-  mostrarClientes();
-  atualizarDashboardClientes();
-  fecharFormularioCliente();
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(resultado.erro || "Não foi possível salvar o cliente.");
+    }
+
+    window.clienteEditando = null;
+
+    await carregarClientesDoBanco();
+    fecharFormularioCliente();
+
+    alert(
+      idEditando !== undefined && idEditando !== null
+        ? "Cliente atualizado com sucesso!"
+        : "Cliente cadastrado com sucesso!"
+    );
+  } catch (erro) {
+    console.error("Erro ao salvar cliente:", erro);
+    alert(erro.message || "Erro ao salvar cliente no banco.");
+  }
 }
     
 function atualizarDashboardClientes() {
@@ -1686,17 +1663,14 @@ function atualizarDashboardClientes() {
   }
 }
 
-    function mostrarClientes() {
-
+    
+function mostrarClientes() {
   const tabela = document.getElementById("tabelaClientes");
-
   if (!tabela) return;
 
-  const clientes =
-    JSON.parse(localStorage.getItem("clientesPR")) || [];
+  const clientes = clientesBanco || [];
 
   if (clientes.length === 0) {
-
     tabela.innerHTML = `
       <tr>
         <td colspan="7" style="text-align:center;color:#777;">
@@ -1704,27 +1678,19 @@ function atualizarDashboardClientes() {
         </td>
       </tr>
     `;
-
     return;
   }
 
-  tabela.innerHTML = clientes.map((cliente, index) => `
-
+  tabela.innerHTML = clientes.map(cliente => `
     <tr>
-
       <td>${cliente.nome || ""}</td>
-
       <td>${cliente.empresa || ""}</td>
-
       <td>${cliente.email || ""}</td>
-
       <td>${cliente.telefone || ""}</td>
-
       <td>
         ${cliente.cidade || ""}
         ${cliente.uf ? " / " + cliente.uf : ""}
       </td>
-
       <td>
         <span style="
           color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
@@ -1733,42 +1699,19 @@ function atualizarDashboardClientes() {
           ${cliente.status || "Ativo"}
         </span>
       </td>
-
       <td>
-
         <button
-          onclick="editarCliente(${index})"
-          style="
-            border:none;
-            background:none;
-            cursor:pointer;
-            font-size:18px;
-          "
-          title="Editar"
-        >
-          ✏️
-        </button>
-
+          onclick="editarCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Editar">✏️</button>
         <button
-          onclick="excluirCliente(${index})"
-          style="
-            border:none;
-            background:none;
-            cursor:pointer;
-            font-size:18px;
-          "
-          title="Excluir"
-        >
-          🗑️
-        </button>
-
+          onclick="excluirCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Excluir">🗑️</button>
       </td>
-
     </tr>
-
   `).join("");
 }
-
 function filtrarClientes() {
 
   const busca =
