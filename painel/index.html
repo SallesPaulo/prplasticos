@@ -1279,6 +1279,16 @@
 
   <script>
 
+    
+  // CONEXÃO COM O SUPABASE
+  const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co/rest/v1/";
+  const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
   // ==========================================
   // AUTENTICAÇÃO DO PAINEL
   // ==========================================
