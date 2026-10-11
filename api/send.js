@@ -50,7 +50,16 @@ module.exports = async (req, res) => {
       ];
     }
 
-    const resultado = await resend.emails.send(email);
+   const resultado = await resend.emails.send(email);
+
+if (resultado.error) {
+  console.error("Erro do Resend:", resultado.error);
+
+  return res.status(502).json({
+    sucesso: false,
+    erro: resultado.error.message || "O Resend não conseguiu enviar o e-mail."
+  });
+}
 
     return res.status(200).json({
       sucesso: true,
