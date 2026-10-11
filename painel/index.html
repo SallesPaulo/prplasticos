@@ -1849,81 +1849,35 @@ async function carregarCampanhasDoBanco() {
 }
 
     
+
 function mostrarCampanhas() {
   const area = document.getElementById("listaCampanhas");
 
   if (!area) return;
 
-  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
+  const campanhas = window.campanhasBanco || [];
 
   if (campanhas.length === 0) {
     area.innerHTML = "<p>Nenhuma campanha criada.</p>";
     return;
   }
 
-  area.innerHTML = campanhas.map((campanha, index) => `
+  area.innerHTML = campanhas.map(campanha => `
     <div class="panel-box" style="margin-bottom: 15px;">
-      <h3>${campanha.nome}</h3>
-      <p><strong>Assunto:</strong> ${campanha.assunto}</p>
-      <p><strong>Lista:</strong> ${campanha.lista}</p>
-      <p><strong>Data:</strong> ${campanha.data}</p>
+      <h3>${campanha.nome || ""}</h3>
+      <p><strong>Assunto:</strong> ${campanha.assunto || ""}</p>
+      <p><strong>Lista:</strong> ${campanha.lista || ""}</p>
+      <p><strong>Data:</strong> ${campanha.data || campanha.created_at || ""}</p>
+      <p><strong>Enviados:</strong> ${campanha.enviados || 0}</p>
 
-      <button class="primary-button" onclick="mostrarMensagem(decodeURIComponent(this.dataset.mensagem))" data-mensagem="${encodeURIComponent(campanha.mensagem)}">
-  Ver mensagem
-</button>
-     
+      <button
+        class="primary-button"
+        onclick="mostrarMensagem(decodeURIComponent(this.dataset.mensagem))"
+        data-mensagem="${encodeURIComponent(campanha.mensagem || "")}">
+        Ver mensagem
+      </button>
     </div>
   `).join("");
-}
-
-    function preVisualizarCampanha() {
-  const assunto = document.getElementById("campanhaAssunto").value;
-  const mensagem = document.getElementById("campanhaMensagem").value;
-
-  if (!assunto || !mensagem) {
-    alert("Preencha o assunto e a mensagem primeiro.");
-    return;
-  }
-
-  const janela = window.open("", "_blank", "width=700,height=600");
-
-  janela.document.write(`
-    <html>
-      <head>
-        <title>Pré-visualização - PR Plásticos</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            padding: 30px;
-            background: #f4f7fa;
-          }
-          .email {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-          }
-          h2 {
-            color: #064b82;
-          }
-          .mensagem {
-            white-space: pre-wrap; 
-            margin-top: 25px;
-            line-height: 1.6;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="email">
-          <h2>${assunto}</h2>
-          <div class="mensagem">${mensagem}</div>
-        </div>
-      </body>
-    </html>
-  `);
-
-  janela.document.close();
 }
 
 async function enviarTeste() {
