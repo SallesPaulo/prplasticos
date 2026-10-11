@@ -1077,6 +1077,15 @@
               onsubmit="criarCampanha(event)"
             >
 
+<label for="campanhaEmpresa">Empresa</label>
+<select id="campanhaEmpresa" required>
+  <option value="PR Plásticos Recicláveis">PR Plásticos Recicláveis</option>
+  <option value="Clean Recycling">Clean Recycling</option>
+  <option value="MW Plastic">MW Plastic</option>
+  <option value="CIC Plastic">CIC Plastic</option>
+  <option value="MHC Plastic">MHC Plastic</option>
+</select>
+              
               <div class="field">
 
                 <label>
@@ -1509,20 +1518,24 @@ async function criarCampanha(event) {
     let enviados = 0;
 
     for (const cliente of destinatarios) {
-      const resposta = await fetch("/api/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          destinatario: cliente.email,
-          assunto: assunto,
-          mensagem: mensagemFinal,
-          imagem: imagem,
-          imagemNome: imagemNome
-        })
-      });
 
+const empresa = document.getElementById("campanhaEmpresa").value;
+
+const resposta = await fetch("/api/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    empresa: empresa,
+    destinatario: cliente.email,
+    assunto: assunto,
+    mensagem: mensagemFinal,
+    imagem: imagem,
+    imagemNome: imagemNome
+  })
+});
+      
       const resultado = await resposta.json();
 
       if (resposta.ok && resultado.sucesso) {
@@ -1547,6 +1560,7 @@ const respostaBanco = await fetch("/api/campanhas", {
   },
   body: JSON.stringify({
     nome: campanha.nome,
+    empresa: document.getElementById("campanhaEmpresa").value,
     assunto: campanha.assunto,
     lista: campanha.lista,
     mensagem: campanha.mensagem,
