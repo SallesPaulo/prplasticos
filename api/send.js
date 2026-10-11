@@ -12,14 +12,15 @@ module.exports = async (req, res) => {
 
   try {
     const {
-      destinatario,
-      assunto,
-      mensagem,
-      imagem,
-      imagemNome
-    } = req.body;
+  empresa,
+  destinatario,
+  assunto,
+  mensagem,
+  imagem,
+  imagemNome
+} = req.body;
 
-    if (!destinatario || !assunto || !mensagem) {
+    if (!empresa || !destinatario || !assunto || !mensagem) {
       return res.status(400).json({
         sucesso: false,
         erro: "Destinatário, assunto e mensagem são obrigatórios."
@@ -27,7 +28,13 @@ module.exports = async (req, res) => {
     }
 
     const email = {
-      from: "PR Plásticos <comercial@prplasticos.com.br>",
+      from: ({
+  "PR Plásticos Recicláveis": "PR Plásticos <comercial@prplasticos.com.br>",
+  "Clean Recycling": "Clean Recycling <paulo.salles@cleanrecycling.com.br>",
+  "MW Plastic": "MW Plastic <salles2249@gmail.com>",
+  "CIC Plastic": "CIC Plastic <salles2249@gmail.com>",
+  "MHC Plastic": "MHC Plastic <salles2249@gmail.com>"
+})[empresa] || "PR Plásticos <comercial@prplasticos.com.br>",
       to: destinatario,
       subject: assunto,
       html: mensagem
