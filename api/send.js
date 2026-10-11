@@ -27,13 +27,20 @@ module.exports = async (req, res) => {
       });
     }
 
-    const email = {
-      from: "Clean Recycling <comercial@prplasticos.com.br>",
-})[empresa] || "PR Plásticos <comercial@prplasticos.com.br>"
-      to: destinatario,
-      subject: assunto,
-      html: mensagem
-    };
+ const remetentes = {
+  "PR Plásticos Recicláveis": "PR Plásticos <comercial@prplasticos.com.br>",
+  "Clean Recycling": "Clean Recycling <comercial@prplasticos.com.br>",
+  "MW Plastic": "MW Plastic <comercial@prplasticos.com.br>",
+  "CIC Plastic": "CIC Plastic <comercial@prplasticos.com.br>",
+  "MHC Plastic": "MHC Plastic <comercial@prplasticos.com.br>"
+};
+
+const email = {
+  from: remetentes[empresa] || remetentes["PR Plásticos Recicláveis"],
+  to: destinatario,
+  subject: assunto,
+  html: mensagem
+};
 
     if (imagem) {
       email.attachments = [
