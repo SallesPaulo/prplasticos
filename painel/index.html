@@ -1822,6 +1822,33 @@ function filtrarClientes() {
 function mostrarMensagem(mensagem) {
   alert(mensagem);
 }
+
+
+async function carregarCampanhasDoBanco() {
+  try {
+    const resposta = await fetch("/api/campanhas", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Não foi possível carregar as campanhas."
+      );
+    }
+
+    window.campanhasBanco = resultado.campanhas || [];
+    mostrarCampanhas();
+  } catch (erro) {
+    console.error("Erro ao carregar campanhas:", erro);
+    alert("Não foi possível carregar as campanhas do banco.");
+  }
+}
+
+    
 function mostrarCampanhas() {
   const area = document.getElementById("listaCampanhas");
 
