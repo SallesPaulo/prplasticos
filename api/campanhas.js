@@ -95,7 +95,7 @@ module.exports = async (req, res) => {
     if (req.method === "POST") {
       const campanha = req.body || {};
 
-      if (!campanha.nome || !campanha.assunto) {
+      if (!campanha.nome || !campanha.assunto || !campanha.empresa) {
         return res.status(400).json({
           sucesso: false,
           erro: "Nome e assunto são obrigatórios."
@@ -109,6 +109,7 @@ module.exports = async (req, res) => {
           Prefer: "return=representation"
         },
         body: JSON.stringify({
+          empresa: campanha.empresa,
           nome: campanha.nome,
           assunto: campanha.assunto,
           lista: campanha.lista || "",
