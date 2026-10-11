@@ -1894,8 +1894,9 @@ function mostrarCampanhas() {
   area.innerHTML = campanhas.map(campanha => `
     <div class="panel-box" style="margin-bottom: 15px;">
       <h3>${campanha.nome || ""}</h3>
+      <p><strong>Empresa:</strong> ${campanha.empresa || "PR Plásticos Recicláveis"}</p>
       <p><strong>Assunto:</strong> ${campanha.assunto || ""}</p>
-      <p><strong>Lista:</strong> ${campanha.lista || ""}</p>
+            <p><strong>Lista:</strong> ${campanha.lista || ""}</p>
       <p><strong>Data:</strong> ${campanha.data || campanha.created_at || ""}</p>
       <p><strong>Enviados:</strong> ${campanha.enviados || 0}</p>
 
