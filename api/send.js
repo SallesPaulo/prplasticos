@@ -30,10 +30,6 @@ module.exports = async (req, res) => {
     const email = {
       from: ({
   "PR Plásticos Recicláveis": "PR Plásticos <comercial@prplasticos.com.br>",
-  "Clean Recycling": "Clean Recycling <paulo.salles@cleanrecycling.com.br>",
-  "MW Plastic": "MW Plastic <salles2249@gmail.com>",
-  "CIC Plastic": "CIC Plastic <salles2249@gmail.com>",
-  "MHC Plastic": "MHC Plastic <salles2249@gmail.com>"
 })[empresa] || "PR Plásticos <comercial@prplasticos.com.br>",
       to: destinatario,
       subject: assunto,
