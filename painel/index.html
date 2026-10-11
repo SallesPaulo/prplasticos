@@ -1539,17 +1539,32 @@ async function criarCampanha(event) {
       enviados: enviados
     };
 
-    let campanhas =
-      JSON.parse(localStorage.getItem("campanhasPR")) || [];
+const respostaBanco = await fetch("/api/campanhas", {
+  method: "POST",
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    nome: campanha.nome,
+    assunto: campanha.assunto,
+    lista: campanha.lista,
+    mensagem: campanha.mensagem,
+    enviados: campanha.enviados
+  })
+});
 
-    campanhas.push(campanha);
+const resultadoBanco = await respostaBanco.json();
 
-    localStorage.setItem(
-      "campanhasPR",
-      JSON.stringify(campanhas)
-    );
+if (!respostaBanco.ok || !resultadoBanco.sucesso) {
+  throw new Error(
+    resultadoBanco.erro ||
+    "Os e-mails foram processados, mas não foi possível salvar o histórico da campanha."
+  );
+}
 
-    mostrarCampanhas();
+await carregarCampanhasDoBanco();
+
 
     alert(
       "Campanha enviada com sucesso para " +
