@@ -2202,7 +2202,7 @@ async function excluirCliente(id) {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-  mostrarCampanhas();
+ carregarCampanhasDoBanco();
   mostrarClientes();
   atualizarDashboardClientes();
   desenharMapaClientesUF();
@@ -2215,13 +2215,14 @@ document.addEventListener("DOMContentLoaded", function () {
     totalClientes.textContent = clientes.length;
   }
 
-  // Campanhas
-  const campanhas = JSON.parse(localStorage.getItem("campanhasPR")) || [];
-  const totalCampanhas = document.getElementById("totalCampanhas");
+ 
+// Campanhas
+const campanhas = window.campanhasBanco || [];
+const totalCampanhas = document.getElementById("totalCampanhas");
 
-  if (totalCampanhas) {
-    totalCampanhas.textContent = campanhas.length;
-  }
+if (totalCampanhas) {
+  totalCampanhas.textContent = campanhas.length;
+}
 
   // E-mails enviados
   let emailsEnviados = 0;
