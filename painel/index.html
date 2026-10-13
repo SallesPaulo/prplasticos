@@ -1132,6 +1132,11 @@
   <option value="selecionados">Selecionar clientes</option>
 </select>
 
+                <div
+  id="clientesSelecionarCampanha"
+  style="display:none; max-height:250px; overflow-y:auto; margin-top:10px; padding:10px; border:1px solid #ddd; border-radius:8px;"
+></div>
+
               </div>
 
 
@@ -1470,8 +1475,12 @@ if (lista === "inativos") {
 }
 
 if (lista === "selecionados") {
+  const idsSelecionados = Array.from(
+    document.querySelectorAll(".clienteSelecionadoCampanha:checked")
+  ).map(campo => String(campo.value));
+
   destinatarios = clientes.filter(cliente =>
-    document.getElementById("clienteCampanha_" + cliente.id)?.checked
+    idsSelecionados.includes(String(cliente.id))
   );
 }
 
@@ -2212,7 +2221,28 @@ async function excluirCliente(id) {
   document.getElementById("clienteNome").focus();
 }
     
-    
+    function atualizarSelecaoClientesCampanha() {
+  const lista = document.getElementById("clientesSelecionarCampanha");
+  const opcao = document.getElementById("campanhaLista").value;
+  const clientes = clientesBanco || [];
+
+  lista.style.display = opcao === "selecionados" ? "block" : "none";
+
+  if (opcao !== "selecionados") return;
+
+  lista.innerHTML = clientes.map(cliente => `
+    <label style="display:block; margin:8px 0;">
+      <input type="checkbox" class="clienteSelecionadoCampanha"
+        value="${cliente.id}">
+      ${cliente.nome || ""} — ${cliente.email || ""}
+    </label>
+  `).join("");
+}
+
+document.getElementById("campanhaLista").addEventListener(
+  "change",
+  atualizarSelecaoClientesCampanha
+);
     
   // ==========================================
   // INICIALIZAÇÃO
