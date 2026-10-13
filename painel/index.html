@@ -1002,21 +1002,22 @@
 
       <table>
 
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Empresa</th>
-            <th>E-mail</th>
-            <th>Telefone</th>
-            <th>Cidade / UF</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
+      <thead>
+  <tr>
+    <th>Selecionar</th>
+    <th>Nome</th>
+    <th>Empresa</th>
+    <th>E-mail</th>
+    <th>Telefone</th>
+    <th>Cidade / UF</th>
+    <th>Status</th>
+    <th>Ações</th>
+  </tr>
+</thead>
 
-        <tbody id="tabelaClientes">
-
-          <tr>
+<tbody id="tabelaClientes">
+  
+  <tr>
             <td colspan="7" style="text-align:center;color:#777;">
               Nenhum cliente cadastrado.
             </td>
@@ -1120,21 +1121,16 @@
 
               <div class="field">
 
-                <label>
-                  Lista de destinatários
-                </label>
+        <label>
+  Lista de destinatários
+</label>
 
-                <select id="campanhaLista">
-
-                  <option value="todos">
-                    Todos os clientes
-                  </option>
-
-                  <option value="ativos">
-                    Clientes ativos
-                  </option>
-
-                </select>
+<select id="campanhaLista">
+  <option value="todos">Todos os clientes</option>
+  <option value="ativos">Clientes ativos</option>
+  <option value="inativos">Clientes inativos</option>
+  <option value="selecionados">Selecionar clientes</option>
+</select>
 
               </div>
 
@@ -1463,25 +1459,34 @@ async function criarCampanha(event) {
 
   const clientes = clientesBanco || [];
 
-  let destinatarios = clientes;
+ let destinatarios = clientes;
 
-  if (lista === "ativos") {
-    destinatarios = clientes.filter(cliente => cliente.status === "Ativo");
-  }
+if (lista === "ativos") {
+  destinatarios = clientes.filter(cliente => cliente.status === "Ativo");
+}
 
-  if (destinatarios.length === 0) {
-    alert("Nenhum cliente encontrado para esta campanha.");
-    return;
-  }
+if (lista === "inativos") {
+  destinatarios = clientes.filter(cliente => cliente.status !== "Ativo");
+}
 
-  if (!confirm(
-    "A campanha será enviada para " +
-    destinatarios.length +
-    " cliente(s). Deseja continuar?"
-  )) {
-    return;
-  }
+if (lista === "selecionados") {
+  destinatarios = clientes.filter(cliente =>
+    document.getElementById("clienteCampanha_" + cliente.id)?.checked
+  );
+}
 
+if (destinatarios.length === 0) {
+  alert("Nenhum cliente encontrado para esta campanha.");
+  return;
+}
+
+if (!confirm(
+  "A campanha será enviada para " +
+  destinatarios.length +
+  " cliente(s). Deseja continuar?"
+)) {
+  return;
+}
   try {
     let imagem = null;
     let imagemNome = null;
@@ -1748,7 +1753,10 @@ function mostrarClientes() {
   }
 
   tabela.innerHTML = clientes.map(cliente => `
-    <tr>
+   <tr>
+  <td>
+    <input type="checkbox" id="clienteCampanha_${cliente.id}">
+  </td>
       <td>${cliente.nome || ""}</td>
       <td>${cliente.empresa || ""}</td>
       <td>${cliente.email || ""}</td>
