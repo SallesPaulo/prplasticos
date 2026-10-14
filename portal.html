@@ -225,6 +225,31 @@ async function carregarPerfil(usuario) {
   await carregarPedidos();
 }
 
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  mensagem.textContent = "Verificando acesso...";
+
+  const { data, error } = await cliente.auth.signInWithPassword({
+    email: document.getElementById("email").value.trim(),
+    password: document.getElementById("senha").value
+  });
+
+  if (error) {
+    mensagem.textContent = "E-mail ou senha inválidos.";
+    return;
+  }
+
+  await carregarPerfil(data.user);
+});
+
+document.getElementById("sair").addEventListener("click", async () => {
+  await cliente.auth.signOut();
+  area.style.display = "none";
+  form.style.display = "block";
+  form.reset();
+  mensagem.textContent = "Você saiu do portal.";
+});
    
   </script>
 </body>
