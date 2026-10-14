@@ -436,30 +436,65 @@ function preencherEmail(p){
   document.getElementById("emailObservacoes").value = p.observacoes || "Nenhuma observação informada.";
 }
 
-async function enviarEmail(p){
+
+async function enviarEmail(p) {
   const form = document.getElementById("emailForm");
   const data = new FormData(form);
 
-  mostrarStatus("Enviando o orçamento para a PR Plásticos...", "success");
+  mostrarStatus("Registrando orçamento...", "success");
 
-  try{
-    const response = await fetch(form.action,{
-      method:"POST",
-      body:data,
-      headers:{Accept:"application/json"}
+  try {
+    const respostaPedido = await fetch("/api/pedidos", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...p,
+        website: ""
+      })
     });
 
-    if(response.ok){
-      mostrarStatus("Orçamento gerado e enviado com sucesso. A PR Plásticos receberá os dados e o cliente poderá receber a cópia conforme a configuração do Formspree.", "success");
-    }else{
-      mostrarStatus("O orçamento foi gerado na tela, mas houve um problema no envio automático por e-mail. Você ainda pode imprimir, salvar em PDF ou enviar pelo WhatsApp.", "error");
+    if (!respostaPedido.ok) {
+      const erro = await respostaPedido.json().catch(() => ({}));
+      throw new Error(erro.erro || "Falha ao registrar orçamento.");
     }
-  }catch(e){
-    mostrarStatus("O orçamento foi gerado na tela, mas não foi possível concluir o envio automático. Você ainda pode imprimir, salvar em PDF ou enviar pelo WhatsApp.", "error");
+
+    mostrarStatus("Pedido registrado. Enviando e-mail...", "success");
+
+    const respostaEmail = await fetch(form.action, {
+      method: "POST",
+      body: data,
+      headers: {
+        Accept: "application/json"
+      }
+    });
+
+    if (!respostaEmail.ok) {
+      mostrarStatus(
+        "Pedido registrado, mas houve falha no envio do e-mail. Entre em contato com a PR Plásticos.",
+        "error"
+      );
+      return;
+    }
+
+    mostrarStatus(
+      "Orçamento registrado e enviado por e-mail com sucesso!",
+      "success"
+    );
+
+  } catch (erro) {
+    console.error("Erro no orçamento:", erro);
+
+    mostrarStatus(
+      erro.message || "Não foi possível concluir o orçamento.",
+      "error"
+    );
   }
 }
 
-function enviarWhatsApp(){
+  
+  function enviarWhatsApp(){
   if(!pedidoAtual)return;
 
   let texto =
