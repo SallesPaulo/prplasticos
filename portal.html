@@ -144,14 +144,37 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
     const mensagem = document.getElementById("mensagem");
     const area = document.getElementById("areaCliente");
 
-    
+
 async function carregarPedidos() {
   const lista = document.getElementById("listaPedidos");
   lista.textContent = "Carregando pedidos...";
 
+  // Identifica o usuário autenticado
+  const { data: authData, error: authError } =
+    await cliente.auth.getUser();
+
+  if (authError || !authData.user) {
+    lista.textContent = "Sessão expirada. Entre novamente no portal.";
+    return;
+  }
+
+  // Obtém o vínculo do usuário com o cadastro do cliente
+  const { data: perfil, error: perfilError } = await cliente
+    .from("usuarios_portal")
+    .select("cliente_id, ativo")
+    .eq("id", authData.user.id)
+    .single();
+
+  if (perfilError || !perfil || !perfil.ativo || !perfil.cliente_id) {
+    lista.textContent = "Não foi possível identificar seu cadastro.";
+    return;
+  }
+
+  // Busca somente pedidos vinculados ao cliente autenticado
   const { data, error } = await cliente
     .from("pedidos")
-    .select("numero, data_pedido, status, total")
+    .select("numero, data_pedido, status, itens, total")
+    .eq("cliente_id", perfil.cliente_id)
     .order("data_pedido", { ascending: false })
     .limit(50);
 
@@ -171,30 +194,82 @@ async function carregarPedidos() {
   data.forEach((pedido) => {
     const card = document.createElement("div");
     card.style.cssText =
-      "padding:14px;margin:12px 0;border:1px solid #dbe5f0;border-radius:8px;text-align:left;";
+      "padding:16px;margin:16px 0;border:1px solid #dbe5f0;border-radius:10px;text-align:left;background:#fff;";
 
-    const titulo = document.createElement("strong");
+    const titulo = document.createElement("h3");
     titulo.style.color = "#174b87";
-    titulo.textContent = pedido.numero || "Pedido";
+    titulo.textContent = "Pedido " + (pedido.numero || "");
+    card.appendChild(titulo);
 
-    const detalhes = document.createElement("p");
-    const dataPedido = pedido.data_pedido
-      ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR")
-      : "Não informada";
-    const total = Number(pedido.total || 0).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
+    const resumo = document.createElement("p");
+    resumo.textContent =
+      "Data: " +
+      (pedido.data_pedido
+        ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR")
+        : "Não informada") +
+      " | Status: " + (pedido.status || "Em análise");
+    card.appendChild(resumo);
+
+    const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+
+    if (itens.length === 0) {
+      const semItens = document.createElement("p");
+      semItens.textContent = "Nenhum item detalhado neste pedido.";
+      card.appendChild(semItens);
+    }
+
+    itens.forEach((item) => {
+      const produto = document.createElement("div");
+      produto.style.cssText =
+        "padding:12px 0;border-top:1px solid #e5ebf2;";
+
+      const nome = document.createElement("strong");
+      nome.style.color = "#174b87";
+      nome.textContent = item.nome || "Produto";
+      produto.appendChild(nome);
+
+      const especificacao = document.createElement("p");
+      especificacao.textContent =
+        "Especificação: " + (item.especificacao || "Não informada");
+      produto.appendChild(especificacao);
+
+      const quantidade = Number(item.quantidade || 0);
+      const preco = Number(item.preco || 0);
+      const totalItem = Number(item.total ?? quantidade * preco);
+
+      const detalhes = document.createElement("p");
+      detalhes.textContent =
+        "Peso/Quantidade: " + quantidade.toLocaleString("pt-BR") + " kg" +
+        " | Valor unitário: " +
+        preco.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        }) +
+        " | Total do item: " +
+        totalItem.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL"
+        });
+
+      produto.appendChild(detalhes);
+      card.appendChild(produto);
     });
 
-    detalhes.textContent =
-      "Data: " + dataPedido +
-      " | Status: " + (pedido.status || "Em análise") +
-      " | Total: " + total;
+    const totalPedido = document.createElement("h3");
+    totalPedido.style.cssText =
+      "text-align:right;color:#174b87;margin-top:18px;";
+    totalPedido.textContent =
+      "Total do pedido: " +
+      Number(pedido.total || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
 
-    card.append(titulo, detalhes);
-    lista.append(card);
+    card.appendChild(totalPedido);
+    lista.appendChild(card);
   });
 }
+    
 
 
 async function carregarPerfil(usuario) {
