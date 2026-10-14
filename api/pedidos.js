@@ -9,15 +9,21 @@ module.exports = async (req, res) => {
     });
   }
 
-  const body = req.body || {};
+  if (JSON.stringify(body).length > 60000) {
+  return res.status(413).json({
+    erro: "Solicitação muito grande."
+  });
+}
 
   // Proteção básica contra robôs (campo honeypot)
-  if (body.website) {
-    return res.status(201).json({
-      sucesso: true,
-      mensagem: "Orçamento registrado."
-    });
-  }
+if (
+  typeof body.website === "string" &&
+  body.website.trim() !== ""
+) {
+  return res.status(400).json({
+    erro: "Solicitação inválida."
+  });
+}
 
   const {
     numero, nome, empresa, cnpj, email: emailCliente,
