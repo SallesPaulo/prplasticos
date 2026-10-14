@@ -90,6 +90,46 @@ if (
     });
   }
 
+const ip = (
+  req.headers["x-forwarded-for"] || ""
+).split(",")[0].trim();
+
+if (!ip) {
+  return res.status(400).json({
+    erro: "Não foi possível validar a solicitação."
+  });
+}
+
+const limiteResposta = await fetch(
+  `${process.env.SUPABASE_URL.replace(/\/+$/, "").replace(/\/rest\/v1$/, "")}/rest/v1/rpc/verificar_limite_pedidos`,
+  {
+    method: "POST",
+    headers: {
+      apikey: process.env.CHAVE_SECRETA_SUPABASE,
+      Authorization: `Bearer ${process.env.CHAVE_SECRETA_SUPABASE}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      p_ip: ip
+    })
+  }
+);
+
+if (!limiteResposta.ok) {
+  console.error("Falha ao verificar limite:", await limiteResposta.text());
+  return res.status(503).json({
+    erro: "Não foi possível validar o envio. Tente novamente."
+  });
+}
+
+const permitido = await limiteResposta.json();
+
+if (permitido !== true) {
+  return res.status(429).json({
+    erro: "Limite de solicitações atingido. Tente novamente em 10 minutos."
+  });
+}
+  
   const url = process.env.SUPABASE_URL;
   const chave = process.env.CHAVE_SECRETA_SUPABASE;
 
