@@ -224,6 +224,7 @@ status.style.cssText =
 card.appendChild(status);
 
 
+
 const resumo = document.createElement("p");
 resumo.textContent =
   "Data: " +
@@ -232,9 +233,9 @@ resumo.textContent =
     : "Não informada");
 card.appendChild(resumo);
 
-const status = document.createElement("span");
+const etiquetaStatus = document.createElement("span");
 const textoStatus = (pedido.status || "Em análise").trim();
-status.textContent = textoStatus;
+etiquetaStatus.textContent = textoStatus;
 
 const coresStatus = {
   "em análise": ["#fff4cc", "#8a6500"],
@@ -247,13 +248,12 @@ const coresStatus = {
 
 const cores = coresStatus[textoStatus.toLowerCase()] || ["#edf3fa", "#40566f"];
 
-status.style.cssText =
+etiquetaStatus.style.cssText =
   "display:inline-block;padding:6px 12px;border-radius:20px;" +
   "font-size:13px;font-weight:bold;margin:8px 0 12px;" +
   "background:" + cores[0] + ";color:" + cores[1] + ";";
 
-card.appendChild(status);
-
+card.appendChild(etiquetaStatus);
 
     const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
 
