@@ -109,11 +109,25 @@
 
     <div id="mensagem" role="status"></div>
 
-    <section id="areaCliente">
-      <h2 id="boasVindas"></h2>
-      <p id="empresaCliente"></p>
-      <button id="sair" type="button">Sair</button>
-    </section>
+    
+<section id="areaCliente">
+  <h2 id="boasVindas"></h2>
+  <p id="empresaCliente"></p>
+
+  <hr style="border:0;border-top:1px solid #dbe5f0;margin:24px 0;">
+
+  <h3 style="color:#174b87;text-align:left;">
+    Meus pedidos
+  </h3>
+
+  <div id="listaPedidos">
+    Carregando pedidos...
+  </div>
+
+  <button id="sair" type="button">Sair do portal</button>
+</section>
+
+   
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -130,6 +144,59 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
     const mensagem = document.getElementById("mensagem");
     const area = document.getElementById("areaCliente");
 
+    
+async function carregarPedidos() {
+  const lista = document.getElementById("listaPedidos");
+  lista.textContent = "Carregando pedidos...";
+
+  const { data, error } = await cliente
+    .from("pedidos")
+    .select("numero, data_pedido, status, total")
+    .order("data_pedido", { ascending: false })
+    .limit(50);
+
+  if (error) {
+    lista.textContent = "Não foi possível carregar os pedidos.";
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    lista.textContent = "Nenhum pedido encontrado.";
+    return;
+  }
+
+  lista.replaceChildren();
+
+  data.forEach((pedido) => {
+    const card = document.createElement("div");
+    card.style.cssText =
+      "padding:14px;margin:12px 0;border:1px solid #dbe5f0;border-radius:8px;text-align:left;";
+
+    const titulo = document.createElement("strong");
+    titulo.style.color = "#174b87";
+    titulo.textContent = pedido.numero || "Pedido";
+
+    const detalhes = document.createElement("p");
+    const dataPedido = pedido.data_pedido
+      ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR")
+      : "Não informada";
+    const total = Number(pedido.total || 0).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+
+    detalhes.textContent =
+      "Data: " + dataPedido +
+      " | Status: " + (pedido.status || "Em análise") +
+      " | Total: " + total;
+
+    card.append(titulo, detalhes);
+    lista.append(card);
+  });
+}
+
+
     async function carregarPerfil(usuario) {
       const { data, error } = await cliente
         .from("usuarios_portal")
@@ -141,6 +208,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
         await cliente.auth.signOut();
         mensagem.textContent =
           "Acesso não liberado. Entre em contato com a PR Plásticos.";
+        
         return;
       }
 
@@ -152,7 +220,8 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
         "Empresa: " + data.empresa;
       mensagem.textContent = "";
     }
-
+await carregarPedidos();
+    
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       mensagem.textContent = "Verificando acesso...";
