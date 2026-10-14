@@ -6,134 +6,197 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Portal do Cliente | PR Plásticos</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<style>
-  * {
-    box-sizing: border-box;
-  }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #edf3fa;
+      color: #243b53;
+      min-height: 100vh;
+      padding: 30px 16px;
+    }
 
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #edf3fa;
-    color: #243b53;
-    min-height: 100vh;
-    padding: 30px 16px;
-  }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 32px 28px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(23, 75, 135, 0.12);
+      border-top: 6px solid #174b87;
+      text-align: center;
+    }
 
-  .container {
-    max-width: 440px;
-    margin: 40px auto;
-    padding: 32px 28px;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 8px 30px rgba(23, 75, 135, 0.12);
-    border-top: 6px solid #174b87;
-    text-align: center;
-  }
+    h1, h2, h3 {
+      color: #174b87;
+    }
 
-  h1 {
-    color: #174b87;
-    font-size: 26px;
-    margin-bottom: 8px;
-  }
+    p {
+      color: #60758b;
+    }
 
-  h2 {
-    color: #174b87;
-  }
+    input, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 14px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-  p {
-    color: #60758b;
-  }
+    input {
+      border: 1px solid #cbd8e6;
+      background: #f8fbff;
+      outline: none;
+    }
 
-  input,
-  button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 14px;
-    border-radius: 8px;
-    font-size: 16px;
-  }
+    input:focus {
+      border-color: #174b87;
+    }
 
-  input {
-    border: 1px solid #cbd8e6;
-    background: #f8fbff;
-    outline: none;
-  }
+    button {
+      border: none;
+      background: #174b87;
+      color: #ffffff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-  input:focus {
-    border-color: #174b87;
-  }
+    button:hover {
+      background: #103965;
+    }
 
-  button {
-    border: none;
-    background: #174b87;
-    color: #ffffff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
+    #mensagem {
+      margin-top: 16px;
+      color: #174b87;
+      font-size: 14px;
+    }
 
-  button:hover {
-    background: #103965;
-  }
+    #areaCliente {
+      display: none;
+      text-align: left;
+    }
 
-  #mensagem {
-    margin-top: 16px;
-    color: #174b87;
-    font-size: 14px;
-  }
+    #areaCliente > h2,
+    #areaCliente > p {
+      text-align: center;
+    }
 
-  #areaCliente {
-    display: none;
-  }
-</style>
+    .pedido-card {
+      padding: 16px;
+      margin: 16px 0;
+      border: 1px solid #dbe5f0;
+      border-radius: 10px;
+      text-align: left;
+      background: #ffffff;
+      overflow-wrap: anywhere;
+    }
 
-  
+    .pedido-card h3 {
+      margin-top: 0;
+    }
+
+    .item-pedido {
+      padding: 12px 0;
+      border-top: 1px solid #e5ebf2;
+    }
+
+    .status-pedido {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      margin: 8px 0 12px;
+    }
+
+    .total-pedido {
+      text-align: right;
+      color: #174b87;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      .container {
+        margin: 16px auto;
+        padding: 24px 16px;
+      }
+
+      .pedido-card {
+        padding: 12px;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <div class="container">
+
     <img
-  src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
-      alt="PR Plásticos Recicláveis" 
-      style="width:180px;max-width:100%;height:auto;">
-<p style="font-size:20px;font-weight:bold;color:#174b87;">Portal do Cliente</p>
+      src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
+      alt="PR Plásticos Recicláveis"
+      style="width:180px;max-width:100%;height:auto;"
+    >
+
+    <p style="font-size:20px;font-weight:bold;color:#174b87;">
+      Portal do Cliente
+    </p>
 
     <form id="loginForm">
-      <input id="email" type="email"
-        placeholder="Seu e-mail" required>
-      <input id="senha" type="password"
-        placeholder="Sua senha" required>
+      <input
+        id="email"
+        type="email"
+        placeholder="Seu e-mail"
+        autocomplete="username"
+        required
+      >
+
+      <input
+        id="senha"
+        type="password"
+        placeholder="Sua senha"
+        autocomplete="current-password"
+        required
+      >
+
       <button type="submit">Entrar no portal</button>
     </form>
 
-    <div id="mensagem" role="status"></div>
+    <div id="mensagem" role="status" aria-live="polite"></div>
 
-    
-<section id="areaCliente">
-  <h2 id="boasVindas"></h2>
-  <p id="empresaCliente"></p>
+    <section id="areaCliente">
+      <h2 id="boasVindas"></h2>
+      <p id="empresaCliente"></p>
 
-  <hr style="border:0;border-top:1px solid #dbe5f0;margin:24px 0;">
+      <hr style="border:0;border-top:1px solid #dbe5f0;margin:24px 0;">
 
-  <h3 style="color:#174b87;text-align:left;">
-    Meus pedidos
-  </h3>
+      <h3>Meus pedidos</h3>
 
-  <div id="listaPedidos">
-    Carregando pedidos...
-  </div>
+      <div id="listaPedidos">
+        Carregando pedidos...
+      </div>
 
-  <button id="sair" type="button">Sair do portal</button>
-</section>
+      <button id="sair" type="button">Sair do portal</button>
+    </section>
 
-   
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
+    const SUPABASE_URL =
+      "https://tyetobhxkdhrvtsludym.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
 
     const cliente = window.supabase.createClient(
       SUPABASE_URL,
@@ -143,234 +206,255 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
     const form = document.getElementById("loginForm");
     const mensagem = document.getElementById("mensagem");
     const area = document.getElementById("areaCliente");
+    const lista = document.getElementById("listaPedidos");
 
+    async function carregarPedidos() {
+      lista.textContent = "Carregando pedidos...";
 
-async function carregarPedidos() {
-  const lista = document.getElementById("listaPedidos");
-  lista.textContent = "Carregando pedidos...";
+      try {
+        const {
+          data: authData,
+          error: authError
+        } = await cliente.auth.getUser();
 
-  // Identifica o usuário autenticado
-  const { data: authData, error: authError } =
-    await cliente.auth.getUser();
+        if (authError || !authData.user) {
+          lista.textContent =
+            "Sessão expirada. Entre novamente no portal.";
+          return;
+        }
 
-  if (authError || !authData.user) {
-    lista.textContent = "Sessão expirada. Entre novamente no portal.";
-    return;
-  }
+        const {
+          data: perfil,
+          error: perfilError
+        } = await cliente
+          .from("usuarios_portal")
+          .select("cliente_id, ativo")
+          .eq("id", authData.user.id)
+          .single();
 
-  // Obtém o vínculo do usuário com o cadastro do cliente
-  const { data: perfil, error: perfilError } = await cliente
-    .from("usuarios_portal")
-    .select("cliente_id, ativo")
-    .eq("id", authData.user.id)
-    .single();
+        if (
+          perfilError ||
+          !perfil ||
+          !perfil.ativo ||
+          !perfil.cliente_id
+        ) {
+          lista.textContent =
+            "Não foi possível identificar seu cadastro.";
+          return;
+        }
 
-  if (perfilError || !perfil || !perfil.ativo || !perfil.cliente_id) {
-    lista.textContent = "Não foi possível identificar seu cadastro.";
-    return;
-  }
+        const {
+          data: pedidos,
+          error: pedidosError
+        } = await cliente
+          .from("pedidos")
+          .select("numero, data_pedido, status, itens, total")
+          .eq("cliente_id", perfil.cliente_id)
+          .order("data_pedido", { ascending: false })
+          .limit(50);
 
-  // Busca somente pedidos vinculados ao cliente autenticado
-  const { data, error } = await cliente
-    .from("pedidos")
-    .select("numero, data_pedido, status, itens, total")
-    .eq("cliente_id", perfil.cliente_id)
-    .order("data_pedido", { ascending: false })
-    .limit(50);
+        if (pedidosError) {
+          console.error("Erro ao carregar pedidos:", pedidosError);
+          lista.textContent =
+            "Não foi possível carregar os pedidos.";
+          return;
+        }
 
-  if (error) {
-    lista.textContent = "Não foi possível carregar os pedidos.";
-    console.error(error);
-    return;
-  }
+        if (!pedidos || pedidos.length === 0) {
+          lista.textContent = "Nenhum pedido encontrado.";
+          return;
+        }
 
-  if (!data || data.length === 0) {
-    lista.textContent = "Nenhum pedido encontrado.";
-    return;
-  }
+        lista.replaceChildren();
 
-  lista.replaceChildren();
+        pedidos.forEach((pedido) => {
+          const card = document.createElement("div");
+          card.className = "pedido-card";
 
-  data.forEach((pedido) => {
-    const card = document.createElement("div");
-    card.style.cssText =
-      "padding:16px;margin:16px 0;border:1px solid #dbe5f0;border-radius:10px;text-align:left;background:#fff;";
+          const titulo = document.createElement("h3");
+          titulo.textContent =
+            "Pedido " + (pedido.numero || "");
+          card.appendChild(titulo);
 
-    const titulo = document.createElement("h3");
-    titulo.style.color = "#174b87";
-    titulo.textContent = "Pedido " + (pedido.numero || "");
-    card.appendChild(titulo);
+          // Data do pedido
+          const resumo = document.createElement("p");
+          resumo.textContent =
+            "Data: " +
+            (pedido.data_pedido
+              ? new Date(pedido.data_pedido)
+                  .toLocaleDateString("pt-BR")
+              : "Não informada");
 
-const status = document.createElement("span");
-const textoStatus = (pedido.status || "Em análise").trim();
-status.textContent = textoStatus;
+          card.appendChild(resumo);
 
-const coresStatus = {
-  "em análise": ["#fff4cc", "#8a6500"],
-  "em producao": ["#dceeff", "#174b87"],
-  "em produção": ["#dceeff", "#174b87"],
-  "aguardando entrega": ["#eee5ff", "#6842a6"],
-  "entregue": ["#d9f7e5", "#176b3a"],
-  "cancelado": ["#ffe0e0", "#a32626"]
-};
+          // Status do pedido: bloco único, sem duplicações
+          const etiquetaStatus = document.createElement("span");
+          const textoStatus =
+            (pedido.status || "Em análise").trim();
 
-const cores = coresStatus[textoStatus.toLowerCase()] || ["#edf3fa", "#40566f"];
+          etiquetaStatus.textContent = textoStatus;
+          etiquetaStatus.className = "status-pedido";
 
-status.style.cssText =
-  "display:inline-block;padding:6px 12px;border-radius:20px;" +
-  "font-size:13px;font-weight:bold;margin:8px 0 12px;" +
-  "background:" + cores[0] + ";color:" + cores[1] + ";";
+          const coresStatus = {
+            "em análise": ["#fff4cc", "#8a6500"],
+            "em producao": ["#dceeff", "#174b87"],
+            "em produção": ["#dceeff", "#174b87"],
+            "aguardando entrega": ["#eee5ff", "#6842a6"],
+            "entregue": ["#d9f7e5", "#176b3a"],
+            "cancelado": ["#ffe0e0", "#a32626"]
+          };
 
-card.appendChild(status);
+          const chaveStatus = textoStatus
+            .toLocaleLowerCase("pt-BR");
 
+          const cores =
+            coresStatus[chaveStatus] ||
+            ["#edf3fa", "#40566f"];
 
+          etiquetaStatus.style.backgroundColor = cores[0];
+          etiquetaStatus.style.color = cores[1];
 
-const resumo = document.createElement("p");
-resumo.textContent =
-  "Data: " +
-  (pedido.data_pedido
-    ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR")
-    : "Não informada");
-card.appendChild(resumo);
+          card.appendChild(etiquetaStatus);
 
-const etiquetaStatus = document.createElement("span");
-const textoStatus = (pedido.status || "Em análise").trim();
-etiquetaStatus.textContent = textoStatus;
+          // Itens do pedido
+          const itens = Array.isArray(pedido.itens)
+            ? pedido.itens
+            : [];
 
-const coresStatus = {
-  "em análise": ["#fff4cc", "#8a6500"],
-  "em producao": ["#dceeff", "#174b87"],
-  "em produção": ["#dceeff", "#174b87"],
-  "aguardando entrega": ["#eee5ff", "#6842a6"],
-  "entregue": ["#d9f7e5", "#176b3a"],
-  "cancelado": ["#ffe0e0", "#a32626"]
-};
+          if (itens.length === 0) {
+            const semItens = document.createElement("p");
+            semItens.textContent =
+              "Nenhum item detalhado neste pedido.";
+            card.appendChild(semItens);
+          }
 
-const cores = coresStatus[textoStatus.toLowerCase()] || ["#edf3fa", "#40566f"];
+          itens.forEach((item) => {
+            const produto = document.createElement("div");
+            produto.className = "item-pedido";
 
-etiquetaStatus.style.cssText =
-  "display:inline-block;padding:6px 12px;border-radius:20px;" +
-  "font-size:13px;font-weight:bold;margin:8px 0 12px;" +
-  "background:" + cores[0] + ";color:" + cores[1] + ";";
+            const nome = document.createElement("strong");
+            nome.style.color = "#174b87";
+            nome.textContent = item.nome || "Produto";
+            produto.appendChild(nome);
 
-card.appendChild(etiquetaStatus);
+            const especificacao = document.createElement("p");
+            especificacao.textContent =
+              "Especificação: " +
+              (item.especificacao || "Não informada");
 
-    const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+            produto.appendChild(especificacao);
 
-    if (itens.length === 0) {
-      const semItens = document.createElement("p");
-      semItens.textContent = "Nenhum item detalhado neste pedido.";
-      card.appendChild(semItens);
-    }
+            const quantidade = Number(item.quantidade || 0);
+            const preco = Number(item.preco || 0);
+            const totalItem = Number(
+              item.total ?? quantidade * preco
+            );
 
-    itens.forEach((item) => {
-      const produto = document.createElement("div");
-      produto.style.cssText =
-        "padding:12px 0;border-top:1px solid #e5ebf2;";
+            const detalhes = document.createElement("p");
 
-      const nome = document.createElement("strong");
-      nome.style.color = "#174b87";
-      nome.textContent = item.nome || "Produto";
-      produto.appendChild(nome);
+            detalhes.textContent =
+              "Peso/Quantidade: " +
+              quantidade.toLocaleString("pt-BR") +
+              " kg | Valor unitário: " +
+              preco.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              }) +
+              " | Total do item: " +
+              totalItem.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              });
 
-      const especificacao = document.createElement("p");
-      especificacao.textContent =
-        "Especificação: " + (item.especificacao || "Não informada");
-      produto.appendChild(especificacao);
+            produto.appendChild(detalhes);
+            card.appendChild(produto);
+          });
 
-      const quantidade = Number(item.quantidade || 0);
-      const preco = Number(item.preco || 0);
-      const totalItem = Number(item.total ?? quantidade * preco);
+          // Total do pedido
+          const totalPedido = document.createElement("h3");
+          totalPedido.className = "total-pedido";
 
-      const detalhes = document.createElement("p");
-      detalhes.textContent =
-        "Peso/Quantidade: " + quantidade.toLocaleString("pt-BR") + " kg" +
-        " | Valor unitário: " +
-        preco.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL"
-        }) +
-        " | Total do item: " +
-        totalItem.toLocaleString("pt-BR", {
-          style: "currency",
-          currency: "BRL"
+          totalPedido.textContent =
+            "Total do pedido: " +
+            Number(pedido.total || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL"
+            });
+
+          card.appendChild(totalPedido);
+          lista.appendChild(card);
         });
 
-      produto.appendChild(detalhes);
-      card.appendChild(produto);
+      } catch (erro) {
+        console.error("Erro inesperado:", erro);
+        lista.textContent =
+          "Ocorreu um erro ao carregar os pedidos. Tente novamente.";
+      }
+    }
+
+    async function carregarPerfil(usuario) {
+      const { data, error } = await cliente
+        .from("usuarios_portal")
+        .select("nome, empresa, ativo")
+        .eq("id", usuario.id)
+        .single();
+
+      if (error || !data || !data.ativo) {
+        await cliente.auth.signOut();
+        area.style.display = "none";
+        form.style.display = "block";
+
+        mensagem.textContent =
+          "Acesso não liberado. Entre em contato com a PR Plásticos.";
+        return;
+      }
+
+      form.style.display = "none";
+      area.style.display = "block";
+
+      document.getElementById("boasVindas").textContent =
+        "Olá, " + data.nome;
+
+      document.getElementById("empresaCliente").textContent =
+        "Empresa: " + data.empresa;
+
+      mensagem.textContent = "";
+
+      await carregarPedidos();
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      mensagem.textContent = "Verificando acesso...";
+
+      const { data, error } =
+        await cliente.auth.signInWithPassword({
+          email: document.getElementById("email").value.trim(),
+          password: document.getElementById("senha").value
+        });
+
+      if (error) {
+        mensagem.textContent =
+          "E-mail ou senha inválidos.";
+        return;
+      }
+
+      await carregarPerfil(data.user);
     });
 
-    const totalPedido = document.createElement("h3");
-    totalPedido.style.cssText =
-      "text-align:right;color:#174b87;margin-top:18px;";
-    totalPedido.textContent =
-      "Total do pedido: " +
-      Number(pedido.total || 0).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
+    document.getElementById("sair").addEventListener(
+      "click",
+      async () => {
+        await cliente.auth.signOut();
 
-    card.appendChild(totalPedido);
-    lista.appendChild(card);
-  });
-}
-    
+        area.style.display = "none";
+        form.style.display = "block";
+        form.reset();
 
-
-async function carregarPerfil(usuario) {
-  const { data, error } = await cliente
-    .from("usuarios_portal")
-    .select("nome, empresa, ativo")
-    .eq("id", usuario.id)
-    .single();
-
-  if (error || !data || !data.ativo) {
-    await cliente.auth.signOut();
-    mensagem.textContent =
-      "Acesso não liberado. Entre em contato com a PR Plásticos.";
-    return;
-  }
-
-  form.style.display = "none";
-  area.style.display = "block";
-
-  document.getElementById("boasVindas").textContent =
-    "Olá, " + data.nome;
-
-  document.getElementById("empresaCliente").textContent =
-    "Empresa: " + data.empresa;
-
-  mensagem.textContent = "";
-
-  await carregarPedidos();
-}
-
-
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  mensagem.textContent = "Verificando acesso...";
-
-  const { data, error } = await cliente.auth.signInWithPassword({
-    email: document.getElementById("email").value.trim(),
-    password: document.getElementById("senha").value
-  });
-
-  if (error) {
-    mensagem.textContent = "E-mail ou senha inválidos.";
-    return;
-  }
-
-  await carregarPerfil(data.user);
-});
-
-document.getElementById("sair").addEventListener("click", async () => {
-  await cliente.auth.signOut();
-  area.style.display = "none";
-  form.style.display = "block";
-  form.reset();
-  mensagem.textContent = "Você saiu do portal.";
-});
-   
+        lista.replaceChildren();
+        mensagem.textContent = "Você saiu do portal.";
+      }
+    );
   </script>
 </body>
 </html>
