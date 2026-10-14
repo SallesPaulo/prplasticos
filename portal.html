@@ -1,0 +1,134 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal do Cliente | PR Plásticos</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #183153;
+    }
+    .container {
+      max-width: 420px;
+      margin: 70px auto;
+      padding: 28px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px #00000010;
+    }
+    h1 { color: #174b87; font-size: 25px; }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 13px;
+      margin-top: 12px;
+      border-radius: 7px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #ccd5e0; }
+    button {
+      border: 0;
+      background: #174b87;
+      color: white;
+      cursor: pointer;
+    }
+    #mensagem { margin-top: 16px; }
+    #areaCliente { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PR Plásticos</h1>
+    <p>Portal do Cliente</p>
+
+    <form id="loginForm">
+      <input id="email" type="email"
+        placeholder="Seu e-mail" required>
+      <input id="senha" type="password"
+        placeholder="Sua senha" required>
+      <button type="submit">Entrar no portal</button>
+    </form>
+
+    <div id="mensagem" role="status"></div>
+
+    <section id="areaCliente">
+      <h2 id="boasVindas"></h2>
+      <p id="empresaCliente"></p>
+      <button id="sair" type="button">Sair</button>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "COLE_A_URL_DO_SUPABASE";
+    const SUPABASE_ANON_KEY = "COLE_A_CHAVE_PUBLICA_ANON";
+
+    const cliente = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const form = document.getElementById("loginForm");
+    const mensagem = document.getElementById("mensagem");
+    const area = document.getElementById("areaCliente");
+
+    async function carregarPerfil(usuario) {
+      const { data, error } = await cliente
+        .from("usuarios_portal")
+        .select("nome, empresa, ativo")
+        .eq("id", usuario.id)
+        .single();
+
+      if (error || !data || !data.ativo) {
+        await cliente.auth.signOut();
+        mensagem.textContent =
+          "Acesso não liberado. Entre em contato com a PR Plásticos.";
+        return;
+      }
+
+      form.style.display = "none";
+      area.style.display = "block";
+      document.getElementById("boasVindas").textContent =
+        "Olá, " + data.nome;
+      document.getElementById("empresaCliente").textContent =
+        "Empresa: " + data.empresa;
+      mensagem.textContent = "";
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      mensagem.textContent = "Verificando acesso...";
+
+      const { data, error } = await cliente.auth.signInWithPassword({
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("senha").value
+      });
+
+      if (error) {
+        mensagem.textContent = "E-mail ou senha inválidos.";
+        return;
+      }
+
+      await carregarPerfil(data.user);
+    });
+
+    document.getElementById("sair").addEventListener("click", async () => {
+      await cliente.auth.signOut();
+      area.style.display = "none";
+      form.style.display = "block";
+      form.reset();
+      mensagem.textContent = "Você saiu do portal.";
+    });
+
+    cliente.auth.onAuthStateChange((evento, sessao) => {
+      if (evento === "SIGNED_IN" && sessao?.user) {
+        carregarPerfil(sessao.user);
+      }
+    });
+  </script>
+</body>
+</html>
