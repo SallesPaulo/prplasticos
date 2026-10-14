@@ -94,7 +94,7 @@ module.exports = async (req, res) => {
 
   try {
     const resposta = await fetch(
-      `${url.replace(/\/rest\/v1\/?$/, "")}/rest/v1/pedidos`
+     `${url.replace(/\/+$/, "").replace(/\/rest\/v1$/, "")}/rest/v1/pedidos`
       {
         method: "POST",
         headers: {
