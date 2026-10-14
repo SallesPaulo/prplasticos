@@ -291,6 +291,7 @@
           const etiquetaStatus = document.createElement("span");
           const textoStatus =
             (pedido.status || "Em análise").trim();
+          console.log("Status recebido do banco:", pedido.status);
 
           etiquetaStatus.textContent = textoStatus;
           etiquetaStatus.className = "status-pedido";
