@@ -229,6 +229,13 @@ footer{padding:30px 0;color:#849087;text-align:center;font-size:12px}
 
 <!-- Formspree: endpoint exclusivo dos orçamentos -->
 <form id="emailForm" action="https://formspree.io/f/xljggjbn" method="POST" class="hidden">
+
+<div style="position:absolute;left:-9999px" aria-hidden="true">
+  <label for="website">Não preencher</label>
+  <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+</div>
+
+  
   <input type="hidden" name="_subject" id="emailSubject">
   <input type="hidden" name="nome" id="emailNome">
   <input type="hidden" name="empresa" id="emailEmpresa">
@@ -451,7 +458,7 @@ async function enviarEmail(p) {
       },
       body: JSON.stringify({
         ...p,
-        website: ""
+        website: document.getElementById("website")?.value || ""
       })
     });
 
