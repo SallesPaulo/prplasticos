@@ -9,12 +9,13 @@ module.exports = async (req, res) => {
     });
   }
 
-  if (JSON.stringify(body).length > 60000) {
+  const body = req.body || {};
+
+if (JSON.stringify(body).length > 60000) {
   return res.status(413).json({
     erro: "Solicitação muito grande."
   });
 }
-
   // Proteção básica contra robôs (campo honeypot)
 if (
   typeof body.website === "string" &&
