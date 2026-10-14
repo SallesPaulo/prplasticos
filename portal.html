@@ -197,61 +197,35 @@ async function carregarPedidos() {
 }
 
 
-    async function carregarPerfil(usuario) {
-      const { data, error } = await cliente
-        .from("usuarios_portal")
-        .select("nome, empresa, ativo")
-        .eq("id", usuario.id)
-        .single();
+async function carregarPerfil(usuario) {
+  const { data, error } = await cliente
+    .from("usuarios_portal")
+    .select("nome, empresa, ativo")
+    .eq("id", usuario.id)
+    .single();
 
-      if (error || !data || !data.ativo) {
-        await cliente.auth.signOut();
-        mensagem.textContent =
-          "Acesso não liberado. Entre em contato com a PR Plásticos.";
-        
-        return;
-      }
+  if (error || !data || !data.ativo) {
+    await cliente.auth.signOut();
+    mensagem.textContent =
+      "Acesso não liberado. Entre em contato com a PR Plásticos.";
+    return;
+  }
 
-      form.style.display = "none";
-      area.style.display = "block";
-      document.getElementById("boasVindas").textContent =
-        "Olá, " + data.nome;
-      document.getElementById("empresaCliente").textContent =
-        "Empresa: " + data.empresa;
-      mensagem.textContent = "";
-    }
-await carregarPedidos();
-    
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      mensagem.textContent = "Verificando acesso...";
+  form.style.display = "none";
+  area.style.display = "block";
 
-      const { data, error } = await cliente.auth.signInWithPassword({
-        email: document.getElementById("email").value.trim(),
-        password: document.getElementById("senha").value
-      });
+  document.getElementById("boasVindas").textContent =
+    "Olá, " + data.nome;
 
-      if (error) {
-        mensagem.textContent = "E-mail ou senha inválidos.";
-        return;
-      }
+  document.getElementById("empresaCliente").textContent =
+    "Empresa: " + data.empresa;
 
-      await carregarPerfil(data.user);
-    });
+  mensagem.textContent = "";
 
-    document.getElementById("sair").addEventListener("click", async () => {
-      await cliente.auth.signOut();
-      area.style.display = "none";
-      form.style.display = "block";
-      form.reset();
-      mensagem.textContent = "Você saiu do portal.";
-    });
+  await carregarPedidos();
+}
 
-    cliente.auth.onAuthStateChange((evento, sessao) => {
-      if (evento === "SIGNED_IN" && sessao?.user) {
-        carregarPerfil(sessao.user);
-      }
-    });
+   
   </script>
 </body>
 </html>
