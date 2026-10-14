@@ -93,9 +93,8 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const resposta = await fetch(
-     `${url.replace(/\/+$/, "").replace(/\/rest\/v1$/, "")}/rest/v1/pedidos`
-      {
+    const supabaseUrl = url.replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
+const resposta = await fetch(`${supabaseUrl}/rest/v1/pedidos`, {
         method: "POST",
         headers: {
           apikey: chave,
