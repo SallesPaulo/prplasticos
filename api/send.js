@@ -1,3 +1,4 @@
+
 const { Resend } = require("resend");
 const crypto = require("crypto");
 
@@ -8,9 +9,15 @@ function obterCookie(req, nome) {
     .map(cookie => cookie.trim())
     .find(cookie => cookie.startsWith(nome + "="));
 
-  return item
-    ? decodeURIComponent(item.substring(nome.length + 1))
-    : null;
+  if (!item) return null;
+
+  try {
+    return decodeURIComponent(
+      item.substring(nome.length + 1)
+    );
+  } catch {
+    return null;
+  }
 }
 
 function sessaoValida(req) {
@@ -19,14 +26,21 @@ function sessaoValida(req) {
   const segredo = process.env.SEGREDO_DO_PAINEL;
   const token = obterCookie(req, "painel_token");
 
-  if (!email || !senha || !segredo || !token) return false;
+  if (!email || !senha || !segredo || !token) {
+    return false;
+  }
 
   const esperado = crypto
     .createHash("sha256")
     .update(email + senha + segredo)
     .digest("hex");
 
-  if (token.length !== esperado.length) return false;
+  if (
+    token.length !== esperado.length ||
+    !/^[a-f0-9]{64}$/i.test(token)
+  ) {
+    return false;
+  }
 
   return crypto.timingSafeEqual(
     Buffer.from(token),
@@ -34,19 +48,29 @@ function sessaoValida(req) {
   );
 }
 
+function texto(valor, limite) {
+  return typeof valor === "string"
+    ? valor.trim().slice(0, limite)
+    : "";
+}
+
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
+
     return res.status(405).json({
       sucesso: false,
       erro: "Método não permitido."
     });
   }
 
+  // Envio de campanhas é exclusivo do painel administrativo.
   if (!sessaoValida(req)) {
     return res.status(401).json({
       sucesso: false,
-      erro: "Sessão não autorizada."
+      erro: "Sessão do painel não autorizada."
     });
   }
 
@@ -58,14 +82,14 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const {
-      empresa,
-      destinatario,
-      assunto,
-      mensagem,
-      imagem,
-      imagemNome
-    } = req.body || {};
+    const body = req.body || {};
+
+    const empresa = texto(body.empresa, 150);
+    const destinatario = texto(body.destinatario, 254);
+    const assunto = texto(body.assunto, 300);
+    const mensagem = texto(body.mensagem, 100000);
+    const imagem = body.imagem;
+    const imagemNome = texto(body.imagemNome, 200);
 
     if (
       !empresa ||
@@ -75,7 +99,16 @@ module.exports = async (req, res) => {
     ) {
       return res.status(400).json({
         sucesso: false,
-        erro: "Destinatário, assunto e mensagem são obrigatórios."
+        erro: "Empresa, destinatário, assunto e mensagem são obrigatórios."
+      });
+    }
+
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(destinatario)
+    ) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: "Endereço de e-mail inválido."
       });
     }
 
@@ -106,11 +139,40 @@ module.exports = async (req, res) => {
       html: mensagem
     };
 
-    if (imagem) {
+    if (imagem != null && imagem !== "") {
+      if (typeof imagem !== "string" || imagem.length > 7000000) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: "Imagem inválida ou muito grande."
+        });
+      }
+
+      const correspondencia = imagem.match(
+        /^data:(image\/(?:png|jpeg|jpg|webp|gif));base64,([A-Za-z0-9+/=\s]+)$/
+      );
+
+      if (!correspondencia) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: "A imagem deve estar em formato válido."
+        });
+      }
+
+      const conteudo = Buffer.from(
+        correspondencia[2].replace(/\s/g, ""),
+        "base64"
+      );
+
+      if (!conteudo.length || conteudo.length > 5 * 1024 * 1024) {
+        return res.status(400).json({
+          sucesso: false,
+          erro: "A imagem deve ter no máximo 5 MB."
+        });
+      }
+
       email.attachments = [{
-        filename: imagemNome || "imagem-campanha.png",
-        content: imagem,
-        contentId: "imagem-campanha"
+        filename: imagemNome || "imagem-campanha",
+        content: conteudo
       }];
     }
 
