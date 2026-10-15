@@ -184,7 +184,36 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Gravação pública do orçamento, sem exigir login.
+
+    // Localiza o cliente pelo e-mail.
+    const emailBusca = encodeURIComponent(emailCliente.trim());
+
+    const consultaCliente = await fetch(
+      `${supabaseUrl}/rest/v1/clientes?select=id&email=ilike.${emailBusca}&limit=1`,
+      { method: "GET", headers }
+    );
+
+    if (!consultaCliente.ok) {
+      console.error(
+        "Falha ao consultar cliente:",
+        consultaCliente.status,
+        await consultaCliente.text()
+      );
+
+      return res.status(503).json({
+        sucesso: false,
+        erro: "Não foi possível validar o cadastro do cliente."
+      });
+    }
+
+    const clientesEncontrados = await consultaCliente.json();
+
+    const clienteId =
+      clientesEncontrados.length > 0
+        ? clientesEncontrados[0].id
+        : null;
+
+    // Grava o orçamento, mesmo para clientes não cadastrados.
     const resposta = await fetch(
       `${supabaseUrl}/rest/v1/pedidos`,
       {
@@ -203,7 +232,8 @@ module.exports = async (req, res) => {
           cidade: cidade?.trim() || null,
           itens,
           total: valorTotal,
-          observacoes: observacoes?.trim() || null
+          observacoes: observacoes?.trim() || null,
+          cliente_id: clienteId
         })
       }
     );
@@ -225,6 +255,7 @@ module.exports = async (req, res) => {
       sucesso: true,
       mensagem: "Orçamento registrado."
     });
+
   } catch (erro) {
     console.error("Erro ao salvar pedido:", erro);
 
