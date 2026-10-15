@@ -1003,7 +1003,7 @@ function desenharGrafico(elementoId, valores, cor, formato) {
     const barra = document.createElement("div");
     barra.style.cssText =
       "width:70%;max-width:30px;min-height:" +
-      (item.valor > 0 ? "3px" : "0") + ";" +
+      (item.valor > 0 ? "5px" : "0") + ";" +
       "height:" + (item.valor / maximo * 100) + "%;" +
       "background:" + cor + ";border-radius:5px 5px 0 0;";
 
@@ -1013,7 +1013,16 @@ function desenharGrafico(elementoId, valores, cor, formato) {
     mes.textContent = item.mes;
     mes.style.cssText = "font-size:11px;color:#64748b;";
 
-    coluna.appendChild(barra);
+    
+const rotulo = document.createElement("span");
+rotulo.textContent = formato(item.valor);
+rotulo.style.cssText =
+  "font-size:10px;font-weight:600;color:#334155;" +
+  "text-align:center;white-space:nowrap;";
+
+coluna.appendChild(rotulo);
+coluna.appendChild(barra);
+
     coluna.appendChild(mes);
     grafico.appendChild(coluna);
   });
