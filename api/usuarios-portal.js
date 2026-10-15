@@ -10,9 +10,15 @@ module.exports = async function handler(req, res) {
     SEGREDO_DO_PAINEL
   } = process.env;
 
-  if (!SUPABASE_URL || !CHAVE_SECRETA_SUPABASE) {
+  if (
+    !SUPABASE_URL ||
+    !CHAVE_SECRETA_SUPABASE ||
+    !PAINEL_EMAIL ||
+    !PAINEL_SENHA ||
+    !SEGREDO_DO_PAINEL
+  ) {
     return res.status(500).json({
-      erro: "Configuração do Supabase ausente."
+      erro: "Configuração do servidor incompleta."
     });
   }
 
@@ -33,12 +39,14 @@ module.exports = async function handler(req, res) {
       }, {});
 
     const token = cookies.painel_token || "";
+    const esperado = hashSessao();
 
-    return token.length === 64 &&
-      crypto.timingSafeEqual(
-        Buffer.from(token),
-        Buffer.from(hashSessao())
-      );
+    if (!/^[a-f0-9]{64}$/i.test(token)) return false;
+
+    return crypto.timingSafeEqual(
+      Buffer.from(token, "hex"),
+      Buffer.from(esperado, "hex")
+    );
   }
 
   if (!autorizado()) {
@@ -47,7 +55,8 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const base = SUPABASE_URL.replace(/\/$/, "");
+  const base = SUPABASE_URL.replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+
   const headers = {
     apikey: CHAVE_SECRETA_SUPABASE,
     Authorization: `Bearer ${CHAVE_SECRETA_SUPABASE}`,
@@ -55,16 +64,17 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    
+    // CONSULTAR ACESSOS
     if (req.method === "GET") {
       const resposta = await fetch(
         `${base}/rest/v1/usuarios_portal?select=id,nome,empresa,email,ativo,criado_em,cliente_id&order=criado_em.desc`,
-        { headers }
+        { headers, cache: "no-store" }
       );
 
       const dados = await resposta.json();
 
       if (!resposta.ok) {
+        console.error("Erro ao consultar acessos:", dados);
         return res.status(400).json({
           erro: "Erro ao consultar acessos.",
           detalhes: dados
@@ -77,6 +87,8 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // CRIAR ACESSO
+    if (req.method === "POST") {
       const { nome, empresa, email, senha, cliente_id } = req.body || {};
 
       if (!nome || !empresa || !email || !senha || !cliente_id) {
@@ -109,42 +121,38 @@ module.exports = async function handler(req, res) {
       const usuario = await criar.json();
 
       if (!criar.ok) {
+        console.error("Erro ao criar usuário Auth:", usuario);
         return res.status(400).json({
           erro: "Não foi possível criar o usuário no Supabase Auth.",
           detalhes: usuario
         });
       }
 
-      const salvar = await fetch(
-        `${base}/rest/v1/usuarios_portal`,
-        {
-          method: "POST",
-          headers: {
-            ...headers,
-            Prefer: "return=representation"
-          },
-          body: JSON.stringify({
-            id: usuario.id,
-            nome,
-            empresa,
-            email,
-            ativo: true,
-            cliente_id
-          })
-        }
-      );
+      const salvar = await fetch(`${base}/rest/v1/usuarios_portal`, {
+        method: "POST",
+        headers: {
+          ...headers,
+          Prefer: "return=representation"
+        },
+        body: JSON.stringify({
+          id: usuario.id,
+          nome,
+          empresa,
+          email,
+          ativo: true,
+          cliente_id
+        })
+      });
 
       const resultado = await salvar.json();
 
       if (!salvar.ok) {
-        await fetch(
-          `${base}/auth/v1/admin/users/${usuario.id}`,
-          {
-            method: "DELETE",
-            headers
-          }
-        );
+        await fetch(`${base}/auth/v1/admin/users/${usuario.id}`, {
+          method: "DELETE",
+          headers
+        });
 
+        console.error("Erro ao salvar acesso:", resultado);
         return res.status(400).json({
           erro: "Não foi possível salvar o acesso na tabela usuarios_portal.",
           detalhes: resultado
@@ -157,6 +165,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // ATIVAR OU DESATIVAR ACESSO
     if (req.method === "PATCH") {
       const { id, ativo } = req.body || {};
 
@@ -181,6 +190,7 @@ module.exports = async function handler(req, res) {
       const dados = await resposta.json();
 
       if (!resposta.ok) {
+        console.error("Erro ao atualizar acesso:", dados);
         return res.status(400).json({
           erro: "Não foi possível atualizar o acesso.",
           detalhes: dados
@@ -193,6 +203,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    res.setHeader("Allow", "GET, POST, PATCH");
     return res.status(405).json({
       erro: "Método não permitido."
     });
@@ -204,4 +215,4 @@ module.exports = async function handler(req, res) {
       erro: "Erro interno ao processar o acesso."
     });
   }
-}
+};
