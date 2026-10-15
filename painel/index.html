@@ -807,6 +807,68 @@
 
         </section>
 
+<section id="statusPedidos" class="section">
+
+  <h1 class="page-title">
+    Status dos Pedidos
+  </h1>
+
+  <p class="page-subtitle">
+    Consulte pedidos e acompanhe a evolução de cada entrega.
+  </p>
+
+  <div class="panel-box">
+
+    <h2>Consultar pedidos</h2>
+
+    <input
+      type="text"
+      id="buscarPedidoStatus"
+      placeholder="Digite o número do pedido ou nome do cliente"
+      style="width:100%;max-width:500px;padding:12px;margin:10px 0;"
+    >
+
+    <button
+      class="primary-button"
+      onclick="consultarPedidosStatus()"
+    >
+      🔎 Consultar
+    </button>
+
+    <div id="resultadoPedidosStatus" style="margin-top:20px;">
+      Digite sua pesquisa para consultar os pedidos.
+    </div>
+
+  </div>
+
+  <div class="panel-box" id="detalhesPedidoStatus" style="display:none;">
+    <h2>Atualizar pedido</h2>
+
+    <div id="dadosPedidoStatus"></div>
+
+    <label for="novoStatusPedido">Novo status</label>
+
+    <select id="novoStatusPedido" style="width:100%;max-width:400px;padding:12px;margin:10px 0;">
+      <option value="Recebido">Recebido</option>
+      <option value="Em produção">Em produção</option>
+      <option value="Separação">Separação</option>
+      <option value="Faturado">Faturado</option>
+      <option value="Enviado">Enviado</option>
+      <option value="Entregue">Entregue</option>
+    </select>
+
+    <button
+      class="primary-button"
+      onclick="salvarStatusPedido()"
+    >
+      Salvar status
+    </button>
+
+    <div id="linhaTempoPedido" style="margin-top:20px;"></div>
+  </div>
+
+</section>
+
 
         <!-- CLIENTES -->
 <section id="clientes" class="section">
@@ -1299,8 +1361,10 @@
 
     
   // CONEXÃO COM O SUPABASE
-  const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co/rest/v1/";
-  const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
+ // const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co/rest/v1/";
+    
+const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
 
   const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
