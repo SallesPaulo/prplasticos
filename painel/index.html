@@ -1468,6 +1468,330 @@
     }
   }
 
+    
+  // ==========================================
+  // STATUS PEDIDO
+  // ==========================================
+
+// ==========================================
+// STATUS DOS PEDIDOS
+// ==========================================
+
+let pedidoSelecionadoStatus = null;
+let pedidosCarregadosStatus = [];
+
+function escaparStatus(valor) {
+  return String(valor ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[c]));
+}
+
+function formatarDataStatus(valor) {
+  if (!valor) return "Data não informada";
+
+  const data = new Date(valor);
+
+  if (Number.isNaN(data.getTime())) return escaparStatus(valor);
+
+  return data.toLocaleString("pt-BR");
+}
+
+function cabecalhosSupabaseStatus() {
+  return {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+    "Content-Type": "application/json"
+  };
+}
+
+async function consultarPedidosStatus() {
+  const area = document.getElementById("resultadoPedidosStatus");
+  const busca = document.getElementById("buscarPedidoStatus").value
+    .trim().toLowerCase();
+
+  area.innerHTML = "Consultando pedidos...";
+
+  try {
+    const resposta = await fetch(
+      SUPABASE_URL +
+      "pedidos?select=id,numero,data_pedido,nome,empresa,cnpj,email,telefone,cidade,itens,total,observacoes,status,cliente_id,criado_em&order=data_pedido.desc&limit=100",
+      {
+        headers: cabecalhosSupabaseStatus(),
+        cache: "no-store"
+      }
+    );
+
+    const pedidos = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        pedidos.message || pedidos.error || "Não foi possível consultar os pedidos."
+      );
+    }
+
+    pedidosCarregadosStatus = Array.isArray(pedidos) ? pedidos : [];
+
+    const filtrados = pedidosCarregadosStatus.filter(pedido => {
+      const texto = [
+        pedido.numero,
+        pedido.nome,
+        pedido.empresa,
+        pedido.email
+      ].join(" ").toLowerCase();
+
+      return texto.includes(busca);
+    });
+
+    if (!filtrados.length) {
+      area.innerHTML = "<p>Nenhum pedido encontrado.</p>";
+      return;
+    }
+
+    area.innerHTML = filtrados.map(pedido => `
+      <div style="border:1px solid #dfe5ea;border-radius:12px;padding:16px;margin:12px 0;">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <strong style="color:#083f73;">
+              Pedido ${escaparStatus(pedido.numero || pedido.id)}
+            </strong>
+            <p style="margin:8px 0 4px;">
+              ${escaparStatus(pedido.nome || "Cliente não informado")}
+              ${pedido.empresa ? " — " + escaparStatus(pedido.empresa) : ""}
+            </p>
+            <p style="margin:0 0 8px;">
+              Data: ${formatarDataStatus(pedido.data_pedido || pedido.criado_em)}
+            </p>
+            <strong>Status: ${escaparStatus(pedido.status || "Recebido")}</strong>
+          </div>
+
+          <button
+            type="button"
+            class="primary-button"
+            onclick="abrirDetalhesPedidoStatus(${JSON.stringify(String(pedido.id))})"
+          >
+            Ver / atualizar
+          </button>
+        </div>
+      </div>
+    `).join("");
+
+  } catch (erro) {
+    console.error("Erro ao consultar pedidos:", erro);
+    area.innerHTML =
+      `<p style="color:#d9534f;">${escaparStatus(erro.message)}</p>`;
+  }
+}
+
+async function abrirDetalhesPedidoStatus(id) {
+  const pedido = pedidosCarregadosStatus.find(
+    item => String(item.id) === String(id)
+  );
+
+  if (!pedido) {
+    alert("Pedido não encontrado. Atualize a consulta.");
+    return;
+  }
+
+  pedidoSelecionadoStatus = pedido;
+
+  const painel = document.getElementById("detalhesPedidoStatus");
+  painel.style.display = "block";
+
+  document.getElementById("tituloPedidoStatus").textContent =
+    "Pedido " + (pedido.numero || pedido.id);
+
+  document.getElementById("novoStatusPedido").value =
+    pedido.status || "Recebido";
+
+  document.getElementById("observacaoStatusPedido").value = "";
+  document.getElementById("mensagemStatusPedido").textContent = "";
+
+  document.getElementById("informacoesPedidoStatus").innerHTML = `
+    <p><strong>Cliente:</strong> ${escaparStatus(pedido.nome || "—")}</p>
+    <p><strong>Empresa:</strong> ${escaparStatus(pedido.empresa || "—")}</p>
+    <p><strong>E-mail:</strong> ${escaparStatus(pedido.email || "—")}</p>
+    <p><strong>Cidade:</strong> ${escaparStatus(pedido.cidade || "—")}</p>
+    <p><strong>Total:</strong> ${
+      pedido.total == null
+        ? "—"
+        : Number(pedido.total).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+          })
+    }</p>
+    <p><strong>Itens:</strong> ${escaparStatus(
+      typeof pedido.itens === "string"
+        ? pedido.itens
+        : JSON.stringify(pedido.itens || [])
+    )}</p>
+    <p><strong>Observações:</strong> ${escaparStatus(pedido.observacoes || "—")}</p>
+  `;
+
+  await carregarLinhaTempoPedido(pedido.id);
+
+  painel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function carregarLinhaTempoPedido(pedidoId) {
+  const area = document.getElementById("linhaTempoPedido");
+  area.innerHTML = "Carregando histórico...";
+
+  try {
+    const url = SUPABASE_URL +
+      "historico_status_pedidos?select=status,data_status,observacao" +
+      "&pedido_id=eq." + encodeURIComponent(pedidoId) +
+      "&order=data_status.asc";
+
+    const resposta = await fetch(url, {
+      headers: cabecalhosSupabaseStatus(),
+      cache: "no-store"
+    });
+
+    const historico = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        historico.message || historico.error || "Não foi possível carregar o histórico."
+      );
+    }
+
+    if (!historico.length) {
+      area.innerHTML = "<p>Nenhuma atualização de status registrada.</p>";
+      return;
+    }
+
+    area.innerHTML = historico.map((item, indice) => `
+      <div style="border-left:3px solid #4f9d4d;padding:0 0 22px 18px;margin-left:5px;position:relative;">
+        <div style="font-weight:bold;color:#083f73;">
+          ${escaparStatus(item.status)}
+        </div>
+        <div style="font-size:13px;color:#6b7280;margin-top:5px;">
+          ${formatarDataStatus(item.data_status)}
+        </div>
+        ${item.observacao ? `
+          <p style="margin-top:7px;">
+            ${escaparStatus(item.observacao)}
+          </p>
+        ` : ""}
+      </div>
+    `).join("");
+
+  } catch (erro) {
+    console.error("Erro ao carregar histórico:", erro);
+    area.innerHTML =
+      `<p style="color:#d9534f;">${escaparStatus(erro.message)}</p>`;
+  }
+}
+
+async function salvarStatusPedido() {
+  if (!pedidoSelecionadoStatus) {
+    alert("Selecione um pedido primeiro.");
+    return;
+  }
+
+  const novoStatus = document.getElementById("novoStatusPedido").value;
+  const observacao = document.getElementById("observacaoStatusPedido")
+    .value.trim();
+
+  const mensagem = document.getElementById("mensagemStatusPedido");
+  const statusAnterior = pedidoSelecionadoStatus.status || "Recebido";
+
+  if (novoStatus === statusAnterior && !observacao) {
+    mensagem.textContent = "O pedido já está com esse status.";
+    return;
+  }
+
+  if (!confirm(
+    `Atualizar o pedido ${pedidoSelecionadoStatus.numero || pedidoSelecionadoStatus.id} para "${novoStatus}"?`
+  )) {
+    return;
+  }
+
+  mensagem.style.color = "#6b7280";
+  mensagem.textContent = "Salvando atualização...";
+
+  try {
+    const url = SUPABASE_URL +
+      "pedidos?id=eq." + encodeURIComponent(pedidoSelecionadoStatus.id);
+
+    const resposta = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        ...cabecalhosSupabaseStatus(),
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify({ status: novoStatus })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        resultado.message || resultado.error || "Não foi possível atualizar o pedido."
+      );
+    }
+
+    if (!resultado.length) {
+      throw new Error(
+        "Nenhum pedido foi atualizado. Verifique as permissões de acesso ao Supabase."
+      );
+    }
+
+    pedidoSelecionadoStatus = resultado[0];
+
+    mensagem.style.color = "#347638";
+    mensagem.textContent = "Status atualizado com sucesso.";
+
+    // A observação é incluída no histórico quando a política e o banco
+    // permitem inserir o registro. O trigger existente continua ativo.
+    if (observacao) {
+      const respostaHistorico = await fetch(
+        SUPABASE_URL + "historico_status_pedidos",
+        {
+          method: "POST",
+          headers: {
+            ...cabecalhosSupabaseStatus(),
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify({
+            pedido_id: pedidoSelecionadoStatus.id,
+            status: novoStatus,
+            data_status: new Date().toISOString(),
+            observacao: observacao
+          })
+        }
+      );
+
+      if (!respostaHistorico.ok) {
+        console.warn(
+          "O status foi atualizado, mas a observação não foi gravada no histórico."
+        );
+      }
+    }
+
+    await consultarPedidosStatus();
+
+    // Reutiliza o histórico registrado pelo trigger do banco.
+    await carregarLinhaTempoPedido(pedidoSelecionadoStatus.id);
+
+    // Atualiza a área de detalhes sem perder o pedido selecionado.
+    document.getElementById("novoStatusPedido").value = novoStatus;
+
+  } catch (erro) {
+    console.error("Erro ao atualizar status:", erro);
+    mensagem.style.color = "#d9534f";
+    mensagem.textContent = erro.message || "Erro ao atualizar o status.";
+  }
+}
+    
+    // ==========================================
+  // STATUS PEDIDO
+  // ==========================================
+
 
  function mostrarPainel() {
   document.getElementById("loginScreen").style.display = "none";
@@ -2480,330 +2804,12 @@ async function excluirCliente(id) {
     return String(valor ?? "").replace(/[&<>"']/g, caractere => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[caractere]));
   }
 
-// ==========================================
-// STATUS DOS PEDIDOS
-// ==========================================
-
-let pedidoSelecionadoStatus = null;
-let pedidosCarregadosStatus = [];
-
-function escaparStatus(valor) {
-  return String(valor ?? "").replace(/[&<>"']/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[c]));
-}
-
-function formatarDataStatus(valor) {
-  if (!valor) return "Data não informada";
-
-  const data = new Date(valor);
-
-  if (Number.isNaN(data.getTime())) return escaparStatus(valor);
-
-  return data.toLocaleString("pt-BR");
-}
-
-function cabecalhosSupabaseStatus() {
-  return {
-    "apikey": SUPABASE_ANON_KEY,
-    "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-    "Content-Type": "application/json"
-  };
-}
-
-async function consultarPedidosStatus() {
-  const area = document.getElementById("resultadoPedidosStatus");
-  const busca = document.getElementById("buscarPedidoStatus").value
-    .trim().toLowerCase();
-
-  area.innerHTML = "Consultando pedidos...";
-
-  try {
-    const resposta = await fetch(
-      SUPABASE_URL +
-      "pedidos?select=id,numero,data_pedido,nome,empresa,cnpj,email,telefone,cidade,itens,total,observacoes,status,cliente_id,criado_em&order=data_pedido.desc&limit=100",
-      {
-        headers: cabecalhosSupabaseStatus(),
-        cache: "no-store"
-      }
-    );
-
-    const pedidos = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(
-        pedidos.message || pedidos.error || "Não foi possível consultar os pedidos."
-      );
-    }
-
-    pedidosCarregadosStatus = Array.isArray(pedidos) ? pedidos : [];
-
-    const filtrados = pedidosCarregadosStatus.filter(pedido => {
-      const texto = [
-        pedido.numero,
-        pedido.nome,
-        pedido.empresa,
-        pedido.email
-      ].join(" ").toLowerCase();
-
-      return texto.includes(busca);
-    });
-
-    if (!filtrados.length) {
-      area.innerHTML = "<p>Nenhum pedido encontrado.</p>";
-      return;
-    }
-
-    area.innerHTML = filtrados.map(pedido => `
-      <div style="border:1px solid #dfe5ea;border-radius:12px;padding:16px;margin:12px 0;">
-        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-          <div>
-            <strong style="color:#083f73;">
-              Pedido ${escaparStatus(pedido.numero || pedido.id)}
-            </strong>
-            <p style="margin:8px 0 4px;">
-              ${escaparStatus(pedido.nome || "Cliente não informado")}
-              ${pedido.empresa ? " — " + escaparStatus(pedido.empresa) : ""}
-            </p>
-            <p style="margin:0 0 8px;">
-              Data: ${formatarDataStatus(pedido.data_pedido || pedido.criado_em)}
-            </p>
-            <strong>Status: ${escaparStatus(pedido.status || "Recebido")}</strong>
-          </div>
-
-          <button
-            type="button"
-            class="primary-button"
-            onclick="abrirDetalhesPedidoStatus(${JSON.stringify(String(pedido.id))})"
-          >
-            Ver / atualizar
-          </button>
-        </div>
-      </div>
-    `).join("");
-
-  } catch (erro) {
-    console.error("Erro ao consultar pedidos:", erro);
-    area.innerHTML =
-      `<p style="color:#d9534f;">${escaparStatus(erro.message)}</p>`;
-  }
-}
-
-async function abrirDetalhesPedidoStatus(id) {
-  const pedido = pedidosCarregadosStatus.find(
-    item => String(item.id) === String(id)
-  );
-
-  if (!pedido) {
-    alert("Pedido não encontrado. Atualize a consulta.");
-    return;
-  }
-
-  pedidoSelecionadoStatus = pedido;
-
-  const painel = document.getElementById("detalhesPedidoStatus");
-  painel.style.display = "block";
-
-  document.getElementById("tituloPedidoStatus").textContent =
-    "Pedido " + (pedido.numero || pedido.id);
-
-  document.getElementById("novoStatusPedido").value =
-    pedido.status || "Recebido";
-
-  document.getElementById("observacaoStatusPedido").value = "";
-  document.getElementById("mensagemStatusPedido").textContent = "";
-
-  document.getElementById("informacoesPedidoStatus").innerHTML = `
-    <p><strong>Cliente:</strong> ${escaparStatus(pedido.nome || "—")}</p>
-    <p><strong>Empresa:</strong> ${escaparStatus(pedido.empresa || "—")}</p>
-    <p><strong>E-mail:</strong> ${escaparStatus(pedido.email || "—")}</p>
-    <p><strong>Cidade:</strong> ${escaparStatus(pedido.cidade || "—")}</p>
-    <p><strong>Total:</strong> ${
-      pedido.total == null
-        ? "—"
-        : Number(pedido.total).toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL"
-          })
-    }</p>
-    <p><strong>Itens:</strong> ${escaparStatus(
-      typeof pedido.itens === "string"
-        ? pedido.itens
-        : JSON.stringify(pedido.itens || [])
-    )}</p>
-    <p><strong>Observações:</strong> ${escaparStatus(pedido.observacoes || "—")}</p>
-  `;
-
-  await carregarLinhaTempoPedido(pedido.id);
-
-  painel.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-async function carregarLinhaTempoPedido(pedidoId) {
-  const area = document.getElementById("linhaTempoPedido");
-  area.innerHTML = "Carregando histórico...";
-
-  try {
-    const url = SUPABASE_URL +
-      "historico_status_pedidos?select=status,data_status,observacao" +
-      "&pedido_id=eq." + encodeURIComponent(pedidoId) +
-      "&order=data_status.asc";
-
-    const resposta = await fetch(url, {
-      headers: cabecalhosSupabaseStatus(),
-      cache: "no-store"
-    });
-
-    const historico = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(
-        historico.message || historico.error || "Não foi possível carregar o histórico."
-      );
-    }
-
-    if (!historico.length) {
-      area.innerHTML = "<p>Nenhuma atualização de status registrada.</p>";
-      return;
-    }
-
-    area.innerHTML = historico.map((item, indice) => `
-      <div style="border-left:3px solid #4f9d4d;padding:0 0 22px 18px;margin-left:5px;position:relative;">
-        <div style="font-weight:bold;color:#083f73;">
-          ${escaparStatus(item.status)}
-        </div>
-        <div style="font-size:13px;color:#6b7280;margin-top:5px;">
-          ${formatarDataStatus(item.data_status)}
-        </div>
-        ${item.observacao ? `
-          <p style="margin-top:7px;">
-            ${escaparStatus(item.observacao)}
-          </p>
-        ` : ""}
-      </div>
-    `).join("");
-
-  } catch (erro) {
-    console.error("Erro ao carregar histórico:", erro);
-    area.innerHTML =
-      `<p style="color:#d9534f;">${escaparStatus(erro.message)}</p>`;
-  }
-}
-
-async function salvarStatusPedido() {
-  if (!pedidoSelecionadoStatus) {
-    alert("Selecione um pedido primeiro.");
-    return;
-  }
-
-  const novoStatus = document.getElementById("novoStatusPedido").value;
-  const observacao = document.getElementById("observacaoStatusPedido")
-    .value.trim();
-
-  const mensagem = document.getElementById("mensagemStatusPedido");
-  const statusAnterior = pedidoSelecionadoStatus.status || "Recebido";
-
-  if (novoStatus === statusAnterior && !observacao) {
-    mensagem.textContent = "O pedido já está com esse status.";
-    return;
-  }
-
-  if (!confirm(
-    `Atualizar o pedido ${pedidoSelecionadoStatus.numero || pedidoSelecionadoStatus.id} para "${novoStatus}"?`
-  )) {
-    return;
-  }
-
-  mensagem.style.color = "#6b7280";
-  mensagem.textContent = "Salvando atualização...";
-
-  try {
-    const url = SUPABASE_URL +
-      "pedidos?id=eq." + encodeURIComponent(pedidoSelecionadoStatus.id);
-
-    const resposta = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        ...cabecalhosSupabaseStatus(),
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify({ status: novoStatus })
-    });
-
-    const resultado = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(
-        resultado.message || resultado.error || "Não foi possível atualizar o pedido."
-      );
-    }
-
-    if (!resultado.length) {
-      throw new Error(
-        "Nenhum pedido foi atualizado. Verifique as permissões de acesso ao Supabase."
-      );
-    }
-
-    pedidoSelecionadoStatus = resultado[0];
-
-    mensagem.style.color = "#347638";
-    mensagem.textContent = "Status atualizado com sucesso.";
-
-    // A observação é incluída no histórico quando a política e o banco
-    // permitem inserir o registro. O trigger existente continua ativo.
-    if (observacao) {
-      const respostaHistorico = await fetch(
-        SUPABASE_URL + "historico_status_pedidos",
-        {
-          method: "POST",
-          headers: {
-            ...cabecalhosSupabaseStatus(),
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify({
-            pedido_id: pedidoSelecionadoStatus.id,
-            status: novoStatus,
-            data_status: new Date().toISOString(),
-            observacao: observacao
-          })
-        }
-      );
-
-      if (!respostaHistorico.ok) {
-        console.warn(
-          "O status foi atualizado, mas a observação não foi gravada no histórico."
-        );
-      }
-    }
-
-    await consultarPedidosStatus();
-
-    // Reutiliza o histórico registrado pelo trigger do banco.
-    await carregarLinhaTempoPedido(pedidoSelecionadoStatus.id);
-
-    // Atualiza a área de detalhes sem perder o pedido selecionado.
-    document.getElementById("novoStatusPedido").value = novoStatus;
-
-  } catch (erro) {
-    console.error("Erro ao atualizar status:", erro);
-    mensagem.style.color = "#d9534f";
-    mensagem.textContent = erro.message || "Erro ao atualizar o status.";
-  }
-}
 
     
   // ==========================================
   // INICIALIZAÇÃO
   // ==========================================
 
-
-  // ==========================================
-  // INICIALIZAÇÃO
-  // ==========================================
 
 document.addEventListener("DOMContentLoaded", function () {
   const formulario = document.getElementById("loginForm");
