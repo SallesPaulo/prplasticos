@@ -267,7 +267,7 @@
 
         lista.replaceChildren();
 
-        pedidos.forEach((pedido) => {
+        for (const pedido of pedidos) {
           const card = document.createElement("div");
           card.className = "pedido-card";
 
@@ -433,7 +433,7 @@
 
           card.appendChild(totalPedido);
           lista.appendChild(card);
-        });
+        }
 
       } catch (erro) {
         console.error("Erro inesperado:", erro);
