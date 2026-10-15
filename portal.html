@@ -476,9 +476,7 @@
 
       <div id="loginMessage" role="status" aria-live="polite"></div>
     </div>
-  </section>
-
-      <button
+<button
         id="forgotPasswordButton"
         type="button"
         class="secondary-button"
@@ -486,6 +484,31 @@
       >
         Esqueci minha senha
       </button>
+
+    ```html
+<div id="recoveryForm" style="display:none;margin-top:20px;">
+  <h3>Redefinir senha</h3>
+
+  <input
+    id="novaSenha"
+    type="password"
+    placeholder="Digite sua nova senha"
+    autocomplete="new-password"
+    minlength="6"
+    required
+  >
+
+  <button id="salvarNovaSenha" type="button">
+    Salvar nova senha
+  </button>
+
+  <div id="recoveryMessage" role="status" aria-live="polite"></div>
+</div>
+```
+    
+  </section>
+
+      
   
   
   <div id="app" class="app">
