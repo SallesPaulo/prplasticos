@@ -1699,7 +1699,7 @@ async function salvarStatusPedido() {
   console.error("Erro ao atualizar status:", erro);
   alert("Erro ao salvar: " + (erro.message || JSON.stringify(erro)));
 }
-  } finally {
+  finally {
     if (botao) {
       botao.disabled = false;
       botao.textContent = "Salvar status";
