@@ -1648,6 +1648,7 @@ async function salvarStatusPedido() {
   }
 
 
+  
 async function entrar(event) {
   event.preventDefault();
 
@@ -1666,7 +1667,9 @@ async function entrar(event) {
       password: senha
     });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     if (!data.session) {
       throw new Error("Não foi possível iniciar a sessão.");
@@ -1676,8 +1679,10 @@ async function entrar(event) {
 
   } catch (erro) {
     console.error("Erro no login Supabase:", erro);
+
     elementoErro.textContent =
       erro.message || "Não foi possível entrar no painel.";
+
     elementoErro.style.display = "block";
 
   } finally {
@@ -1688,8 +1693,7 @@ async function entrar(event) {
 
 
   
-
-    async function sair() {
+async function sair() {
   try {
     const { error } = await supabaseClient.auth.signOut();
 
@@ -1862,18 +1866,11 @@ const resposta = await fetch("/api/send", {
       enviados: enviados
     };
 
-
-const { data: { session } } = await supabaseClient.auth.getSession();
-
-if (!session?.access_token) {
-  throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
-}
-
 const respostaBanco = await fetch("/api/campanhas", {
   method: "POST",
+  credentials: "include",
   headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${session.access_token}`
+    "Content-Type": "application/json"
   },
   body: JSON.stringify({
     nome: campanha.nome,
@@ -1884,7 +1881,6 @@ const respostaBanco = await fetch("/api/campanhas", {
     enviados: campanha.enviados
   })
 });
-
 
 const resultadoBanco = await respostaBanco.json();
 
@@ -1968,28 +1964,17 @@ async function salvarCliente() {
   }
 
   try {
+    const resposta = await fetch("/api/clientes", {
+      method: idEditando !== undefined && idEditando !== null ? "PATCH" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        idEditando !== undefined && idEditando !== null
+          ? { id: idEditando, cliente }
+          : cliente
+      )
+    });
 
-
-const { data: { session } } = await supabaseClient.auth.getSession();
-
-if (!session?.access_token) {
-  throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
-}
-
-const resposta = await fetch("/api/clientes", {
-  method: idEditando !== undefined && idEditando !== null ? "PATCH" : "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${session.access_token}`
-  },
-  body: JSON.stringify(
-    idEditando !== undefined && idEditando !== null
-      ? { id: idEditando, cliente }
-      : cliente
-  )
-});
-
-    
     const resultado = await resposta.json();
 
     if (!resposta.ok || !resultado.sucesso) {
@@ -2028,24 +2013,18 @@ let clientesBanco = [];
 
 async function carregarClientesDoBanco() {
   try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-
-    if (!session?.access_token) {
-      throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
-    }
-
     const resposta = await fetch("/api/clientes", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`
-      },
+      credentials: "include",
       cache: "no-store"
     });
 
     const resultado = await resposta.json();
 
     if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(resultado.erro || "Erro ao carregar clientes.");
+      throw new Error(
+        resultado.erro || "Erro ao carregar clientes."
+      );
     }
 
     clientesBanco = resultado.clientes || [];
@@ -2059,7 +2038,7 @@ async function carregarClientesDoBanco() {
   } catch (erro) {
     console.error("Erro ao carregar clientes do banco:", erro);
     alert(
-      "Não foi possível carregar os clientes: " + erro.message
+      "Não foi possível carregar os clientes do banco. Atualize a página e tente novamente."
     );
   }
 }
@@ -2074,7 +2053,7 @@ function mostrarClientes() {
   if (clientes.length === 0) {
     tabela.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align:center;color:#777;">
+        <td colspan="7" style="text-align:center;color:#777;">
           Nenhum cliente cadastrado.
         </td>
       </tr>
@@ -2083,10 +2062,10 @@ function mostrarClientes() {
   }
 
   tabela.innerHTML = clientes.map(cliente => `
-    <tr>
-      <td>
-        <input type="checkbox" id="clienteCampanha_${cliente.id}">
-      </td>
+   <tr>
+  <td>
+    <input type="checkbox" id="clienteCampanha_${cliente.id}">
+  </td>
       <td>${cliente.nome || ""}</td>
       <td>${cliente.empresa || ""}</td>
       <td>${cliente.email || ""}</td>
@@ -2105,100 +2084,19 @@ function mostrarClientes() {
       </td>
       <td>
         <button
-          onclick="liberarAcessoPortal(${cliente.id})"
-          title="Liberar acesso ao portal"
-          style="border:none;background:none;cursor:pointer;font-size:18px;">
-          🔑
-        </button>
-        <button
           onclick="editarCliente(${cliente.id})"
-          title="Editar"
-          style="border:none;background:none;cursor:pointer;font-size:18px;">
-          ✏️
-        </button>
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Editar">✏️</button>
         <button
           onclick="excluirCliente(${cliente.id})"
-          title="Excluir"
-          style="border:none;background:none;cursor:pointer;font-size:18px;">
-          🗑️
-        </button>
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Excluir">🗑️</button>
       </td>
     </tr>
   `).join("");
 }
 
-async function liberarAcessoPortal(id) {
-  const cliente = clientesBanco.find(
-    c => String(c.id) === String(id)
-  );
-
-  if (!cliente) {
-    alert("Cliente não encontrado.");
-    return;
-  }
-
-  if (!cliente.email) {
-    alert("Cadastre o e-mail do cliente antes de liberar o acesso.");
-    return;
-  }
-
-  const senhaInicial = prompt(
-    "Defina uma senha inicial com pelo menos 12 caracteres para " +
-    cliente.empresa + ":"
-  );
-
-  if (senhaInicial === null) return;
-
-  if (senhaInicial.length < 12) {
-    alert("A senha deve ter pelo menos 12 caracteres.");
-    return;
-  }
-
-  const confirmar = confirm(
-    "Criar acesso ao portal para:\n\n" +
-    cliente.nome + "\n" +
-    cliente.empresa + "\n" +
-    cliente.email + "\n\n" +
-    "Confirma?"
-  );
-
-  if (!confirmar) return;
-
-  try {
-    const resposta = await fetch("/api/acesso-portal", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        cliente_id: cliente.id,
-        senhaInicial: senhaInicial
-      })
-    });
-
-    const resultado = await resposta.json();
-
-    if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(
-        resultado.erro || "Não foi possível liberar o acesso."
-      );
-    }
-
-    alert(
-      "Acesso criado com sucesso!\n\n" +
-      "Cliente: " + cliente.empresa + "\n" +
-      "E-mail: " + cliente.email + "\n\n" +
-      "Envie ao cliente o endereço do portal e a senha inicial por um canal seguro."
-    );
-
-  } catch (erro) {
-    console.error("Erro ao liberar acesso:", erro);
-    alert(erro.message || "Erro ao liberar acesso ao portal.");
-  }
-}
-
-    function filtrarClientes() {
+function filtrarClientes() {
   const termo = document
     .getElementById("buscaClientes")
     .value
@@ -2274,17 +2172,9 @@ function mostrarMensagem(mensagem) {
 
 async function carregarCampanhasDoBanco() {
   try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-
-    if (!session?.access_token) {
-      throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
-    }
-
     const resposta = await fetch("/api/campanhas", {
       method: "GET",
-      headers: {
-        Authorization: `Bearer ${session.access_token}`
-      },
+      credentials: "include",
       cache: "no-store"
     });
 
@@ -2292,7 +2182,7 @@ async function carregarCampanhasDoBanco() {
 
     if (!resposta.ok || !resultado.sucesso) {
       throw new Error(
-        resultado.erro || "Não foi possível carregar as campanhas."
+        resultado.erro || "Não foi possível carregar as campanhas." 
       );
     }
 
@@ -2300,7 +2190,7 @@ async function carregarCampanhasDoBanco() {
     mostrarCampanhas();
   } catch (erro) {
     console.error("Erro ao carregar campanhas:", erro);
-    alert("Não foi possível carregar as campanhas: " + erro.message);
+    alert("Não foi possível carregar as campanhas do banco.");
   }
 }
 
@@ -2580,23 +2470,13 @@ async function excluirCliente(id) {
   if (!confirmar) return;
 
   try {
-
-const { data: { session } } = await supabaseClient.auth.getSession();
-
-if (!session?.access_token) {
-  throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
-}
-
-const resposta = await fetch(
-  `/api/clientes?id=${encodeURIComponent(id)}`,
-  {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${session.access_token}`
-    }
-  }
-);
-
+    const resposta = await fetch(
+      `/api/clientes?id=${encodeURIComponent(id)}`,
+      {
+        method: "DELETE",
+        credentials: "include"
+      }
+    );
 
     const resultado = await resposta.json();
 
