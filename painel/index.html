@@ -1400,6 +1400,171 @@ async function verificarSessao() {
 }
 
 
+async function consultarPedidosStatus() {
+  const busca = document
+    .getElementById("buscarPedidoStatus")
+    .value.trim();
+
+  const resultado = document.getElementById("resultadoPedidosStatus");
+
+  resultado.textContent = "Consultando pedidos...";
+
+  try {
+    let consulta = supabaseClient
+      .from("pedidos")
+      .select(
+        "id, numero, data_pedido, nome, empresa, cnpj, email, telefone, cidade, itens, total, observacoes, status, cliente_id, criado_em"
+      )
+      .order("data_pedido", { ascending: false })
+      .limit(100);
+
+    if (busca) {
+      const termo = busca.replace(/[,%()]/g, " ").trim();
+
+      if (!termo) {
+        resultado.textContent = "Digite um número de pedido ou nome de cliente.";
+        return;
+      }
+
+      consulta = consulta.or(
+        `numero.ilike.%${termo}%,nome.ilike.%${termo}%,empresa.ilike.%${termo}%`
+      );
+    }
+
+    const { data, error } = await consulta;
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      resultado.textContent = "Nenhum pedido encontrado.";
+      return;
+    }
+
+    resultado.replaceChildren();
+
+    data.forEach((pedido) => {
+      const card = document.createElement("div");
+
+      card.style.cssText =
+        "border:1px solid #ddd;border-radius:10px;padding:15px;margin:12px 0;";
+
+      const titulo = document.createElement("h3");
+      titulo.textContent =
+        `Pedido ${pedido.numero || pedido.id} — ${pedido.empresa || pedido.nome || "Cliente"}`;
+
+      const detalhes = document.createElement("p");
+      detalhes.textContent =
+        `Data: ${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR") : "Não informada"} | Status: ${pedido.status || "Recebido"} | Total: ${pedido.total == null ? "Não informado" : Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
+
+      const botao = document.createElement("button");
+      botao.type = "button";
+      botao.className = "primary-button";
+      botao.textContent = "Ver pedido e linha do tempo";
+      botao.addEventListener("click", () => {
+        abrirDetalhesPedidoStatus(pedido);
+      });
+
+      card.append(titulo, detalhes, botao);
+      resultado.appendChild(card);
+    });
+
+  } catch (erro) {
+    console.error("Erro ao consultar pedidos:", erro);
+    resultado.textContent =
+      "Não foi possível consultar os pedidos. Verifique as permissões do Supabase.";
+  }
+}
+
+
+let pedidoSelecionadoStatus = null;
+
+async function abrirDetalhesPedidoStatus(pedido) {
+  pedidoSelecionadoStatus = pedido;
+
+  const painel = document.getElementById("detalhesPedidoStatus");
+  const dados = document.getElementById("dadosPedidoStatus");
+  const linhaTempo = document.getElementById("linhaTempoPedido");
+  const seletor = document.getElementById("novoStatusPedido");
+
+  painel.style.display = "block";
+  dados.replaceChildren();
+  linhaTempo.textContent = "Carregando histórico...";
+  seletor.value = pedido.status || "Recebido";
+
+  const titulo = document.createElement("h3");
+  titulo.textContent = `Pedido ${pedido.numero || pedido.id}`;
+
+  const cliente = document.createElement("p");
+  cliente.textContent =
+    `Cliente: ${pedido.empresa || pedido.nome || "Não informado"}`;
+
+  const status = document.createElement("p");
+  status.textContent = `Status atual: ${pedido.status || "Recebido"}`;
+
+  const total = document.createElement("p");
+  total.textContent =
+    `Total: ${pedido.total == null ? "Não informado" : Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
+
+  dados.append(titulo, cliente, status, total);
+
+  painel.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("historico_status_pedidos")
+      .select("status, data_status, observacao")
+      .eq("pedido_id", pedido.id)
+      .order("data_status", { ascending: true });
+
+    if (error) throw error;
+
+    linhaTempo.replaceChildren();
+
+    const tituloHistorico = document.createElement("h3");
+    tituloHistorico.textContent = "Linha do tempo";
+    linhaTempo.appendChild(tituloHistorico);
+
+    if (!data || data.length === 0) {
+      const aviso = document.createElement("p");
+      aviso.textContent =
+        "Ainda não há registros de histórico para este pedido.";
+      linhaTempo.appendChild(aviso);
+      return;
+    }
+
+    data.forEach((evento) => {
+      const item = document.createElement("div");
+      item.style.cssText =
+        "border-left:3px solid #245da8;padding:8px 12px;margin:10px 0;";
+
+      const nomeStatus = document.createElement("strong");
+      nomeStatus.textContent = evento.status;
+
+      const dataStatus = document.createElement("p");
+      dataStatus.style.margin = "5px 0";
+      dataStatus.textContent = new Date(
+        evento.data_status
+      ).toLocaleString("pt-BR");
+
+      item.append(nomeStatus, dataStatus);
+
+      if (evento.observacao) {
+        const observacao = document.createElement("p");
+        observacao.textContent = evento.observacao;
+        item.appendChild(observacao);
+      }
+
+      linhaTempo.appendChild(item);
+    });
+
+  } catch (erro) {
+    console.error("Erro ao carregar histórico:", erro);
+    linhaTempo.textContent =
+      "Não foi possível carregar o histórico. Verifique as permissões no Supabase.";
+  }
+}
 
  function mostrarPainel() {
   document.getElementById("loginScreen").style.display = "none";
