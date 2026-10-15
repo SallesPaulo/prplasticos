@@ -1,48 +1,42 @@
 
-const crypto = require("crypto");
-
-function obterCookie(req, nome) {
-  const cookies = req.headers.cookie || "";
-  const item = cookies
-    .split(";")
-    .map(cookie => cookie.trim())
-    .find(cookie => cookie.startsWith(nome + "="));
-
-  return item
-    ? decodeURIComponent(item.substring(nome.length + 1))
+async function validarSessaoSupabase(req) {
+  const autorizacao = req.headers.authorization || "";
+  const token = autorizacao.startsWith("Bearer ")
+    ? autorizacao.slice(7)
     : null;
-}
 
-function criarToken(email, senha, segredo) {
-  return crypto
-    .createHash("sha256")
-    .update(email + senha + segredo)
-    .digest("hex");
-}
+  if (!token) return false;
 
-function sessaoValida(req) {
-  const email = process.env.PAINEL_EMAIL;
-  const senha = process.env.PAINEL_SENHA;
-  const segredo = process.env.SEGREDO_DO_PAINEL;
-  const token = obterCookie(req, "painel_token");
+  const url = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
+  const chave =
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLIC_KEY;
 
-  if (!email || !senha || !segredo || !token) return false;
+  if (!url || !chave) return false;
 
-  const esperado = criarToken(email, senha, segredo);
+  try {
+    const resposta = await fetch(`${url}/auth/v1/user`, {
+      headers: {
+        apikey: chave,
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  if (token.length !== esperado.length) return false;
+    if (!resposta.ok) return false;
 
-  return crypto.timingSafeEqual(
-    Buffer.from(token),
-    Buffer.from(esperado)
-  );
+    const usuario = await resposta.json();
+    return Boolean(usuario.id);
+  } catch (erro) {
+    console.error("Erro ao validar sessão Supabase:", erro);
+    return false;
+  }
 }
 
 module.exports = async (req, res) => {
-  if (!sessaoValida(req)) {
+  if (!(await validarSessaoSupabase(req))) {
     return res.status(401).json({
       sucesso: false,
-      erro: "Sessão não autorizada."
+      erro: "Sessão Supabase não autorizada."
     });
   }
 
@@ -98,7 +92,7 @@ module.exports = async (req, res) => {
       if (!campanha.nome || !campanha.assunto || !campanha.empresa) {
         return res.status(400).json({
           sucesso: false,
-          erro: "Nome e assunto são obrigatórios."
+          erro: "Nome, assunto e empresa são obrigatórios."
         });
       }
 
@@ -147,4 +141,3 @@ module.exports = async (req, res) => {
     });
   }
 };
-
