@@ -660,6 +660,46 @@
       SUPABASE_ANON_KEY
     );
 
+cliente.auth.onAuthStateChange((event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    $("recoveryForm").style.display = "block";
+    $("loginMessage").textContent =
+      "Digite sua nova senha abaixo.";
+  }
+});
+
+    
+$("salvarNovaSenha").addEventListener("click", async () => {
+  const senha = $("novaSenha").value;
+  const mensagem = $("recoveryMessage");
+  const botao = $("salvarNovaSenha");
+
+  if (senha.length < 6) {
+    mensagem.textContent = "A senha deve ter pelo menos 6 caracteres.";
+    return;
+  }
+
+  botao.disabled = true;
+  mensagem.textContent = "Atualizando senha...";
+
+  try {
+    const { error } = await cliente.auth.updateUser({
+      password: senha
+    });
+
+    if (error) throw error;
+
+    mensagem.textContent = "Senha alterada com sucesso! Você já pode entrar no portal.";
+    $("novaSenha").value = "";
+  } catch (error) {
+    console.error("Erro ao atualizar senha:", error);
+    mensagem.textContent = "Não foi possível alterar a senha. Solicite um novo link.";
+  } finally {
+    botao.disabled = false;
+  }
+});
+
+    
     const $ = (id) => document.getElementById(id);
 
     let perfilAtual = null;
