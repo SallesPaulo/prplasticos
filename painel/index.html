@@ -1661,19 +1661,6 @@ async function entrar(event) {
   botao.textContent = "ENTRANDO...";
 
   try {
-    const respostaPainel = await fetch("/api/login", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, senha })
-    });
-
-    const resultadoPainel = await respostaPainel.json();
-
-    if (!respostaPainel.ok || !resultadoPainel.sucesso) {
-      throw new Error(resultadoPainel.erro || "Falha no login do painel.");
-    }
-
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password: senha
@@ -1688,8 +1675,9 @@ async function entrar(event) {
     mostrarPainel();
 
   } catch (erro) {
-    console.error("Erro no login:", erro);
-    elementoErro.textContent = erro.message || "Não foi possível entrar no painel.";
+    console.error("Erro no login Supabase:", erro);
+    elementoErro.textContent =
+      erro.message || "Não foi possível entrar no painel.";
     elementoErro.style.display = "block";
 
   } finally {
@@ -1697,6 +1685,7 @@ async function entrar(event) {
     botao.textContent = "ENTRAR NO PAINEL";
   }
 }
+
 
   
 
@@ -1873,11 +1862,18 @@ const resposta = await fetch("/api/send", {
       enviados: enviados
     };
 
+
+const { data: { session } } = await supabaseClient.auth.getSession();
+
+if (!session?.access_token) {
+  throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
+}
+
 const respostaBanco = await fetch("/api/campanhas", {
   method: "POST",
-  credentials: "include",
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${session.access_token}`
   },
   body: JSON.stringify({
     nome: campanha.nome,
@@ -1888,6 +1884,7 @@ const respostaBanco = await fetch("/api/campanhas", {
     enviados: campanha.enviados
   })
 });
+
 
 const resultadoBanco = await respostaBanco.json();
 
@@ -1971,17 +1968,28 @@ async function salvarCliente() {
   }
 
   try {
-    const resposta = await fetch("/api/clientes", {
-      method: idEditando !== undefined && idEditando !== null ? "PATCH" : "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(
-        idEditando !== undefined && idEditando !== null
-          ? { id: idEditando, cliente }
-          : cliente
-      )
-    });
 
+
+const { data: { session } } = await supabaseClient.auth.getSession();
+
+if (!session?.access_token) {
+  throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
+}
+
+const resposta = await fetch("/api/clientes", {
+  method: idEditando !== undefined && idEditando !== null ? "PATCH" : "POST",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${session.access_token}`
+  },
+  body: JSON.stringify(
+    idEditando !== undefined && idEditando !== null
+      ? { id: idEditando, cliente }
+      : cliente
+  )
+});
+
+    
     const resultado = await resposta.json();
 
     if (!resposta.ok || !resultado.sucesso) {
@@ -2572,13 +2580,23 @@ async function excluirCliente(id) {
   if (!confirmar) return;
 
   try {
-    const resposta = await fetch(
-      `/api/clientes?id=${encodeURIComponent(id)}`,
-      {
-        method: "DELETE",
-        credentials: "include"
-      }
-    );
+
+const { data: { session } } = await supabaseClient.auth.getSession();
+
+if (!session?.access_token) {
+  throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
+}
+
+const resposta = await fetch(
+  `/api/clientes?id=${encodeURIComponent(id)}`,
+  {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`
+    }
+  }
+);
+
 
     const resultado = await resposta.json();
 
