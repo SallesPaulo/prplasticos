@@ -1203,7 +1203,41 @@ function atualizarGraficos(pedidos) {
 
     $("loginForm").addEventListener("submit", async (event) => {
       event.preventDefault();
+```js
+$("forgotPasswordButton").addEventListener("click", async () => {
+  const email = $("email").value.trim();
 
+  if (!email) {
+    $("loginMessage").textContent =
+      "Informe seu e-mail para receber o link de recuperação.";
+    $("email").focus();
+    return;
+  }
+
+  const botao = $("forgotPasswordButton");
+  botao.disabled = true;
+  $("loginMessage").textContent = "Enviando link de recuperação...";
+
+  try {
+    const { error } = await cliente.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/portal.html"
+    });
+
+    if (error) throw error;
+
+    $("loginMessage").textContent =
+      "Se o e-mail estiver cadastrado, você receberá um link para redefinir sua senha.";
+  } catch (error) {
+    console.error("Erro na recuperação:", error);
+    $("loginMessage").textContent =
+      "Não foi possível enviar o link. Tente novamente.";
+  } finally {
+    botao.disabled = false;
+  }
+});
+```
+
+      
       const botao = $("loginButton");
       botao.disabled = true;
       $("loginMessage").textContent = "Verificando acesso...";
