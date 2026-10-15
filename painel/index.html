@@ -2020,18 +2020,24 @@ let clientesBanco = [];
 
 async function carregarClientesDoBanco() {
   try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
+    }
+
     const resposta = await fetch("/api/clientes", {
       method: "GET",
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      },
       cache: "no-store"
     });
 
     const resultado = await resposta.json();
 
     if (!resposta.ok || !resultado.sucesso) {
-      throw new Error(
-        resultado.erro || "Erro ao carregar clientes."
-      );
+      throw new Error(resultado.erro || "Erro ao carregar clientes.");
     }
 
     clientesBanco = resultado.clientes || [];
@@ -2045,7 +2051,7 @@ async function carregarClientesDoBanco() {
   } catch (erro) {
     console.error("Erro ao carregar clientes do banco:", erro);
     alert(
-      "Não foi possível carregar os clientes do banco. Atualize a página e tente novamente."
+      "Não foi possível carregar os clientes: " + erro.message
     );
   }
 }
@@ -2260,9 +2266,17 @@ function mostrarMensagem(mensagem) {
 
 async function carregarCampanhasDoBanco() {
   try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session?.access_token) {
+      throw new Error("Sessão do Supabase não encontrada. Entre novamente.");
+    }
+
     const resposta = await fetch("/api/campanhas", {
       method: "GET",
-      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`
+      },
       cache: "no-store"
     });
 
@@ -2270,7 +2284,7 @@ async function carregarCampanhasDoBanco() {
 
     if (!resposta.ok || !resultado.sucesso) {
       throw new Error(
-        resultado.erro || "Não foi possível carregar as campanhas." 
+        resultado.erro || "Não foi possível carregar as campanhas."
       );
     }
 
@@ -2278,7 +2292,7 @@ async function carregarCampanhasDoBanco() {
     mostrarCampanhas();
   } catch (erro) {
     console.error("Erro ao carregar campanhas:", erro);
-    alert("Não foi possível carregar as campanhas do banco.");
+    alert("Não foi possível carregar as campanhas: " + erro.message);
   }
 }
 
