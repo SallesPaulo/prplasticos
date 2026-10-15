@@ -248,7 +248,7 @@
           error: pedidosError
         } = await cliente
           .from("pedidos")
-          .select("numero, data_pedido, status, itens, total")
+          .select("id","numero, data_pedido, status, itens, total")
           .eq("cliente_id", perfil.cliente_id)
           .order("data_pedido", { ascending: false })
           .limit(50);
@@ -317,6 +317,55 @@
 
           card.appendChild(etiquetaStatus);
 
+          // Linha do tempo do pedido
+          const tituloHistorico = document.createElement("h4");
+          tituloHistorico.textContent = "Acompanhamento do pedido";
+          tituloHistorico.style.marginTop = "18px";
+          card.appendChild(tituloHistorico);
+
+          const linhaTempo = document.createElement("div");
+          linhaTempo.textContent = "Carregando histórico...";
+          card.appendChild(linhaTempo);
+
+          const { data: historico, error: historicoError } =
+            await cliente
+              .from("historico_status_pedidos")
+              .select("status, data_status")
+              .eq("pedido_id", pedido.id)
+              .order("data_status", { ascending: true });
+
+          linhaTempo.replaceChildren();
+
+          if (historicoError) {
+            console.error("Erro ao carregar histórico:", historicoError);
+            linhaTempo.textContent =
+              "Não foi possível carregar o histórico.";
+          } else if (!historico || historico.length === 0) {
+            linhaTempo.textContent =
+              "Ainda não há atualizações registradas.";
+          } else {
+            historico.forEach((evento) => {
+              const etapa = document.createElement("div");
+              etapa.style.cssText =
+                "border-left:3px solid #245da8;padding:6px 12px;margin:8px 0;";
+
+              const statusEtapa = document.createElement("strong");
+              statusEtapa.textContent = evento.status;
+              etapa.appendChild(statusEtapa);
+
+              const dataEtapa = document.createElement("p");
+              dataEtapa.style.margin = "4px 0";
+              dataEtapa.textContent = new Date(
+                evento.data_status
+              ).toLocaleString("pt-BR");
+
+              etapa.appendChild(dataEtapa);
+              linhaTempo.appendChild(etapa);
+            });
+          }
+
+
+          
           // Itens do pedido
           const itens = Array.isArray(pedido.itens)
             ? pedido.itens
