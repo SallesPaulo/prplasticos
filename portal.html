@@ -400,6 +400,39 @@
       .panel { padding: 16px; }
       .profile-grid { grid-template-columns: 1fr; }
     }
+
+
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.charts-container .panel {
+  min-width: 0;
+  margin: 0;
+}
+
+.charts-container p {
+  color: #64748b;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+#chartPurchases,
+#chartWeight {
+  width: 100%;
+  min-height: 280px;
+}
+
+@media (max-width: 700px) {
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+    
   </style>
 </head>
 
@@ -509,15 +542,22 @@
             </div>
             </div>
 
-<div class="stat-card">
-  <div class="stat-label">Total de compras</div>
-  <div id="totalPurchases" class="stat-number">R$ 0,00</div>
+<div class="charts-container">
+
+  <div class="panel">
+    <h2>Valor comprado</h2>
+    <p>Compras por mês (R$)</p>
+    <div id="chartPurchases"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Peso comprado</h2>
+    <p>Quantidade por mês (kg)</p>
+    <div id="chartWeight"></div>
+  </div>
+
 </div>
 
-<div class="stat-card">
-  <div class="stat-label">Peso total comprado</div>
-  <div id="totalWeight" class="stat-number">0 kg</div>
-</div>
 
 
                   </section>
@@ -835,6 +875,7 @@
       }
 
       pedidosAtuais = data || [];
+      atualizarGraficos(pedidosAtuais);
 
       const entregues = pedidosAtuais.filter(
         p => normalizarStatus(p.status).includes("entregue")
@@ -939,6 +980,126 @@ $("totalWeight").textContent =
       atualizarSelecaoAcompanhamento();
     }
 
+    
+function desenharGrafico(elementoId, valores, cor, formato) {
+  const elemento = document.getElementById(elementoId);
+  if (!elemento) return;
+
+  const maximo = Math.max(...valores.map(v => v.valor), 1);
+
+  elemento.replaceChildren();
+
+  const grafico = document.createElement("div");
+  grafico.style.cssText =
+    "display:grid;grid-template-columns:repeat(6,minmax(0,1fr));" +
+    "gap:8px;align-items:end;height:240px;";
+
+  valores.forEach(item => {
+    const coluna = document.createElement("div");
+    coluna.style.cssText =
+      "display:flex;flex-direction:column;align-items:center;" +
+      "justify-content:flex-end;height:100%;gap:6px;min-width:0;";
+
+    const barra = document.createElement("div");
+    barra.style.cssText =
+      "width:70%;max-width:30px;min-height:" +
+      (item.valor > 0 ? "3px" : "0") + ";" +
+      "height:" + (item.valor / maximo * 100) + "%;" +
+      "background:" + cor + ";border-radius:5px 5px 0 0;";
+
+    barra.title = formato(item.valor);
+
+    const mes = document.createElement("span");
+    mes.textContent = item.mes;
+    mes.style.cssText = "font-size:11px;color:#64748b;";
+
+    coluna.appendChild(barra);
+    coluna.appendChild(mes);
+    grafico.appendChild(coluna);
+  });
+
+  elemento.appendChild(grafico);
+}
+
+
+function atualizarGraficos(pedidos) {
+  const hoje = new Date();
+  const meses = [];
+
+  for (let i = 5; i >= 0; i--) {
+    const data = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth() - i,
+      1
+    );
+
+    meses.push({
+      ano: data.getFullYear(),
+      mes: data.getMonth(),
+      nome: data.toLocaleDateString("pt-BR", {
+        month: "short"
+      }).replace(".", ""),
+      valor: 0,
+      peso: 0
+    });
+  }
+
+  pedidos.forEach(pedido => {
+    const data = new Date(pedido.data_pedido);
+
+    if (isNaN(data.getTime())) return;
+
+    const periodo = meses.find(m =>
+      m.ano === data.getFullYear() &&
+      m.mes === data.getMonth()
+    );
+
+    if (!periodo) return;
+
+    periodo.valor += Number(pedido.total || 0);
+
+    let itens = pedido.itens || [];
+
+    if (typeof itens === "string") {
+      try {
+        itens = JSON.parse(itens);
+      } catch {
+        itens = [];
+      }
+    }
+
+    if (Array.isArray(itens)) {
+      itens.forEach(item => {
+        periodo.peso += Number(item.quantidade || 0);
+      });
+    }
+  });
+
+  desenharGrafico(
+    "chartPurchases",
+    meses.map(m => ({
+      mes: m.nome,
+      valor: m.valor
+    })),
+    "#2563eb",
+    valor => valor.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    })
+  );
+
+  desenharGrafico(
+    "chartWeight",
+    meses.map(m => ({
+      mes: m.nome,
+      valor: m.peso
+    })),
+    "#16a34a",
+    valor => valor.toLocaleString("pt-BR") + " kg"
+  );
+}
+
+    
     function atualizarSelecaoAcompanhamento() {
       document.querySelectorAll(".tracking-list-button").forEach(botao => {
         botao.classList.toggle(
