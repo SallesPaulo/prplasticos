@@ -55,6 +55,7 @@ module.exports = async function handler(req, res) {
   };
 
   try {
+    
     if (req.method === "GET") {
       const resposta = await fetch(
         `${base}/rest/v1/usuarios_portal?select=id,nome,empresa,email,ativo,criado_em,cliente_id&order=criado_em.desc`,
@@ -69,17 +70,13 @@ module.exports = async function handler(req, res) {
           detalhes: dados
         });
       }
-      return res.status(200).json({
-  sucesso: true,
-  usuarios: dados
-});
 
       return res.status(200).json({
-  sucesso: true,
-  usuarios: dados
-});
+        sucesso: true,
+        usuarios: dados
+      });
+    }
 
-    if (req.method === "POST") {
       const { nome, empresa, email, senha, cliente_id } = req.body || {};
 
       if (!nome || !empresa || !email || !senha || !cliente_id) {
