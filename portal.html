@@ -7,186 +7,560 @@
   <title>Portal do Cliente | PR Plásticos</title>
 
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --blue: #083f73;
+      --blue-dark: #062f57;
+      --green: #4f9d4d;
+      --light: #f4f7f9;
+      --white: #fff;
+      --text: #243b53;
+      --muted: #708196;
+      --border: #dce5ed;
+      --shadow: 0 3px 14px rgba(8, 63, 115, .07);
     }
+
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #edf3fa;
-      color: #243b53;
-      min-height: 100vh;
-      padding: 30px 16px;
+      background: var(--light);
+      color: var(--text);
     }
 
-    .container {
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 32px 28px;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(23, 75, 135, 0.12);
-      border-top: 6px solid #174b87;
-      text-align: center;
-    }
-
-    h1, h2, h3 {
-      color: #174b87;
-    }
-
-    p {
-      color: #60758b;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 14px;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    input {
-      border: 1px solid #cbd8e6;
-      background: #f8fbff;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #174b87;
-    }
+    button, input { font: inherit; }
 
     button {
-      border: none;
-      background: #174b87;
-      color: #ffffff;
-      font-weight: bold;
       cursor: pointer;
-      transition: background 0.2s;
+      border: 0;
+      border-radius: 7px;
+      padding: 11px 15px;
+      background: var(--blue);
+      color: white;
+      font-weight: 700;
     }
 
-    button:hover {
-      background: #103965;
+    button:hover { background: var(--blue-dark); }
+    button:disabled { opacity: .6; cursor: wait; }
+
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    #mensagem {
-      margin-top: 16px;
-      color: #174b87;
-      font-size: 14px;
-    }
-
-    #areaCliente {
-      display: none;
-      text-align: left;
-    }
-
-    #areaCliente > h2,
-    #areaCliente > p {
+    .login-card {
+      background: white;
+      width: 100%;
+      max-width: 430px;
+      padding: 34px;
+      border-radius: 14px;
+      border-top: 6px solid var(--blue);
+      box-shadow: var(--shadow);
       text-align: center;
     }
 
-    .pedido-card {
-      padding: 16px;
-      margin: 16px 0;
-      border: 1px solid #dbe5f0;
-      border-radius: 10px;
+    .logo {
+      width: 180px;
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .login-card input {
+      display: block;
+      width: 100%;
+      margin: 12px 0;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #f9fbfd;
+    }
+
+    .login-card button { width: 100%; margin-top: 8px; }
+
+    #loginMessage, #appMessage {
+      color: var(--blue);
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+
+    .app { display: none; min-height: 100vh; }
+
+    .topbar {
+      height: 76px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 28px;
+    }
+
+    .topbar .logo { width: 145px; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .welcome-small {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .logout-button {
+      background: white;
+      color: var(--blue);
+      border: 1px solid var(--border);
+    }
+
+    .layout { display: flex; min-height: calc(100vh - 76px); }
+
+    .sidebar {
+      width: 235px;
+      flex-shrink: 0;
+      padding: 25px 15px;
+      background: white;
+      border-right: 1px solid var(--border);
+    }
+
+    .sidebar-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 0 12px;
+      margin-bottom: 12px;
+    }
+
+    .nav-button {
+      display: block;
+      width: 100%;
       text-align: left;
-      background: #ffffff;
+      margin: 5px 0;
+      color: #53677c;
+      background: transparent;
+      font-weight: 600;
+      padding: 13px 12px;
+      border-radius: 7px;
+    }
+
+    .nav-button:hover,
+    .nav-button.active {
+      background: #eaf2fa;
+      color: var(--blue);
+    }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 30px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-heading { margin-bottom: 24px; }
+
+    .page-heading h1 {
+      font-size: 25px;
+      color: var(--blue);
+      margin: 0 0 8px;
+    }
+
+    .page-heading p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card, .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card { padding: 22px; }
+    .stat-label { color: var(--muted); font-size: 14px; }
+    .stat-number {
+      font-size: 30px;
+      color: var(--blue);
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    .panel { padding: 22px; margin-bottom: 22px; }
+
+    .panel h2 {
+      font-size: 18px;
+      color: var(--blue);
+      margin: 0 0 18px;
+    }
+
+    .order-card {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: white;
+      padding: 19px;
+      margin-bottom: 14px;
       overflow-wrap: anywhere;
     }
 
-    .pedido-card h3 {
-      margin-top: 0;
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .item-pedido {
-      padding: 12px 0;
-      border-top: 1px solid #e5ebf2;
-    }
+    .order-number { color: var(--blue); font-size: 17px; margin: 0 0 7px; }
+    .muted { color: var(--muted); font-size: 14px; line-height: 1.6; }
 
-    .status-pedido {
+    .status {
       display: inline-block;
-      padding: 6px 12px;
+      padding: 6px 11px;
       border-radius: 20px;
-      font-size: 13px;
-      font-weight: bold;
-      margin: 8px 0 12px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
     }
 
-    .total-pedido {
+    .order-items {
+      border-top: 1px solid #edf1f5;
+      margin-top: 16px;
+      padding-top: 12px;
+    }
+
+    .item-row {
+      padding: 9px 0;
+      border-bottom: 1px solid #f0f3f6;
+      line-height: 1.5;
+    }
+
+    .item-row:last-child { border-bottom: 0; }
+
+    .order-total {
       text-align: right;
-      color: #174b87;
-      margin-top: 18px;
+      color: var(--blue);
+      font-weight: 700;
+      font-size: 18px;
+      margin-top: 17px;
+    }
+
+    .order-actions { margin-top: 14px; }
+
+    .secondary-button {
+      background: white;
+      color: var(--blue);
+      border: 1px solid var(--border);
+    }
+
+    .secondary-button:hover {
+      background: #edf4fb;
+      color: var(--blue-dark);
+    }
+
+    .empty {
+      padding: 28px 12px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .profile-field {
+      padding: 15px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .profile-field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    .profile-field strong { color: var(--text); }
+
+    .tracking-layout {
+      display: grid;
+      grid-template-columns: minmax(220px, .8fr) minmax(0, 1.5fr);
+      gap: 20px;
+    }
+
+    .tracking-list-button {
+      width: 100%;
+      display: block;
+      text-align: left;
+      margin-bottom: 9px;
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .tracking-list-button.active {
+      background: #eaf2fa;
+      color: var(--blue);
+      border-color: #9bbbd8;
+    }
+
+    .timeline { margin-top: 15px; }
+
+    .timeline-event {
+      border-left: 3px solid #c8d8e8;
+      padding: 3px 0 18px 17px;
+      margin-left: 6px;
+      position: relative;
+    }
+
+    .timeline-event::before {
+      content: "";
+      position: absolute;
+      left: -7px;
+      top: 3px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--blue);
+    }
+
+    .timeline-event:last-child { border-left-color: transparent; }
+    .timeline-event strong { color: var(--blue); }
+
+    .footer {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .layout { display: block; }
+
+      .sidebar {
+        width: 100%;
+        padding: 10px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        overflow-x: auto;
+      }
+
+      .sidebar-label { display: none; }
+
+      .nav-list {
+        display: flex;
+        gap: 6px;
+        min-width: max-content;
+      }
+
+      .nav-button {
+        width: auto;
+        margin: 0;
+        padding: 11px 13px;
+      }
+
+      .main { padding: 20px 14px; }
+      .stats { grid-template-columns: 1fr; gap: 12px; }
+      .stat-card { padding: 17px; }
+      .stat-number { font-size: 26px; }
+      .tracking-layout { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 12px;
-      }
-
-      .container {
-        margin: 16px auto;
-        padding: 24px 16px;
-      }
-
-      .pedido-card {
-        padding: 12px;
-      }
+      .topbar { height: auto; padding: 13px; }
+      .topbar .logo { width: 115px; }
+      .topbar-right { gap: 7px; }
+      .welcome-small { display: none; }
+      .logout-button { padding: 9px; font-size: 13px; }
+      .login-card { padding: 25px 18px; }
+      .page-heading h1 { font-size: 22px; }
+      .panel { padding: 16px; }
+      .profile-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
 
-    <img
-      src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
-      alt="PR Plásticos Recicláveis"
-      style="width:180px;max-width:100%;height:auto;"
-    >
-
-    <p style="font-size:20px;font-weight:bold;color:#174b87;">
-      Portal do Cliente
-    </p>
-
-    <form id="loginForm">
-      <input
-        id="email"
-        type="email"
-        placeholder="Seu e-mail"
-        autocomplete="username"
-        required
+  <section id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <img
+        class="logo"
+        src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
+        alt="PR Plásticos Recicláveis"
       >
 
-      <input
-        id="senha"
-        type="password"
-        placeholder="Sua senha"
-        autocomplete="current-password"
-        required
+      <h1 style="color:var(--blue);font-size:23px;margin-top:25px">
+        Portal do Cliente
+      </h1>
+
+      <p class="muted">
+        Consulte seus pedidos e acompanhe cada etapa.
+      </p>
+
+      <form id="loginForm">
+        <input
+          id="email"
+          type="email"
+          placeholder="Seu e-mail"
+          autocomplete="username"
+          required
+        >
+
+        <input
+          id="senha"
+          type="password"
+          placeholder="Sua senha"
+          autocomplete="current-password"
+          required
+        >
+
+        <button id="loginButton" type="submit">Entrar no portal</button>
+      </form>
+
+      <div id="loginMessage" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <div id="app" class="app">
+
+    <header class="topbar">
+      <img
+        class="logo"
+        src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
+        alt="PR Plásticos"
       >
 
-      <button type="submit">Entrar no portal</button>
-    </form>
-
-    <div id="mensagem" role="status" aria-live="polite"></div>
-
-    <section id="areaCliente">
-      <h2 id="boasVindas"></h2>
-      <p id="empresaCliente"></p>
-
-      <hr style="border:0;border-top:1px solid #dbe5f0;margin:24px 0;">
-
-      <h3>Meus pedidos</h3>
-
-      <div id="listaPedidos">
-        Carregando pedidos...
+      <div class="topbar-right">
+        <span id="welcomeSmall" class="welcome-small"></span>
+        <button id="logoutButton" class="logout-button" type="button">
+          Sair
+        </button>
       </div>
+    </header>
 
-      <button id="sair" type="button">Sair do portal</button>
-    </section>
+    <div class="layout">
 
+      <aside class="sidebar">
+        <div class="sidebar-label">ÁREA DO CLIENTE</div>
+
+        <nav class="nav-list" aria-label="Menu do portal">
+          <button class="nav-button active" data-page="inicio" type="button">
+            Início
+          </button>
+          <button class="nav-button" data-page="pedidos" type="button">
+            Meus pedidos
+          </button>
+          <button class="nav-button" data-page="acompanhamento" type="button">
+            Acompanhamento
+          </button>
+          <button class="nav-button" data-page="dados" type="button">
+            Meus dados
+          </button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <div id="appMessage" role="status" aria-live="polite"></div>
+
+        <section id="page-inicio" class="page active">
+          <div class="page-heading">
+            <h1 id="greeting">Bem-vindo!</h1>
+            <p>Confira um resumo dos seus pedidos com a PR Plásticos.</p>
+          </div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <div class="stat-label">Total de pedidos</div>
+              <div id="totalOrders" class="stat-number">—</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Em andamento</div>
+              <div id="activeOrders" class="stat-number">—</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-label">Entregues</div>
+              <div id="deliveredOrders" class="stat-number">—</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Pedidos recentes</h2>
+            <div id="recentOrders" class="empty">Carregando pedidos...</div>
+          </div>
+        </section>
+
+        <section id="page-pedidos" class="page">
+          <div class="page-heading">
+            <h1>Meus pedidos</h1>
+            <p>Consulte os itens, valores e status dos seus pedidos.</p>
+          </div>
+
+          <div id="allOrders" class="empty">Carregando pedidos...</div>
+        </section>
+
+        <section id="page-acompanhamento" class="page">
+          <div class="page-heading">
+            <h1>Acompanhamento</h1>
+            <p>Veja o histórico de atualizações de cada pedido.</p>
+          </div>
+
+          <div class="tracking-layout">
+            <div class="panel">
+              <h2>Selecione um pedido</h2>
+              <div id="trackingOrders" class="empty">
+                Carregando pedidos...
+              </div>
+            </div>
+
+            <div class="panel">
+              <div id="trackingDetails" class="empty">
+                Selecione um pedido para consultar o histórico.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-dados" class="page">
+          <div class="page-heading">
+            <h1>Meus dados</h1>
+            <p>Consulte as informações vinculadas ao seu acesso.</p>
+          </div>
+
+          <div class="panel">
+            <h2>Dados cadastrais</h2>
+            <div id="profileData" class="empty">Carregando cadastro...</div>
+          </div>
+        </section>
+
+        <div class="footer">PR Plásticos Recicláveis</div>
+      </main>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -203,308 +577,508 @@
       SUPABASE_ANON_KEY
     );
 
-    const form = document.getElementById("loginForm");
-    const mensagem = document.getElementById("mensagem");
-    const area = document.getElementById("areaCliente");
-    const lista = document.getElementById("listaPedidos");
+    const $ = (id) => document.getElementById(id);
 
-    async function carregarPedidos() {
-      lista.textContent = "Carregando pedidos...";
+    let perfilAtual = null;
+    let usuarioAtual = null;
+    let pedidosAtuais = [];
+    let pedidoSelecionadoId = null;
 
-      try {
-        const {
-          data: authData,
-          error: authError
-        } = await cliente.auth.getUser();
+    const moeda = (valor) =>
+      Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
 
-        if (authError || !authData.user) {
-          lista.textContent =
-            "Sessão expirada. Entre novamente no portal.";
-          return;
-        }
+    const dataBR = (valor) => {
+      if (!valor) return "Não informada";
+      const data = new Date(valor);
+      return Number.isNaN(data.getTime())
+        ? "Não informada"
+        : data.toLocaleDateString("pt-BR");
+    };
 
-        const {
-          data: perfil,
-          error: perfilError
-        } = await cliente
-          .from("usuarios_portal")
-          .select("cliente_id, ativo")
-          .eq("id", authData.user.id)
-          .single();
+    const dataHoraBR = (valor) => {
+      if (!valor) return "Data não informada";
+      const data = new Date(valor);
+      return Number.isNaN(data.getTime())
+        ? "Data não informada"
+        : data.toLocaleString("pt-BR");
+    };
 
-        if (
-          perfilError ||
-          !perfil ||
-          !perfil.ativo ||
-          !perfil.cliente_id
-        ) {
-          lista.textContent =
-            "Não foi possível identificar seu cadastro.";
-          return;
-        }
-
-        const {
-          data: pedidos,
-          error: pedidosError
-        } = await cliente
-          .from("pedidos")
-          .select("id","numero, data_pedido, status, itens, total")
-          .eq("cliente_id", perfil.cliente_id)
-          .order("data_pedido", { ascending: false })
-          .limit(50);
-
-        if (pedidosError) {
-          console.error("Erro ao carregar pedidos:", pedidosError);
-          lista.textContent =
-            "Não foi possível carregar os pedidos.";
-          return;
-        }
-
-        if (!pedidos || pedidos.length === 0) {
-          lista.textContent = "Nenhum pedido encontrado.";
-          return;
-        }
-
-        lista.replaceChildren();
-
-        for (const pedido of pedidos) {
-          const card = document.createElement("div");
-          card.className = "pedido-card";
-
-          const titulo = document.createElement("h3");
-          titulo.textContent =
-            "Pedido " + (pedido.numero || "");
-          card.appendChild(titulo);
-
-          // Data do pedido
-          const resumo = document.createElement("p");
-          resumo.textContent =
-            "Data: " +
-            (pedido.data_pedido
-              ? new Date(pedido.data_pedido)
-                  .toLocaleDateString("pt-BR")
-              : "Não informada");
-
-          card.appendChild(resumo);
-
-          // Status do pedido: bloco único, sem duplicações
-          const etiquetaStatus = document.createElement("span");
-          const textoStatus =
-            (pedido.status || "Em análise").trim();
-          console.log("Status recebido do banco:", pedido.status);
-
-          etiquetaStatus.textContent = textoStatus;
-          etiquetaStatus.className = "status-pedido";
-
-          const coresStatus = {
-            "em análise": ["#fff4cc", "#8a6500"],
-            "em producao": ["#dceeff", "#174b87"],
-            "em produção": ["#dceeff", "#174b87"],
-            "aguardando entrega": ["#eee5ff", "#6842a6"],
-            "entregue": ["#d9f7e5", "#176b3a"],
-            "cancelado": ["#ffe0e0", "#a32626"]
-          };
-
-          const chaveStatus = textoStatus
-            .toLocaleLowerCase("pt-BR");
-
-          const cores =
-            coresStatus[chaveStatus] ||
-            ["#edf3fa", "#40566f"];
-
-          etiquetaStatus.style.backgroundColor = cores[0];
-          etiquetaStatus.style.color = cores[1];
-
-          card.appendChild(etiquetaStatus);
-
-          // Linha do tempo do pedido
-          const tituloHistorico = document.createElement("h4");
-          tituloHistorico.textContent = "Acompanhamento do pedido";
-          tituloHistorico.style.marginTop = "18px";
-          card.appendChild(tituloHistorico);
-
-          const linhaTempo = document.createElement("div");
-          linhaTempo.textContent = "Carregando histórico...";
-          card.appendChild(linhaTempo);
-
-          const { data: historico, error: historicoError } =
-            await cliente
-              .from("historico_status_pedidos")
-              .select("status, data_status")
-              .eq("pedido_id", pedido.id)
-              .order("data_status", { ascending: true });
-
-          linhaTempo.replaceChildren();
-
-          if (historicoError) {
-            console.error("Erro ao carregar histórico:", historicoError);
-            linhaTempo.textContent =
-              "Não foi possível carregar o histórico.";
-          } else if (!historico || historico.length === 0) {
-            linhaTempo.textContent =
-              "Ainda não há atualizações registradas.";
-          } else {
-            historico.forEach((evento) => {
-              const etapa = document.createElement("div");
-              etapa.style.cssText =
-                "border-left:3px solid #245da8;padding:6px 12px;margin:8px 0;";
-
-              const statusEtapa = document.createElement("strong");
-              statusEtapa.textContent = evento.status;
-              etapa.appendChild(statusEtapa);
-
-              const dataEtapa = document.createElement("p");
-              dataEtapa.style.margin = "4px 0";
-              dataEtapa.textContent = new Date(
-                evento.data_status
-              ).toLocaleString("pt-BR");
-
-              etapa.appendChild(dataEtapa);
-              linhaTempo.appendChild(etapa);
-            });
-          }
-
-
-          
-          // Itens do pedido
-          const itens = Array.isArray(pedido.itens)
-            ? pedido.itens
-            : [];
-
-          if (itens.length === 0) {
-            const semItens = document.createElement("p");
-            semItens.textContent =
-              "Nenhum item detalhado neste pedido.";
-            card.appendChild(semItens);
-          }
-
-          itens.forEach((item) => {
-            const produto = document.createElement("div");
-            produto.className = "item-pedido";
-
-            const nome = document.createElement("strong");
-            nome.style.color = "#174b87";
-            nome.textContent = item.nome || "Produto";
-            produto.appendChild(nome);
-
-            const especificacao = document.createElement("p");
-            especificacao.textContent =
-              "Especificação: " +
-              (item.especificacao || "Não informada");
-
-            produto.appendChild(especificacao);
-
-            const quantidade = Number(item.quantidade || 0);
-            const preco = Number(item.preco || 0);
-            const totalItem = Number(
-              item.total ?? quantidade * preco
-            );
-
-            const detalhes = document.createElement("p");
-
-            detalhes.textContent =
-              "Peso/Quantidade: " +
-              quantidade.toLocaleString("pt-BR") +
-              " kg | Valor unitário: " +
-              preco.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              }) +
-              " | Total do item: " +
-              totalItem.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              });
-
-            produto.appendChild(detalhes);
-            card.appendChild(produto);
-          });
-
-          // Total do pedido
-          const totalPedido = document.createElement("h3");
-          totalPedido.className = "total-pedido";
-
-          totalPedido.textContent =
-            "Total do pedido: " +
-            Number(pedido.total || 0).toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL"
-            });
-
-          card.appendChild(totalPedido);
-          lista.appendChild(card);
-        }
-
-      } catch (erro) {
-        console.error("Erro inesperado:", erro);
-        lista.textContent =
-          "Ocorreu um erro ao carregar os pedidos. Tente novamente.";
+    function criar(tag, classe, texto) {
+      const el = document.createElement(tag);
+      if (classe) el.className = classe;
+      if (texto !== undefined && texto !== null) {
+        el.textContent = String(texto);
       }
+      return el;
     }
+
+    function normalizarStatus(status) {
+      return String(status || "Recebido")
+        .trim()
+        .toLocaleLowerCase("pt-BR")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function coresDoStatus(status) {
+      const s = normalizarStatus(status);
+
+      if (s.includes("cancel")) return ["#ffe0e0", "#a32626"];
+      if (s.includes("entregue")) return ["#d9f7e5", "#176b3a"];
+      if (s.includes("enviado")) return ["#e2f5e8", "#246b40"];
+      if (s.includes("faturado")) return ["#e5f4e8", "#276b39"];
+      if (s.includes("producao")) return ["#dceeff", "#174b87"];
+      if (s.includes("separacao")) return ["#eee5ff", "#6842a6"];
+      if (s.includes("analise")) return ["#fff4cc", "#8a6500"];
+
+      return ["#edf3fa", "#40566f"];
+    }
+
+    function aplicarStatus(elemento, status) {
+      const cores = coresDoStatus(status);
+      elemento.className = "status";
+      elemento.textContent = status || "Recebido";
+      elemento.style.backgroundColor = cores[0];
+      elemento.style.color = cores[1];
+    }
+
+    function montarItens(pedido, destino) {
+      const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+
+      if (itens.length === 0) {
+        destino.appendChild(
+          criar("p", "muted", "Nenhum item detalhado neste pedido.")
+        );
+        return;
+      }
+
+      itens.forEach((item) => {
+        const linha = criar("div", "item-row");
+        const nome = criar("strong", "", item.nome || "Produto");
+        linha.appendChild(nome);
+
+        const especificacao = criar(
+          "div",
+          "muted",
+          "Especificação: " + (item.especificacao || "Não informada")
+        );
+        linha.appendChild(especificacao);
+
+        const quantidade = Number(item.quantidade || 0);
+        const preco = Number(item.preco || 0);
+        const totalItem = Number(item.total ?? quantidade * preco);
+
+        linha.appendChild(criar(
+          "div",
+          "muted",
+          "Quantidade: " + quantidade.toLocaleString("pt-BR") +
+          " kg | Unitário: " + moeda(preco) +
+          " | Total: " + moeda(totalItem)
+        ));
+
+        destino.appendChild(linha);
+      });
+    }
+
+    function criarCardPedido(pedido, compacto = false) {
+      const card = criar("article", "order-card");
+
+      const topo = criar("div", "order-top");
+      const informacoes = criar("div");
+
+      informacoes.appendChild(criar(
+        "h3",
+        "order-number",
+        "Pedido " + (pedido.numero || pedido.id)
+      ));
+
+      informacoes.appendChild(criar(
+        "div",
+        "muted",
+        "Data do pedido: " + dataBR(pedido.data_pedido)
+      ));
+
+      topo.appendChild(informacoes);
+
+      const etiqueta = criar("span");
+      aplicarStatus(etiqueta, pedido.status);
+      topo.appendChild(etiqueta);
+      card.appendChild(topo);
+
+      if (!compacto) {
+        const itens = criar("div", "order-items");
+        montarItens(pedido, itens);
+        card.appendChild(itens);
+
+        card.appendChild(criar(
+          "div",
+          "order-total",
+          "Total do pedido: " + moeda(pedido.total)
+        ));
+      }
+
+      const acoes = criar("div", "order-actions");
+      const acompanhar = criar(
+        "button",
+        "secondary-button",
+        "Acompanhar pedido"
+      );
+
+      acompanhar.type = "button";
+      acompanhar.addEventListener("click", () => {
+        abrirAcompanhamento(pedido.id);
+      });
+
+      acoes.appendChild(acompanhar);
+      card.appendChild(acoes);
+
+      return card;
+    }
+
+    function mostrarMensagem(texto) {
+      $("appMessage").textContent = texto || "";
+    }
+
+    function ativarPagina(nome) {
+      document.querySelectorAll(".page").forEach((pagina) => {
+        pagina.classList.toggle("active", pagina.id === "page-" + nome);
+      });
+
+      document.querySelectorAll(".nav-button").forEach((botao) => {
+        botao.classList.toggle("active", botao.dataset.page === nome);
+      });
+
+      mostrarMensagem("");
+    }
+
+    document.querySelectorAll(".nav-button").forEach((botao) => {
+      botao.addEventListener("click", () => {
+        ativarPagina(botao.dataset.page);
+      });
+    });
 
     async function carregarPerfil(usuario) {
       const { data, error } = await cliente
         .from("usuarios_portal")
-        .select("nome, empresa, ativo")
+        .select("cliente_id, nome, empresa, ativo")
         .eq("id", usuario.id)
         .single();
 
-      if (error || !data || !data.ativo) {
+      if (error || !data || !data.ativo || !data.cliente_id) {
         await cliente.auth.signOut();
-        area.style.display = "none";
-        form.style.display = "block";
-
-        mensagem.textContent =
-          "Acesso não liberado. Entre em contato com a PR Plásticos.";
-        return;
+        mostrarLogin();
+        $("loginMessage").textContent =
+          "Acesso não liberado ou cadastro incompleto. Entre em contato com a PR Plásticos.";
+        return false;
       }
 
-      form.style.display = "none";
-      area.style.display = "block";
+      usuarioAtual = usuario;
+      perfilAtual = data;
 
-      document.getElementById("boasVindas").textContent =
-        "Olá, " + data.nome;
+      $("greeting").textContent =
+        "Olá, " + (data.nome || "cliente") + "!";
 
-      document.getElementById("empresaCliente").textContent =
-        "Empresa: " + data.empresa;
+      $("welcomeSmall").textContent =
+        data.empresa || data.nome || usuario.email || "";
 
-      mensagem.textContent = "";
+      const dados = $("profileData");
+      dados.replaceChildren();
 
-      await carregarPedidos();
+      const grade = criar("div", "profile-grid");
+
+      [
+        ["Nome", data.nome || "Não informado"],
+        ["Empresa", data.empresa || "Não informada"],
+        ["E-mail de acesso", usuario.email || "Não informado"]
+      ].forEach(([rotulo, valor]) => {
+        const campo = criar("div", "profile-field");
+        campo.appendChild(criar("label", "", rotulo));
+        campo.appendChild(criar("strong", "", valor));
+        grade.appendChild(campo);
+      });
+
+      dados.appendChild(grade);
+
+      return true;
     }
 
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      mensagem.textContent = "Verificando acesso...";
+    async function carregarPedidos() {
+      $("recentOrders").textContent = "Carregando pedidos...";
+      $("allOrders").textContent = "Carregando pedidos...";
+      $("trackingOrders").textContent = "Carregando pedidos...";
 
-      const { data, error } =
-        await cliente.auth.signInWithPassword({
-          email: document.getElementById("email").value.trim(),
-          password: document.getElementById("senha").value
-        });
+      const { data, error } = await cliente
+        .from("pedidos")
+        .select("id, numero, data_pedido, status, itens, total")
+        .eq("cliente_id", perfilAtual.cliente_id)
+        .order("data_pedido", { ascending: false })
+        .limit(50);
 
       if (error) {
-        mensagem.textContent =
-          "E-mail ou senha inválidos.";
+        console.error("Erro ao carregar pedidos:", error);
+        $("recentOrders").textContent = "Não foi possível carregar os pedidos.";
+        $("allOrders").textContent = "Não foi possível carregar os pedidos.";
+        $("trackingOrders").textContent = "Não foi possível carregar os pedidos.";
         return;
       }
 
-      await carregarPerfil(data.user);
+      pedidosAtuais = data || [];
+
+      const entregues = pedidosAtuais.filter(
+        p => normalizarStatus(p.status).includes("entregue")
+      ).length;
+
+      const cancelados = pedidosAtuais.filter(
+        p => normalizarStatus(p.status).includes("cancel")
+      ).length;
+
+      $("totalOrders").textContent = pedidosAtuais.length;
+      $("deliveredOrders").textContent = entregues;
+      $("activeOrders").textContent =
+        pedidosAtuais.length - entregues - cancelados;
+
+      const recentes = $("recentOrders");
+      const todos = $("allOrders");
+      const selecao = $("trackingOrders");
+
+      recentes.replaceChildren();
+      todos.replaceChildren();
+      selecao.replaceChildren();
+
+      if (pedidosAtuais.length === 0) {
+        recentes.appendChild(criar(
+          "div", "empty", "Você ainda não possui pedidos cadastrados."
+        ));
+        todos.appendChild(criar(
+          "div", "empty", "Você ainda não possui pedidos cadastrados."
+        ));
+        selecao.appendChild(criar(
+          "div", "empty", "Nenhum pedido disponível para acompanhar."
+        ));
+        $("trackingDetails").textContent =
+          "Não há pedidos para acompanhar.";
+        return;
+      }
+
+      pedidosAtuais.slice(0, 3).forEach(pedido => {
+        recentes.appendChild(criarCardPedido(pedido, true));
+      });
+
+      pedidosAtuais.forEach(pedido => {
+        todos.appendChild(criarCardPedido(pedido, false));
+
+        const botao = criar(
+          "button",
+          "tracking-list-button",
+          "Pedido " + (pedido.numero || pedido.id) +
+          " — " + (pedido.status || "Recebido")
+        );
+
+        botao.type = "button";
+        botao.dataset.id = String(pedido.id);
+        botao.addEventListener("click", () => {
+          abrirAcompanhamento(pedido.id);
+        });
+
+        selecao.appendChild(botao);
+      });
+
+      const selecionadoExiste = pedidosAtuais.some(
+        p => String(p.id) === String(pedidoSelecionadoId)
+      );
+
+      if (!selecionadoExiste) {
+        pedidoSelecionadoId = pedidosAtuais[0].id;
+      }
+
+      atualizarSelecaoAcompanhamento();
+    }
+
+    function atualizarSelecaoAcompanhamento() {
+      document.querySelectorAll(".tracking-list-button").forEach(botao => {
+        botao.classList.toggle(
+          "active",
+          botao.dataset.id === String(pedidoSelecionadoId)
+        );
+      });
+    }
+
+    async function abrirAcompanhamento(pedidoId) {
+      pedidoSelecionadoId = pedidoId;
+      ativarPagina("acompanhamento");
+      atualizarSelecaoAcompanhamento();
+
+      const pedido = pedidosAtuais.find(
+        p => String(p.id) === String(pedidoId)
+      );
+
+      const detalhes = $("trackingDetails");
+      detalhes.replaceChildren();
+
+      if (!pedido) {
+        detalhes.textContent = "Pedido não encontrado.";
+        return;
+      }
+
+      detalhes.appendChild(criar(
+        "h2",
+        "",
+        "Pedido " + (pedido.numero || pedido.id)
+      ));
+
+      const statusAtual = criar("span");
+      aplicarStatus(statusAtual, pedido.status);
+      detalhes.appendChild(statusAtual);
+
+      detalhes.appendChild(criar(
+        "p",
+        "muted",
+        "Data do pedido: " + dataBR(pedido.data_pedido)
+      ));
+
+      detalhes.appendChild(criar(
+        "p",
+        "",
+        "Histórico de atualizações"
+      ));
+
+      const linhaTempo = criar("div", "timeline", "Carregando histórico...");
+      detalhes.appendChild(linhaTempo);
+
+      const { data: historico, error } = await cliente
+        .from("historico_status_pedidos")
+        .select("status, data_status, observacao")
+        .eq("pedido_id", pedido.id)
+        .order("data_status", { ascending: true });
+
+      // O usuário pode ter selecionado outro pedido enquanto a consulta ocorria.
+      if (String(pedidoSelecionadoId) !== String(pedidoId)) return;
+
+      linhaTempo.replaceChildren();
+
+      if (error) {
+        console.error("Erro ao consultar histórico:", error);
+        linhaTempo.textContent =
+          "Não foi possível carregar o histórico deste pedido.";
+        return;
+      }
+
+      if (!historico || historico.length === 0) {
+        linhaTempo.textContent =
+          "Ainda não há atualizações registradas para este pedido.";
+        return;
+      }
+
+      historico.forEach(evento => {
+        const etapa = criar("div", "timeline-event");
+        etapa.appendChild(criar("strong", "", evento.status));
+        etapa.appendChild(criar(
+          "div",
+          "muted",
+          dataHoraBR(evento.data_status)
+        ));
+
+        if (evento.observacao) {
+          etapa.appendChild(criar("div", "muted", evento.observacao));
+        }
+
+        linhaTempo.appendChild(etapa);
+      });
+    }
+
+    function mostrarAplicacao() {
+      $("loginScreen").style.display = "none";
+      $("app").style.display = "block";
+      ativarPagina("inicio");
+    }
+
+    function mostrarLogin() {
+      $("app").style.display = "none";
+      $("loginScreen").style.display = "flex";
+    }
+
+    async function entrarNoPortal(usuario) {
+      $("loginMessage").textContent = "Carregando seu cadastro...";
+      const valido = await carregarPerfil(usuario);
+
+      if (!valido) return;
+
+      mostrarAplicacao();
+      await carregarPedidos();
+      $("loginMessage").textContent = "";
+    }
+
+    $("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const botao = $("loginButton");
+      botao.disabled = true;
+      $("loginMessage").textContent = "Verificando acesso...";
+
+      try {
+        const { data, error } = await cliente.auth.signInWithPassword({
+          email: $("email").value.trim(),
+          password: $("senha").value
+        });
+
+        if (error) {
+          $("loginMessage").textContent = "E-mail ou senha inválidos.";
+          return;
+        }
+
+        await entrarNoPortal(data.user);
+      } catch (error) {
+        console.error("Erro ao entrar:", error);
+        $("loginMessage").textContent =
+          "Não foi possível acessar o portal. Tente novamente.";
+      } finally {
+        botao.disabled = false;
+      }
     });
 
-    document.getElementById("sair").addEventListener(
-      "click",
-      async () => {
-        await cliente.auth.signOut();
+    $("logoutButton").addEventListener("click", async () => {
+      const { error } = await cliente.auth.signOut();
 
-        area.style.display = "none";
-        form.style.display = "block";
-        form.reset();
-
-        lista.replaceChildren();
-        mensagem.textContent = "Você saiu do portal.";
+      if (error) {
+        mostrarMensagem("Não foi possível encerrar a sessão.");
+        return;
       }
-    );
+
+      perfilAtual = null;
+      usuarioAtual = null;
+      pedidosAtuais = [];
+      pedidoSelecionadoId = null;
+
+      $("loginForm").reset();
+      $("loginMessage").textContent = "Você saiu do portal.";
+      mostrarLogin();
+    });
+
+    async function iniciarPortal() {
+      try {
+        const { data, error } = await cliente.auth.getSession();
+
+        if (error) {
+          console.error("Erro ao recuperar sessão:", error);
+          mostrarLogin();
+          return;
+        }
+
+        if (data.session && data.session.user) {
+          await entrarNoPortal(data.session.user);
+        } else {
+          mostrarLogin();
+        }
+      } catch (error) {
+        console.error("Erro ao iniciar portal:", error);
+        mostrarLogin();
+      }
+    }
+
+    iniciarPortal();
   </script>
 </body>
 </html>
