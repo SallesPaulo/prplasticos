@@ -1566,6 +1566,73 @@ async function abrirDetalhesPedidoStatus(pedido) {
   }
 }
 
+
+async function salvarStatusPedido() {
+  if (!pedidoSelecionadoStatus) {
+    alert("Selecione um pedido primeiro.");
+    return;
+  }
+
+  const novoStatus = document.getElementById("novoStatusPedido").value;
+  const botao = document.querySelector(
+    '#detalhesPedidoStatus button[onclick="salvarStatusPedido()"]'
+  );
+
+  if (!novoStatus) {
+    alert("Selecione um status.");
+    return;
+  }
+
+  const statusAtual = pedidoSelecionadoStatus.status || "Recebido";
+
+  if (novoStatus === statusAtual) {
+    alert("Este pedido já está com esse status.");
+    return;
+  }
+
+  if (!confirm(`Alterar o status do pedido para "${novoStatus}"?`)) {
+    return;
+  }
+
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "Salvando...";
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("pedidos")
+      .update({ status: novoStatus })
+      .eq("id", pedidoSelecionadoStatus.id)
+      .select("id, numero, status, nome, empresa, data_pedido, total, cliente_id")
+      .single();
+
+    if (error) throw error;
+
+    pedidoSelecionadoStatus = {
+      ...pedidoSelecionadoStatus,
+      ...data
+    };
+
+    alert("Status atualizado com sucesso!");
+
+    await abrirDetalhesPedidoStatus(pedidoSelecionadoStatus);
+    await consultarPedidosStatus();
+
+  } catch (erro) {
+    console.error("Erro ao atualizar status:", erro);
+    alert(
+      "Não foi possível atualizar o status. Verifique as permissões administrativas no Supabase."
+    );
+  } finally {
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "Salvar status";
+    }
+  }
+}
+
+    
  function mostrarPainel() {
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("panelScreen").style.display = "block";
