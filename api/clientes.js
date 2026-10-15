@@ -1,52 +1,4 @@
 
-const crypto = require("crypto");
-
-function obterCookie(req, nome) {
-  const cookies = req.headers.cookie || "";
-  const item = cookies
-    .split(";")
-    .map(cookie => cookie.trim())
-    .find(cookie => cookie.startsWith(nome + "="));
-
-  return item
-    ? decodeURIComponent(item.substring(nome.length + 1))
-    : null;
-}
-
-function criarToken(email, senha, segredo) {
-  return crypto
-    .createHash("sha256")
-    .update(email + senha + segredo)
-    .digest("hex");
-}
-
-function sessaoValida(req) {
-  const email = process.env.PAINEL_EMAIL;
-  const senha = process.env.PAINEL_SENHA;
-  const segredo = process.env.SEGREDO_DO_PAINEL;
-  const token = obterCookie(req, "painel_token");
-
-  if (!email || !senha || !segredo || !token) return false;
-
-  const esperado = criarToken(email, senha, segredo);
-
-  if (token.length !== esperado.length) return false;
-
-  return crypto.timingSafeEqual(
-    Buffer.from(token),
-    Buffer.from(esperado)
-  );
-}
-
-module.exports = async (req, res) => {
-  if (!sessaoValida(req)) {
-    return res.status(401).json({
-      sucesso: false,
-      erro: "Sessão não autorizada."
-    });
-  }
-
-  
 async function validarSessaoSupabase(req) {
   const autorizacao = req.headers.authorization || "";
   const token = autorizacao.startsWith("Bearer ")
@@ -56,15 +8,16 @@ async function validarSessaoSupabase(req) {
   if (!token) return false;
 
   const url = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
-  const chave = process.env.SUPABASE_ANON_KEY ||
+  const chavePublica =
+    process.env.SUPABASE_ANON_KEY ||
     process.env.SUPABASE_PUBLIC_KEY;
 
-  if (!url || !chave) return false;
+  if (!url || !chavePublica) return false;
 
   try {
     const resposta = await fetch(`${url}/auth/v1/user`, {
       headers: {
-        apikey: chave,
+        apikey: chavePublica,
         Authorization: `Bearer ${token}`
       }
     });
@@ -87,9 +40,10 @@ module.exports = async (req, res) => {
     });
   }
 
+  const urlBase = process.env.SUPABASE_URL;
+  const chave = process.env.CHAVE_SECRETA_SUPABASE;
 
-
-  if (!urlBase || !process.env.CHAVE_SECRETA_SUPABASE) {
+  if (!urlBase || !chave) {
     return res.status(500).json({
       sucesso: false,
       erro: "Configuração do banco não encontrada."
@@ -101,7 +55,6 @@ module.exports = async (req, res) => {
     .replace(/\/rest\/?$/, "")
     .replace(/\/+$/, "");
 
-  const chave = process.env.CHAVE_SECRETA_SUPABASE;
   const endpoint = `${url}/rest/v1/clientes`;
 
   const headers = {
@@ -116,7 +69,6 @@ module.exports = async (req, res) => {
         `${endpoint}?select=*&order=created_at.desc`,
         { headers }
       );
-
       const dados = await resposta.json();
 
       if (!resposta.ok) {
@@ -127,10 +79,7 @@ module.exports = async (req, res) => {
         });
       }
 
-      return res.status(200).json({
-        sucesso: true,
-        clientes: dados
-      });
+      return res.status(200).json({ sucesso: true, clientes: dados });
     }
 
     if (req.method === "POST") {
@@ -145,10 +94,7 @@ module.exports = async (req, res) => {
 
       const resposta = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          ...headers,
-          Prefer: "return=representation"
-        },
+        headers: { ...headers, Prefer: "return=representation" },
         body: JSON.stringify({
           nome: cliente.nome,
           empresa: cliente.empresa,
@@ -160,7 +106,6 @@ module.exports = async (req, res) => {
           observacao: cliente.observacao || ""
         })
       });
-
       const dados = await resposta.json();
 
       if (!resposta.ok) {
@@ -171,10 +116,7 @@ module.exports = async (req, res) => {
         });
       }
 
-      return res.status(201).json({
-        sucesso: true,
-        cliente: dados[0]
-      });
+      return res.status(201).json({ sucesso: true, cliente: dados[0] });
     }
 
     if (req.method === "PATCH") {
@@ -196,27 +138,20 @@ module.exports = async (req, res) => {
         });
       }
 
-      const resposta = await fetch(
-        `${endpoint}?id=eq.${id}&select=*`,
-        {
-          method: "PATCH",
-          headers: {
-            ...headers,
-            Prefer: "return=representation"
-          },
-          body: JSON.stringify({
-            nome: cliente.nome,
-            empresa: cliente.empresa,
-            email: cliente.email,
-            telefone: cliente.telefone || "",
-            cidade: cliente.cidade || "",
-            uf: cliente.uf || "",
-            status: cliente.status || "Ativo",
-            observacao: cliente.observacao || ""
-          })
-        }
-      );
-
+      const resposta = await fetch(`${endpoint}?id=eq.${id}&select=*`, {
+        method: "PATCH",
+        headers: { ...headers, Prefer: "return=representation" },
+        body: JSON.stringify({
+          nome: cliente.nome,
+          empresa: cliente.empresa,
+          email: cliente.email,
+          telefone: cliente.telefone || "",
+          cidade: cliente.cidade || "",
+          uf: cliente.uf || "",
+          status: cliente.status || "Ativo",
+          observacao: cliente.observacao || ""
+        })
+      });
       const dados = await resposta.json();
 
       if (!resposta.ok) {
@@ -234,10 +169,7 @@ module.exports = async (req, res) => {
         });
       }
 
-      return res.status(200).json({
-        sucesso: true,
-        cliente: dados[0]
-      });
+      return res.status(200).json({ sucesso: true, cliente: dados[0] });
     }
 
     if (req.method === "DELETE") {
@@ -250,20 +182,13 @@ module.exports = async (req, res) => {
         });
       }
 
-      const resposta = await fetch(
-        `${endpoint}?id=eq.${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            ...headers,
-            Prefer: "return=representation"
-          }
-        }
-      );
-
-      const dados = await resposta.json();
+      const resposta = await fetch(`${endpoint}?id=eq.${id}`, {
+        method: "DELETE",
+        headers: { ...headers, Prefer: "return=representation" }
+      });
 
       if (!resposta.ok) {
+        const dados = await resposta.json();
         console.error("Erro ao excluir cliente:", dados);
         return res.status(502).json({
           sucesso: false,
@@ -271,9 +196,7 @@ module.exports = async (req, res) => {
         });
       }
 
-      return res.status(200).json({
-        sucesso: true
-      });
+      return res.status(200).json({ sucesso: true });
     }
 
     res.setHeader("Allow", "GET, POST, PATCH, DELETE");
