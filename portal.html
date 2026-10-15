@@ -180,29 +180,34 @@
       line-height: 1.5;
     }
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
-      margin-bottom: 24px;
-    }
+    
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+  align-items: stretch;
+}
 
-    .stat-card, .panel {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      box-shadow: var(--shadow);
-    }
+.stat-card {
+  min-width: 0;
+  min-height: 110px;
+  padding: 22px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
 
-    .stat-card { padding: 22px; }
-    .stat-label { color: var(--muted); font-size: 14px; }
-    .stat-number {
-      font-size: 30px;
-      color: var(--blue);
-      font-weight: 700;
-      margin-top: 10px;
-    }
+.stat-number {
+  font-size: 26px;
+  color: var(--blue);
+  font-weight: 700;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
 
+    
     .panel { padding: 22px; margin-bottom: 22px; }
 
     .panel h2 {
@@ -856,6 +861,11 @@ $("totalWeight").textContent =
 
       pedidosAtuais = data || [];
 
+console.log("Pedidos carregados:", pedidosAtuais);
+console.log("Quantidade de pedidos:", pedidosAtuais.length);
+console.log("Primeiro pedido:", pedidosAtuais[0]);
+
+      
       const entregues = pedidosAtuais.filter(
         p => normalizarStatus(p.status).includes("entregue")
       ).length;
