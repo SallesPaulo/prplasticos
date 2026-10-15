@@ -509,6 +509,16 @@
             </div>
             </div>
 
+<div class="stat-card">
+  <div class="stat-label">Total de compras</div>
+  <div id="totalPurchases" class="stat-number">R$ 0,00</div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-label">Peso total comprado</div>
+  <div id="totalWeight" class="stat-number">0 kg</div>
+</div>
+
 
                   </section>
 
@@ -838,6 +848,39 @@
       $("deliveredOrders").textContent = entregues;
       $("activeOrders").textContent =
         pedidosAtuais.length - entregues - cancelados;
+      
+const totalCompras = pedidosAtuais.reduce(
+  (soma, pedido) => soma + Number(pedido.total || 0),
+  0
+);
+
+const pesoTotal = pedidosAtuais.reduce((soma, pedido) => {
+  let itens = pedido.itens || [];
+
+  if (typeof itens === "string") {
+    try {
+      itens = JSON.parse(itens);
+    } catch {
+      itens = [];
+    }
+  }
+
+  if (!Array.isArray(itens)) return soma;
+
+  return soma + itens.reduce(
+    (subtotal, item) => subtotal + Number(item.quantidade || 0),
+    0
+  );
+}, 0);
+
+$("totalPurchases").textContent = totalCompras.toLocaleString(
+  "pt-BR",
+  { style: "currency", currency: "BRL" }
+);
+
+$("totalWeight").textContent =
+  pesoTotal.toLocaleString("pt-BR") + " kg";
+
 
       const recentes = $("recentOrders");
       const todos = $("allOrders");
