@@ -509,11 +509,17 @@
             </div>
           </div>
 
-          <div class="panel">
-            <h2>Pedidos recentes</h2>
-            <div id="recentOrders" class="empty">Carregando pedidos...</div>
-          </div>
-        </section>
+
+<div class="stat-card">
+  <div class="stat-label">Total de compra</div>
+  <div id="totalPurchase" class="stat-number">R$ 0,00</div>
+</div>
+
+<div class="stat-card">
+  <div class="stat-label">Total de peso</div>
+  <div id="totalWeight" class="stat-number">0 kg</div>
+</div>        
+                  </section>
 
         <section id="page-pedidos" class="page">
           <div class="page-heading">
@@ -824,6 +830,29 @@
         $("trackingOrders").textContent = "Não foi possível carregar os pedidos.";
         return;
       }
+
+      
+const totalCompra = pedidosAtuais.reduce(
+  (soma, pedido) => soma + Number(pedido.total || 0),
+  0
+);
+
+const totalPeso = pedidosAtuais.reduce((soma, pedido) => {
+  const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
+
+  return soma + itens.reduce(
+    (peso, item) => peso + Number(item.quantidade || 0),
+    0
+  );
+}, 0);
+
+$("totalPurchase").textContent = moeda(totalCompra);
+
+$("totalWeight").textContent =
+  totalPeso.toLocaleString("pt-BR", {
+    maximumFractionDigits: 2
+  }) + " kg";
+
 
       pedidosAtuais = data || [];
 
