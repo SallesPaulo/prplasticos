@@ -5,30 +5,59 @@ module.exports = async (req, res) => {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({
+      sucesso: false,
       erro: "Método não permitido."
+    });
+  }
+
+  const urlBase = process.env.SUPABASE_URL;
+  const chave = process.env.CHAVE_SECRETA_SUPABASE;
+
+  if (!urlBase || !chave) {
+    return res.status(500).json({
+      sucesso: false,
+      erro: "Banco de dados não configurado."
     });
   }
 
   const body = req.body || {};
 
-if (JSON.stringify(body).length > 60000) {
-  return res.status(413).json({
-    erro: "Solicitação muito grande."
-  });
-}
-  // Proteção básica contra robôs (campo honeypot)
-if (
-  typeof body.website === "string" &&
-  body.website.trim() !== ""
-) {
-  return res.status(400).json({
-    erro: "Solicitação inválida."
-  });
-}
+  try {
+    if (JSON.stringify(body).length > 60000) {
+      return res.status(413).json({
+        sucesso: false,
+        erro: "Solicitação muito grande."
+      });
+    }
+  } catch {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Solicitação inválida."
+    });
+  }
+
+  // Honeypot: campo oculto para detectar robôs.
+  if (
+    typeof body.website === "string" &&
+    body.website.trim() !== ""
+  ) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Solicitação inválida."
+    });
+  }
 
   const {
-    numero, nome, empresa, cnpj, email: emailCliente,
-    telefone, cidade, itens, total, observacoes
+    numero,
+    nome,
+    empresa,
+    cnpj,
+    email: emailCliente,
+    telefone,
+    cidade,
+    itens,
+    total,
+    observacoes
   } = body;
 
   const textoValido = (valor, max) =>
@@ -47,17 +76,23 @@ if (
     itens.length > 100
   ) {
     return res.status(400).json({
+      sucesso: false,
       erro: "Confira os dados obrigatórios do orçamento."
     });
   }
 
   if (
-    (cnpj != null && (typeof cnpj !== "string" || cnpj.length > 30)) ||
-    (telefone != null && (typeof telefone !== "string" || telefone.length > 40)) ||
-    (cidade != null && (typeof cidade !== "string" || cidade.length > 120)) ||
-    (observacoes != null && (typeof observacoes !== "string" || observacoes.length > 3000))
+    (cnpj != null &&
+      (typeof cnpj !== "string" || cnpj.length > 30)) ||
+    (telefone != null &&
+      (typeof telefone !== "string" || telefone.length > 40)) ||
+    (cidade != null &&
+      (typeof cidade !== "string" || cidade.length > 120)) ||
+    (observacoes != null &&
+      (typeof observacoes !== "string" || observacoes.length > 3000))
   ) {
     return res.status(400).json({
+      sucesso: false,
       erro: "Um ou mais campos excedem o limite permitido."
     });
   }
@@ -68,12 +103,14 @@ if (
     tamanhoItens = JSON.stringify(itens).length;
   } catch {
     return res.status(400).json({
+      sucesso: false,
       erro: "Itens do orçamento inválidos."
     });
   }
 
   if (tamanhoItens > 50000) {
     return res.status(400).json({
+      sucesso: false,
       erro: "Lista de itens muito grande."
     });
   }
@@ -86,67 +123,74 @@ if (
     valorTotal > 1000000000
   ) {
     return res.status(400).json({
+      sucesso: false,
       erro: "Valor total inválido."
     });
   }
 
-const ip = (
-  req.headers["x-forwarded-for"] || ""
-).split(",")[0].trim();
+  const ip = String(
+    req.headers["x-forwarded-for"] || ""
+  ).split(",")[0].trim();
 
-if (!ip) {
-  return res.status(400).json({
-    erro: "Não foi possível validar a solicitação."
-  });
-}
-
-const limiteResposta = await fetch(
-  `${process.env.SUPABASE_URL.replace(/\/+$/, "").replace(/\/rest\/v1$/, "")}/rest/v1/rpc/verificar_limite_pedidos`,
-  {
-    method: "POST",
-    headers: {
-      apikey: process.env.CHAVE_SECRETA_SUPABASE,
-      Authorization: `Bearer ${process.env.CHAVE_SECRETA_SUPABASE}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      p_ip: ip
-    })
-  }
-);
-
-if (!limiteResposta.ok) {
-  console.error("Falha ao verificar limite:", await limiteResposta.text());
-  return res.status(503).json({
-    erro: "Não foi possível validar o envio. Tente novamente."
-  });
-}
-
-const permitido = await limiteResposta.json();
-
-if (permitido !== true) {
-  return res.status(429).json({
-    erro: "Limite de solicitações atingido. Tente novamente em 10 minutos."
-  });
-}
-  
-  const url = process.env.SUPABASE_URL;
-  const chave = process.env.CHAVE_SECRETA_SUPABASE;
-
-  if (!url || !chave) {
-    return res.status(500).json({
-      erro: "Banco de dados não configurado."
+  if (!ip) {
+    return res.status(400).json({
+      sucesso: false,
+      erro: "Não foi possível validar a solicitação."
     });
   }
 
+  const supabaseUrl = urlBase
+    .replace(/\/rest\/v1\/?$/, "")
+    .replace(/\/+$/, "");
+
+  const headers = {
+    apikey: chave,
+    Authorization: `Bearer ${chave}`,
+    "Content-Type": "application/json"
+  };
+
   try {
-    const supabaseUrl = url.replace(/\/+$/, "").replace(/\/rest\/v1$/, "");
-const resposta = await fetch(`${supabaseUrl}/rest/v1/pedidos`, {
+    // Limite de solicitações por IP.
+    const limiteResposta = await fetch(
+      `${supabaseUrl}/rest/v1/rpc/verificar_limite_pedidos`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          p_ip: ip
+        })
+      }
+    );
+
+    if (!limiteResposta.ok) {
+      console.error(
+        "Falha ao verificar limite:",
+        limiteResposta.status,
+        await limiteResposta.text()
+      );
+
+      return res.status(503).json({
+        sucesso: false,
+        erro: "Não foi possível validar o envio. Tente novamente."
+      });
+    }
+
+    const permitido = await limiteResposta.json();
+
+    if (permitido !== true) {
+      return res.status(429).json({
+        sucesso: false,
+        erro: "Limite de solicitações atingido. Tente novamente em 10 minutos."
+      });
+    }
+
+    // Gravação pública do orçamento, sem exigir login.
+    const resposta = await fetch(
+      `${supabaseUrl}/rest/v1/pedidos`,
+      {
         method: "POST",
         headers: {
-          apikey: chave,
-          Authorization: `Bearer ${chave}`,
-          "Content-Type": "application/json",
+          ...headers,
           Prefer: "return=minimal"
         },
         body: JSON.stringify({
@@ -172,6 +216,7 @@ const resposta = await fetch(`${supabaseUrl}/rest/v1/pedidos`, {
       );
 
       return res.status(500).json({
+        sucesso: false,
         erro: "Não foi possível salvar o orçamento."
       });
     }
@@ -184,6 +229,7 @@ const resposta = await fetch(`${supabaseUrl}/rest/v1/pedidos`, {
     console.error("Erro ao salvar pedido:", erro);
 
     return res.status(500).json({
+      sucesso: false,
       erro: "Falha ao comunicar com o banco de dados."
     });
   }
