@@ -180,34 +180,29 @@
       line-height: 1.5;
     }
 
-    
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 24px;
-  align-items: stretch;
-}
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
 
-.stat-card {
-  min-width: 0;
-  min-height: 110px;
-  padding: 22px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-}
+    .stat-card, .panel {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
 
-.stat-number {
-  font-size: 26px;
-  color: var(--blue);
-  font-weight: 700;
-  margin-top: 10px;
-  overflow-wrap: anywhere;
-}
+    .stat-card { padding: 22px; }
+    .stat-label { color: var(--muted); font-size: 14px; }
+    .stat-number {
+      font-size: 30px;
+      color: var(--blue);
+      font-weight: 700;
+      margin-top: 10px;
+    }
 
-    
     .panel { padding: 22px; margin-bottom: 22px; }
 
     .panel h2 {
@@ -514,17 +509,11 @@
             </div>
           </div>
 
-
-<div class="stat-card">
-  <div class="stat-label">Total de compra</div>
-  <div id="totalPurchase" class="stat-number">R$ 0,00</div>
-</div>
-
-<div class="stat-card">
-  <div class="stat-label">Total de peso</div>
-  <div id="totalWeight" class="stat-number">0 kg</div>
-</div>        
-                  </section>
+          <div class="panel">
+            <h2>Pedidos recentes</h2>
+            <div id="recentOrders" class="empty">Carregando pedidos...</div>
+          </div>
+        </section>
 
         <section id="page-pedidos" class="page">
           <div class="page-heading">
@@ -836,36 +825,8 @@
         return;
       }
 
-      
-const totalCompra = pedidosAtuais.reduce(
-  (soma, pedido) => soma + Number(pedido.total || 0),
-  0
-);
-
-const totalPeso = pedidosAtuais.reduce((soma, pedido) => {
-  const itens = Array.isArray(pedido.itens) ? pedido.itens : [];
-
-  return soma + itens.reduce(
-    (peso, item) => peso + Number(item.quantidade || 0),
-    0
-  );
-}, 0);
-
-$("totalPurchase").textContent = moeda(totalCompra);
-
-$("totalWeight").textContent =
-  totalPeso.toLocaleString("pt-BR", {
-    maximumFractionDigits: 2
-  }) + " kg";
-
-
       pedidosAtuais = data || [];
 
-console.log("Pedidos carregados:", pedidosAtuais);
-console.log("Quantidade de pedidos:", pedidosAtuais.length);
-console.log("Primeiro pedido:", pedidosAtuais[0]);
-
-      
       const entregues = pedidosAtuais.filter(
         p => normalizarStatus(p.status).includes("entregue")
       ).length;
@@ -993,7 +954,6 @@ console.log("Primeiro pedido:", pedidosAtuais[0]);
         .eq("pedido_id", pedido.id)
         .order("data_status", { ascending: true });
 
-      // O usuário pode ter selecionado outro pedido enquanto a consulta ocorria.
       if (String(pedidoSelecionadoId) !== String(pedidoId)) return;
 
       linhaTempo.replaceChildren();
