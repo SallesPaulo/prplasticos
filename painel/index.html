@@ -1648,7 +1648,6 @@ async function salvarStatusPedido() {
   }
 
 
-  
 async function entrar(event) {
   event.preventDefault();
 
@@ -1662,14 +1661,25 @@ async function entrar(event) {
   botao.textContent = "ENTRANDO...";
 
   try {
+    const respostaPainel = await fetch("/api/login", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, senha })
+    });
+
+    const resultadoPainel = await respostaPainel.json();
+
+    if (!respostaPainel.ok || !resultadoPainel.sucesso) {
+      throw new Error(resultadoPainel.erro || "Falha no login do painel.");
+    }
+
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password: senha
     });
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
 
     if (!data.session) {
       throw new Error("Não foi possível iniciar a sessão.");
@@ -1678,11 +1688,8 @@ async function entrar(event) {
     mostrarPainel();
 
   } catch (erro) {
-    console.error("Erro no login Supabase:", erro);
-
-    elementoErro.textContent =
-      erro.message || "Não foi possível entrar no painel.";
-
+    console.error("Erro no login:", erro);
+    elementoErro.textContent = erro.message || "Não foi possível entrar no painel.";
     elementoErro.style.display = "block";
 
   } finally {
@@ -1691,9 +1698,9 @@ async function entrar(event) {
   }
 }
 
-
   
-async function sair() {
+
+    async function sair() {
   try {
     const { error } = await supabaseClient.auth.signOut();
 
