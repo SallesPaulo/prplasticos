@@ -471,40 +471,40 @@
           required
         >
 
-        <button id="loginButton" type="submit">Entrar no portal</button>
-      </form>
+      <button id="loginButton" type="submit">Entrar no portal</button>
+    </form>
 
-      <div id="loginMessage" role="status" aria-live="polite"></div>
-    </div>
-<button
-        id="forgotPasswordButton"
-        type="button"
-        class="secondary-button"
-        style="margin-top:12px;background:white;color:var(--blue);width:100%;"
+    <div id="loginMessage" role="status" aria-live="polite"></div>
+
+    <button
+      id="forgotPasswordButton"
+      type="button"
+      class="secondary-button"
+      style="margin-top:12px;background:white;color:var(--blue);width:100%;"
+    >
+      Esqueci minha senha
+    </button>
+
+    <div id="recoveryForm" style="display:none;margin-top:20px;">
+      <h3>Redefinir senha</h3>
+
+      <input
+        id="novaSenha"
+        type="password"
+        placeholder="Digite sua nova senha"
+        autocomplete="new-password"
+        minlength="6"
+        required
       >
-        Esqueci minha senha
+
+      <button id="salvarNovaSenha" type="button">
+        Salvar nova senha
       </button>
 
-    
-<div id="recoveryForm" style="display:none;margin-top:20px;">
-  <h3>Redefinir senha</h3>
+      <div id="recoveryMessage" role="status" aria-live="polite"></div>
+    </div>
+  </div>
 
-  <input
-    id="novaSenha"
-    type="password"
-    placeholder="Digite sua nova senha"
-    autocomplete="new-password"
-    minlength="6"
-    required
-  >
-
-  <button id="salvarNovaSenha" type="button">
-    Salvar nova senha
-  </button>
-
-  <div id="recoveryMessage" role="status" aria-live="polite"></div>
-  
-</div>
 
     
   </section>
@@ -1227,16 +1227,38 @@ function atualizarGraficos(pedidos) {
 
     $("loginForm").addEventListener("submit", async (event) => {
       event.preventDefault();
-```js
-$("forgotPasswordButton").addEventListener("click", async () => {
+
+      $("forgotPasswordButton").addEventListener("click", async () => {
   const email = $("email").value.trim();
+  const mensagem = $("loginMessage");
+  const botao = $("forgotPasswordButton");
 
   if (!email) {
-    $("loginMessage").textContent =
-      "Informe seu e-mail para receber o link de recuperação.";
+    mensagem.textContent = "Digite seu e-mail primeiro.";
     $("email").focus();
     return;
   }
+
+  botao.disabled = true;
+  mensagem.textContent = "Enviando link de recuperação...";
+
+  try {
+    const { error } = await cliente.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/portal.html"
+    });
+
+    if (error) throw error;
+
+    mensagem.textContent =
+      "Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.";
+  } catch (error) {
+    console.error("Erro na recuperação:", error);
+    mensagem.textContent =
+      "Erro ao enviar o link. Tente novamente.";
+  } finally {
+    botao.disabled = false;
+  }
+});
 
   const botao = $("forgotPasswordButton");
   botao.disabled = true;
