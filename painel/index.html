@@ -1523,6 +1523,7 @@ async function consultarPedidosStatus() {
     );
 
     const pedidos = await resposta.json();
+    console.log("Pedidos recebidos:", pedidos);
 
     if (!resposta.ok) {
       throw new Error(
