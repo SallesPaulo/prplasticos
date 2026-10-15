@@ -1,0 +1,2507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PR Plásticos Painel</title>
+
+  <style>
+    :root {
+      --blue: #083f73;
+      --blue-dark: #062f57; 
+      --green: #4f9d4d;
+      --green-dark: #347638;
+      --light: #f4f7f9;
+      --white: #ffffff;
+      --text: #263238;
+      --muted: #6b7280;
+      --border: #dfe5ea;
+      --danger: #d9534f;
+      --shadow: 0 15px 40px rgba(8, 63, 115, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--light);
+      color: var(--text);
+    }
+
+    /* =========================
+       LOGIN
+    ========================= */
+
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 25px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(8, 63, 115, 0.97),
+          rgba(6, 47, 87, 0.97)
+        );
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 430px;
+      background: white;
+      border-radius: 20px;
+      padding: 42px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.25);
+    }
+
+
+    .logo {
+     height: 90px;
+    object-fit: contain;
+    display: flex;
+      justify-content: center;
+      width: min(92%, 90px);
+    margin: 0 auto;
+    text-align: center;
+        }
+
+    .logo span {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--blue);
+      text-align: center;
+      line-height: 1;
+    }
+
+.login-container {
+    width: min(92%, 520px);
+    margin: 0 auto;
+    text-align: center;
+}
+    
+    .login-card .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 32px;
+      font-size: 18px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 7px;
+      color: #374151;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: .2s;
+    }
+
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(8,63,115,.10);
+    }
+
+    .login-button {
+      width: 100%;
+      border: none;
+      padding: 15px;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: .2s;
+    }
+
+    .login-button:hover {
+      background: var(--green-dark);
+      transform: translateY(-1px);
+    }
+
+    .login-info {
+      margin-top: 22px;
+      text-align: center;
+      color: #8a8f94;
+      font-size: 12px;
+    }
+
+    .login-error {
+      display: none;
+      margin-top: 15px;
+      padding: 11px;
+      border-radius: 8px;
+      background: #fff1f1;
+      color: var(--danger);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    /* =========================
+       PAINEL
+    ========================= */
+
+    #panelScreen {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      height: 72px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-icon {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .brand-text strong {
+      display: block;
+      color: var(--blue);
+      font-size: 18px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-email {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .logout {
+      border: 1px solid var(--border);
+      background: white;
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .logout:hover {
+      background: #f3f4f6;
+    }
+
+    .layout {
+      display: flex;
+      min-height: calc(100vh - 72px);
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--blue-dark);
+      padding: 25px 15px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      color: rgba(255,255,255,.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: bold;
+      margin: 0 12px 12px;
+    }
+
+    .menu-button {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.78);
+      text-align: left;
+      padding: 13px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .menu-button:hover,
+    .menu-button.active {
+      background: rgba(255,255,255,.12);
+      color: white;
+    }
+
+    .menu-icon {
+      display: inline-block;
+      width: 27px;
+      font-size: 16px;
+    }
+
+    .main {
+      flex: 1;
+      padding: 35px;
+      max-width: 1500px;
+    }
+
+    .page-title {
+      margin-bottom: 8px;
+      color: var(--blue);
+      font-size: 30px;
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      margin-bottom: 30px;
+    }
+
+    /* CARDS */
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 9px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--blue);
+    }
+
+    .card-detail {
+      font-size: 12px;
+      color: var(--green-dark);
+      margin-top: 7px;
+    }
+
+    /* SECTIONS */
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .panel-box {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: var(--shadow);
+      margin-bottom: 25px;
+    }
+
+    .panel-box h2 {
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .panel-box p {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* CAMPAIGN */
+
+    .campaign-form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .campaign-form input,
+    .campaign-form textarea,
+    .campaign-form select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 13px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .campaign-form textarea {
+      min-height: 220px;
+      resize: vertical;
+    }
+
+    .campaign-form input:focus,
+    .campaign-form textarea:focus,
+    .campaign-form select:focus {
+      border-color: var(--blue);
+    }
+
+    .primary-button {
+      background: var(--green);
+      border: none;
+      color: white;
+      padding: 13px 20px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .primary-button:hover {
+      background: var(--green-dark);
+    }
+
+    .secondary-button {
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 13px 20px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* TABLE */
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      background: #f5f7f9;
+      padding: 13px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    td {
+      padding: 13px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    /* RESPONSIVO */
+
+    @media(max-width: 1000px) {
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .sidebar {
+        width: 210px;
+      }
+    }
+
+    @media(max-width: 700px) {
+      .topbar {
+        padding: 0 15px;
+      }
+
+      .user-email {
+        display: none;
+      }
+
+      .sidebar {
+  display: block;
+  width: 100%;
+}
+
+      .main {
+        padding: 20px 15px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .login-card {
+        padding: 30px 22px;
+      }
+    }
+  </style>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+
+<body>
+
+  <!-- =========================
+       LOGIN
+  ========================== -->
+
+  <div id="loginScreen">
+
+    <div class="login-card">
+
+      <div class="logo">
+        
+<img
+  src="https://www.image2url.com/r2/default/images/png-to-jpg-1790823376697-5f824a9f-5830-4d00-ba3a-85c849ca83c2.jpg"
+  alt="PR Plásticos Recicláveis"
+  style="max-width:220px; width:100%; height:auto; display:block; margin:auto;">
+      </div>
+
+      <h1>
+
+        
+      </h1>
+
+      <div class="subtitle">
+        Painel administrativo
+      </div>
+
+      <form id="loginForm">
+
+        <div class="field">
+          <label>E-mail</label>
+          <input
+            type="email"
+            id="loginEmail"
+            placeholder="seu e-mail"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label>Senha</label>
+          <input
+            type="password"
+            id="loginSenha"
+            placeholder="sua senha"
+            required
+          >
+        </div>
+
+        <button class="login-button" type="submit">
+          ENTRAR NO PAINEL
+        </button>
+
+        <div id="loginError" class="login-error">
+          Acesso não autorizado.
+        </div>
+
+      </form>
+
+      <div class="login-info">
+        Área restrita • PR Plásticos
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       PAINEL
+  ========================== -->
+
+  <div id="panelScreen">
+
+    <header class="topbar">
+
+      <div class="brand">
+
+        <div class="brand-icon">
+          PR
+        </div>
+
+        <div class="brand-text">
+          <strong>PR Plásticos</strong>
+          <span>Painel administrativo</span>
+        </div>
+
+      </div>
+
+      <div class="user-area">
+
+        <span class="user-email">
+          comercial@prplasticos.com.br
+        </span>
+
+        <button class="logout" onclick="sair()">
+          Sair
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <div class="layout">
+
+      <!-- MENU -->
+
+      <aside class="sidebar">
+
+        <div class="sidebar-title">
+          Menu
+        </div>
+
+        <button
+          class="menu-button active"
+          onclick="abrirSecao('dashboard', this)"
+        >
+          <span class="menu-icon">📊</span>
+          Dashboard
+        </button>
+
+        <button
+          class="menu-button"
+          onclick="abrirSecao('clientes', this)"
+        >
+          <span class="menu-icon">👥</span>
+          Clientes
+        </button>
+
+        <button
+          class="menu-button"
+          onclick="abrirSecao('campanhas', this)"
+        >
+          <span class="menu-icon">📧</span>
+          Campanhas
+        </button>
+
+        <button
+          class="menu-button"
+          onclick="abrirSecao('novaCampanha', this)"
+        >
+          <span class="menu-icon">📝</span>
+          Nova campanha
+        </button>
+
+        <button
+          class="menu-button"
+          onclick="abrirSecao('listas', this)"
+        >
+          <span class="menu-icon">📋</span>
+          Listas
+        </button>
+
+        <button
+          class="menu-button"
+          onclick="abrirSecao('historico', this)"
+        >
+          <span class="menu-icon">📈</span>
+          Histórico
+        </button>
+
+        <button
+          class="menu-button"
+          onclick="abrirSecao('portalCliente', this); carregarPortalCliente()"
+        >
+          <span class="menu-icon">🔐</span>
+          Portal do Cliente
+        </button>
+
+      </aside>
+
+
+      <!-- CONTEÚDO -->
+
+      <main class="main">
+
+
+        <!-- DASHBOARD -->
+
+        <section id="dashboard" class="section active">
+
+          <h1 class="page-title">
+            Dashboard
+          </h1>
+
+          <p class="page-subtitle">
+            Bem-vindo ao painel da PR Plásticos.
+          </p>
+
+
+          <div class="cards">
+
+            <div class="card">
+              <div class="card-label">
+                Clientes cadastrados
+              </div>
+
+              <div class="card-value" id="totalClientes">
+                        0
+                      </div>
+
+              
+            </div>
+
+
+            <div class="card">
+              <div class="card-label">
+                Campanhas enviadas
+              </div>
+
+          <div class="card-value" id="totalCampanhas">
+                0
+            </div>
+
+            </div>
+
+
+            <div class="card">
+              <div class="card-label">
+                E-mails enviados
+              </div>
+
+            <div class="card-value" id="totalEmails">
+  0
+</div>
+                
+            </div>
+
+
+            <div class="card">
+              <div class="card-label">
+                Remetente
+              </div>
+
+              <div
+                class="card-value"
+                style="font-size:16px;margin-top:8px;"
+              >
+                comercial@
+              </div>
+
+              <div class="card-detail">
+                prplasticos.com.br
+              </div>
+            </div>
+
+          </div>
+
+
+          <div class="panel-box">
+
+            <h2>
+              PR Plásticos Painel
+            </h2>
+          <!-- MAPA DE CLIENTES POR UF -->
+
+          <div class="panel-box">
+
+            <h2>
+              Clientes por localização
+            </h2>
+
+            <p>
+              Distribuição dos clientes cadastrados por estado.
+            </p>
+
+            <div
+              id="mapaClientesUF"
+              style="
+                width:100%;
+                min-height:200px;
+                max-width:600px;
+                margin-left:auto;
+                margin-right:auto;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                margin-top:20px;
+              "
+            >
+              Carregando mapa...
+            </div>
+
+          </div>
+            
+            <p>
+              Aqui você poderá administrar seus clientes,
+              criar campanhas comerciais e enviar mensagens
+              utilizando o endereço comercial da PR Plásticos.
+            </p>
+
+            <div class="button-row">
+
+              <button
+                class="primary-button"
+                onclick="abrirSecaoPorId('novaCampanha')"
+              >
+                + Criar campanha
+              </button>
+              
+              
+              
+              <button
+                class="secondary-button"
+                onclick="abrirSecaoPorId('clientes')"
+              >
+                👥 Gerenciar clientes
+              </button>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- CLIENTES -->
+<section id="clientes" class="section">
+
+  <h1 class="page-title">
+    Clientes
+  </h1>
+
+  <p class="page-subtitle">
+    Lista de clientes que receberão suas campanhas.
+  </p>
+
+  <!-- BOTÕES -->
+  <div class="panel-box">
+
+    <div class="button-row">
+
+      <button
+        class="primary-button"
+        onclick="abrirFormularioCliente()"
+      >
+        + Adicionar cliente
+      </button>
+
+      <input
+        type="file"
+        id="arquivoClientes"
+        accept=".csv,.xlsx,.xls"
+        style="display:none"
+        onchange="importarClientes(event)"
+      >
+
+      <button
+        type="button"
+        class="secondary-button"
+        onclick="document.getElementById('arquivoClientes').click()"
+      >
+        📥 Importar CSV / Excel
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- FORMULÁRIO -->
+  <div
+    id="formularioCliente"
+    class="panel-box"
+    style="display:none;"
+  >
+
+    <h2>Novo cliente</h2>
+
+    <p>Cadastre as informações do cliente.</p>
+
+    <div class="campaign-form">
+
+      <div class="field">
+        <label>Nome do contato</label>
+        <input
+          type="text"
+          id="clienteNome"
+          placeholder="Nome do contato"
+        >
+      </div>
+
+      <div class="field">
+        <label>Empresa</label>
+        <input
+          type="text"
+          id="clienteEmpresa"
+          placeholder="Nome da empresa"
+        >
+      </div>
+
+      <div class="field">
+        <label>E-mail</label>
+        <input
+          type="email"
+          id="clienteEmail"
+          placeholder="cliente@empresa.com.br"
+        >
+      </div>
+
+      <div class="field">
+        <label>Telefone / WhatsApp</label>
+        <input
+          type="text"
+          id="clienteTelefone"
+          placeholder="(41) 99999-9999"
+        >
+      </div>
+
+      <div class="field">
+        <label>Cidade</label>
+        <input
+          type="text"
+          id="clienteCidade"
+          placeholder="Curitiba"
+        >
+      </div>
+
+      <div class="field">
+        <label>UF</label>
+        <select id="clienteUF">
+          <option value="">Selecione</option>
+          <option>PR</option>
+          <option>SC</option>
+          <option>RS</option>
+          <option>SP</option>
+          <option>MG</option>
+          <option>RJ</option>
+          <option>ES</option>
+          <option>BA</option>
+          <option>GO</option>
+          <option>MS</option>
+          <option>MT</option>
+          <option>DF</option>
+          <option>PE</option>
+          <option>CE</option>
+          <option>PA</option>
+          <option>AM</option>
+          <option>MA</option>
+          <option>PB</option>
+          <option>RN</option>
+          <option>AL</option>
+          <option>SE</option>
+          <option>PI</option>
+          <option>RO</option>
+          <option>TO</option>
+          <option>AC</option>
+          <option>AP</option>
+          <option>RR</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select id="clienteStatus">
+          <option value="Ativo">Ativo</option>
+          <option value="Inativo">Inativo</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Observação</label>
+        <textarea
+          id="clienteObservacao"
+          placeholder="Informações importantes sobre o cliente..."
+          style="min-height:120px;"
+        ></textarea>
+      </div>
+
+      <div class="button-row">
+
+        <button
+          type="button"
+          class="primary-button"
+          onclick="salvarCliente()"
+        >
+          💾 Salvar cliente
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          onclick="fecharFormularioCliente()"
+        >
+          Cancelar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- LISTA DE CLIENTES -->
+  <div class="panel-box">
+<div style="margin-bottom:20px;">
+
+  <input
+    type="text"
+    id="buscaClientes"
+    placeholder="🔎 Buscar por nome, empresa, e-mail ou cidade..."
+    oninput="filtrarClientes()"
+    style="
+      width:100%;
+      padding:12px 15px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      font-size:14px;
+      box-sizing:border-box;
+    "
+  >
+
+</div>
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Empresa</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>Cidade / UF</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+
+        <tbody id="tabelaClientes">
+
+          <tr>
+            <td colspan="7" style="text-align:center;color:#777;">
+              Nenhum cliente cadastrado.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
+        
+        <!-- CAMPANHAS -->
+
+        <section id="campanhas" class="section">
+
+          <h1 class="page-title">
+            Campanhas
+          </h1>
+
+          <p class="page-subtitle">
+            Gerencie suas campanhas de e-mail.
+          </p>
+
+          <div class="panel-box">
+
+            <button
+              class="primary-button"
+              onclick="abrirSecaoPorId('novaCampanha')"
+            >
+              + Nova campanha
+            </button>
+<div id="listaCampanhas" style="margin-top: 25px;"></div>
+          </div>
+
+        </section>
+
+
+        <!-- NOVA CAMPANHA -->
+
+        <section id="novaCampanha" class="section">
+
+          <h1 class="page-title">
+            Nova campanha
+          </h1>
+
+          <p class="page-subtitle">
+            Crie uma mensagem comercial para seus clientes.
+          </p>
+
+          <div class="panel-box">
+
+            <form
+              class="campaign-form"
+              onsubmit="criarCampanha(event)"
+            >
+
+              <div class="field">
+
+                <label>
+                  Nome da campanha
+                </label>
+
+                <input
+                  type="text"
+                  id="campanhaNome"
+                  placeholder="Ex.: Promoção PP Reciclado"
+                  required
+                >
+
+              </div>
+
+
+              <div class="field">
+                <label>Empresa remetente</label>
+                <select id="campanhaEmpresa" required>
+                  <option value="PR Plásticos Recicláveis">PR Plásticos Recicláveis</option>
+                  <option value="Clean Recycling">Clean Recycling</option>
+                  <option value="MW Plastic">MW Plastic</option>
+                  <option value="CIC Plastic">CIC Plastic</option>
+                  <option value="MHC Plastic">MHC Plastic</option>
+                </select>
+              </div>
+
+              <div class="field">
+
+                <label>
+                  Assunto do e-mail
+                </label>
+
+                <input
+                  type="text"
+                  id="campanhaAssunto"
+                  placeholder="Ex.: Nova condição comercial PR Plásticos"
+                  required
+                >
+
+              </div>
+
+
+              <div class="field">
+
+                <label>
+                  Lista de destinatários
+                </label>
+
+                <select id="campanhaLista">
+
+                  <option value="todos">
+                    Todos os clientes
+                  </option>
+
+                  <option value="ativos">
+                    Clientes ativos
+                  </option>
+
+                </select>
+
+              </div>
+
+
+              <div class="field">
+
+                <label>
+                  Mensagem
+                </label>
+
+                <label style="display:block; margin-top:15px;">Imagem da campanha</label>
+
+<input
+  type="file"
+  id="campanhaImagem"
+  accept="image/*"
+  style="margin-top:8px;"
+>
+                <textarea
+                  id="campanhaMensagem"
+                  placeholder="Digite aqui a mensagem que seus clientes receberão..."
+                  required              
+                
+                ></textarea>
+
+              </div>
+
+
+              <div class="button-row">
+
+                <button
+                  type="button"
+                  class="secondary-button"
+                  onclick="preVisualizarCampanha()"
+                >
+                  👁 Pré-visualizar
+                </button>
+
+                <button
+                  type="button"
+                  class="secondary-button"
+                  onclick="enviarTeste()"
+                >
+                  🧪 Enviar teste
+                </button>
+
+                <button
+                  type="submit"
+                  class="primary-button"
+                >
+                  🚀 Criar campanha
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </section>
+
+
+        <!-- LISTAS -->
+
+        <section id="listas" class="section">
+
+          <h1 class="page-title">
+            Listas
+          </h1>
+
+          <p class="page-subtitle">
+            Organize seus clientes por grupos para campanhas.
+          </p>
+
+          <div class="panel-box">
+
+            <h2>
+              Listas de contatos
+            </h2>
+
+            <p>
+              Em breve você poderá criar listas como:
+              Clientes atuais, Prospecção, Indústria,
+              Distribuidores e Clientes antigos.
+            </p>
+
+            <button class="primary-button">
+              + Criar lista
+            </button>
+
+          </div>
+
+        </section>
+
+
+        <!-- HISTÓRICO -->
+
+        <section id="historico" class="section">
+
+          <h1 class="page-title">
+            Histórico
+          </h1>
+
+          <p class="page-subtitle">
+            Acompanhe os envios realizados.
+          </p>
+
+          <div class="panel-box">
+
+            <div class="table-wrapper">
+
+              <table>
+
+                <thead>
+
+                  <tr>
+                    <th>Data</th>
+                    <th>Campanha</th>
+                    <th>Destinatários</th>
+                    <th>Status</th>
+                  </tr>
+
+                </thead>
+
+                <tbody>
+
+                  <tr>
+
+                    <td colspan="4" style="text-align:center;color:#777;">
+                      Nenhum envio realizado.
+                    </td>
+
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- PORTAL DO CLIENTE: nova seção adicionada sem alterar as seções existentes -->
+        <section id="portalCliente" class="section">
+          <h1 class="page-title">Portal do Cliente</h1>
+          <p class="page-subtitle">Cadastre e gerencie os acessos dos clientes ao portal.</p>
+
+          <div class="panel-box">
+            <h2>Novo acesso</h2>
+            <p>Selecione um cliente já cadastrado e defina o e-mail e a senha inicial de acesso.</p>
+            <form id="formUsuarioPortal" class="campaign-form" onsubmit="salvarUsuarioPortal(event)">
+              <div class="field">
+                <label for="portalClienteSelect">Cliente</label>
+                <select id="portalClienteSelect" required>
+                  <option value="">Carregando clientes...</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="portalEmail">E-mail de login</label>
+                <input type="email" id="portalEmail" placeholder="cliente@empresa.com.br" required autocomplete="off">
+              </div>
+              <div class="field">
+                <label for="portalSenha">Senha inicial</label>
+                <input type="password" id="portalSenha" minlength="8" placeholder="Mínimo de 8 caracteres" required autocomplete="new-password">
+              </div>
+              <div class="button-row">
+                <button type="submit" class="primary-button" id="portalSalvarBtn">Criar acesso</button>
+                <button type="button" class="secondary-button" onclick="document.getElementById('formUsuarioPortal').reset()">Limpar</button>
+              </div>
+              <div id="portalMensagem" role="status" style="margin-top:12px;font-size:14px;"></div>
+            </form>
+          </div>
+
+          <div class="panel-box">
+            <h2>Acessos cadastrados</h2>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Cliente</th><th>Empresa</th><th>E-mail de acesso</th><th>Status</th><th>Ação</th></tr></thead>
+                <tbody id="tabelaUsuariosPortal"><tr><td colspan="5" style="text-align:center;color:#777;">Carregando acessos...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    
+  // CONEXÃO COM O SUPABASE
+  const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co/rest/v1/";
+  const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
+
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+  // ==========================================
+  // AUTENTICAÇÃO DO PAINEL
+  // ==========================================
+
+  async function verificarSessao() {
+    try {
+      const resposta = await fetch("/api/login", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store"
+      });
+
+      if (resposta.ok) {
+        mostrarPainel();
+      } else {
+        mostrarLogin();
+      }
+
+    } catch (erro) {
+      console.error("Erro ao verificar sessão:", erro);
+      mostrarLogin();
+    }
+  }
+
+
+ function mostrarPainel() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("panelScreen").style.display = "block";
+  document.getElementById("loginError").style.display = "none";
+
+  carregarClientesDoBanco();
+  carregarCampanhasDoBanco();
+}
+
+
+  function mostrarLogin() {
+    document.getElementById("panelScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "flex";
+  }
+
+
+  async function entrar(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("loginEmail").value.trim();
+    const senha = document.getElementById("loginSenha").value;
+    const elementoErro = document.getElementById("loginError");
+    const botao = document.querySelector(".login-button");
+
+    elementoErro.style.display = "none";
+    botao.disabled = true;
+    botao.textContent = "ENTRANDO...";
+
+    try {
+      const resposta = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          senha: senha
+        })
+      });
+
+      let dados = {};
+
+      try {
+        dados = await resposta.json();
+      } catch (erroJson) {
+        dados = {};
+      }
+
+      if (!resposta.ok || !dados.sucesso) {
+        throw new Error(
+          dados.erro || "E-mail ou senha incorretos."
+        );
+      }
+
+      mostrarPainel();
+
+    } catch (erro) {
+      console.error("Erro no login:", erro);
+
+      elementoErro.textContent =
+        erro.message || "Não foi possível conectar ao servidor.";
+
+      elementoErro.style.display = "block";
+
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "ENTRAR NO PAINEL";
+    }
+  }
+
+
+  async function sair() {
+    try {
+      await fetch("/api/login", {
+        method: "DELETE",
+        credentials: "include",
+        cache: "no-store"
+      });
+    } catch (erro) {
+      console.error("Erro ao sair:", erro);
+    }
+
+    mostrarLogin();
+
+    document.getElementById("loginEmail").value = "";
+    document.getElementById("loginSenha").value = "";
+  }
+
+
+  // ==========================================
+  // FUNÇÕES DO PAINEL 
+  // ==========================================
+
+  function abrirSecao(id, botao) {
+    document.querySelectorAll(".section").forEach(section => {
+      section.classList.remove("active");
+    });
+
+    document.querySelectorAll(".menu-button").forEach(button => {
+      button.classList.remove("active");
+    });
+
+    const secao = document.getElementById(id);
+
+    if (secao) {
+      secao.classList.add("active");
+    }
+
+    if (botao) {
+      botao.classList.add("active");
+    }
+  }
+
+
+  function abrirSecaoPorId(id) {
+    const botoes = document.querySelectorAll(".menu-button");
+    let botaoEncontrado = null;
+
+    botoes.forEach(botao => {
+      const onclick = botao.getAttribute("onclick") || "";
+
+      if (onclick.includes("'" + id + "'")) {
+        botaoEncontrado = botao;
+      }
+    });
+
+    abrirSecao(id, botaoEncontrado);
+  }
+
+async function criarCampanha(event) {
+  event.preventDefault();
+
+  const nome = document.getElementById("campanhaNome").value.trim();
+  const empresa = document.getElementById("campanhaEmpresa").value;
+  const assunto = document.getElementById("campanhaAssunto").value.trim();
+  const lista = document.getElementById("campanhaLista").value;
+  const mensagem = document.getElementById("campanhaMensagem").value;
+  const arquivo = document.getElementById("campanhaImagem")?.files[0];
+
+  const clientes = clientesBanco || [];
+
+  let destinatarios = clientes;
+
+  if (lista === "ativos") {
+    destinatarios = clientes.filter(cliente => cliente.status === "Ativo");
+  }
+
+  if (destinatarios.length === 0) {
+    alert("Nenhum cliente encontrado para esta campanha.");
+    return;
+  }
+
+  if (!confirm(
+    "A campanha será enviada para " +
+    destinatarios.length +
+    " cliente(s). Deseja continuar?"
+  )) {
+    return;
+  }
+
+  try {
+    let imagem = null;
+    let imagemNome = null;
+
+    if (arquivo) {
+      imagemNome = arquivo.name;
+
+      imagem = await new Promise((resolve, reject) => {
+        const leitor = new FileReader();
+
+        leitor.onload = () => {
+          resolve(leitor.result.split(",")[1]);
+        };
+
+        leitor.onerror = reject;
+
+        leitor.readAsDataURL(arquivo);
+      });
+    }
+
+    let mensagemFinal = mensagem;
+
+    if (imagem) {
+      mensagemFinal = `
+        <div>
+          ${mensagem}
+          <br><br>
+          <img src="cid:imagem-campanha"
+               style="max-width:100%;height:auto;">
+        </div>
+      `;
+    }
+
+    let enviados = 0;
+
+    for (const cliente of destinatarios) {
+      const resposta = await fetch("/api/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          empresa: empresa,
+          destinatario: cliente.email,
+          assunto: assunto,
+          mensagem: mensagemFinal,
+          imagem: imagem,
+          imagemNome: imagemNome
+        })
+      });
+
+      const resultado = await resposta.json();
+
+      if (resposta.ok && resultado.sucesso) {
+        enviados++;
+      }
+    }
+
+    const campanha = {
+      empresa: empresa,
+      nome: nome,
+      assunto: assunto,
+      lista: lista,
+      mensagem: mensagem,
+      data: new Date().toLocaleString("pt-BR"),
+      enviados: enviados
+    };
+
+const respostaBanco = await fetch("/api/campanhas", {
+  method: "POST",
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    empresa: campanha.empresa,
+    nome: campanha.nome,
+    assunto: campanha.assunto,
+    lista: campanha.lista,
+    mensagem: campanha.mensagem,
+    enviados: campanha.enviados
+  })
+});
+
+const resultadoBanco = await respostaBanco.json();
+
+if (!respostaBanco.ok || !resultadoBanco.sucesso) {
+  throw new Error(
+    resultadoBanco.erro ||
+    "Os e-mails foram processados, mas não foi possível salvar o histórico da campanha."
+  );
+}
+
+await carregarCampanhasDoBanco();
+
+
+    alert(
+      "Campanha enviada com sucesso para " +
+      enviados +
+      " cliente(s)!"
+    );
+
+    document.querySelector(".campaign-form").reset();
+
+  } catch (erro) {
+    console.error(erro);
+    alert("Erro ao enviar a campanha.");
+  }
+}
+    
+function abrirFormularioCliente() {
+  window.clienteEditando = null;
+
+  document.getElementById("formularioCliente").style.display = "block";
+  document.getElementById("clienteNome").focus();
+}
+
+
+function fecharFormularioCliente() {
+  document.getElementById("formularioCliente").style.display = "none";
+
+  document.getElementById("clienteNome").value = "";
+  document.getElementById("clienteEmpresa").value = "";
+  document.getElementById("clienteEmail").value = "";
+  document.getElementById("clienteTelefone").value = "";
+  document.getElementById("clienteCidade").value = "";
+  document.getElementById("clienteUF").value = "";
+  document.getElementById("clienteStatus").value = "Ativo";
+  document.getElementById("clienteObservacao").value = "";
+}
+
+
+async function salvarCliente() {
+  const nome = document.getElementById("clienteNome").value.trim();
+  const empresa = document.getElementById("clienteEmpresa").value.trim();
+  const email = document.getElementById("clienteEmail").value.trim();
+  const telefone = document.getElementById("clienteTelefone").value.trim();
+  const cidade = document.getElementById("clienteCidade").value.trim();
+  const uf = document.getElementById("clienteUF").value;
+  const status = document.getElementById("clienteStatus").value;
+  const observacao = document.getElementById("clienteObservacao").value.trim();
+
+  if (!nome) return alert("Informe o nome do contato.");
+  if (!empresa) return alert("Informe a empresa.");
+  if (!email) return alert("Informe o e-mail.");
+
+  const cliente = {
+    nome, empresa, email, telefone, cidade, uf, status, observacao
+  };
+
+  const idEditando = window.clienteEditando;
+
+  if (
+    idEditando === undefined ||
+    idEditando === null
+  ) {
+    const emailJaExiste = clientesBanco.some(
+      c => (c.email || "").toLowerCase() === email.toLowerCase()
+    );
+
+    if (emailJaExiste) {
+      return alert("Já existe um cliente cadastrado com este e-mail.");
+    }
+  }
+
+  try {
+    const resposta = await fetch("/api/clientes", {
+      method: idEditando !== undefined && idEditando !== null ? "PATCH" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(
+        idEditando !== undefined && idEditando !== null
+          ? { id: idEditando, cliente }
+          : cliente
+      )
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(resultado.erro || "Não foi possível salvar o cliente.");
+    }
+
+    window.clienteEditando = null;
+
+    await carregarClientesDoBanco();
+    fecharFormularioCliente();
+
+    alert(
+      idEditando !== undefined && idEditando !== null
+        ? "Cliente atualizado com sucesso!"
+        : "Cliente cadastrado com sucesso!"
+    );
+  } catch (erro) {
+    console.error("Erro ao salvar cliente:", erro);
+    alert(erro.message || "Erro ao salvar cliente no banco.");
+  }
+}
+    
+
+function atualizarDashboardClientes() {
+  const clientes = clientesBanco || [];
+
+  const totalClientes = document.getElementById("totalClientes");
+
+  if (totalClientes) {
+    totalClientes.textContent = clientes.length;
+  }
+}
+
+let clientesBanco = [];
+
+
+async function carregarClientesDoBanco() {
+  try {
+    const resposta = await fetch("/api/clientes", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Erro ao carregar clientes."
+      );
+    }
+
+    clientesBanco = resultado.clientes || [];
+
+    mostrarClientes();
+    atualizarDashboardClientes();
+
+    if (typeof desenharMapaClientesUF === "function") {
+      desenharMapaClientesUF();
+    }
+  } catch (erro) {
+    console.error("Erro ao carregar clientes do banco:", erro);
+    alert(
+      "Não foi possível carregar os clientes do banco. Atualize a página e tente novamente."
+    );
+  }
+}
+
+    
+function mostrarClientes() {
+  const tabela = document.getElementById("tabelaClientes");
+  if (!tabela) return;
+
+  const clientes = clientesBanco || [];
+
+  if (clientes.length === 0) {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center;color:#777;">
+          Nenhum cliente cadastrado.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tabela.innerHTML = clientes.map(cliente => `
+    <tr>
+      <td>${cliente.nome || ""}</td>
+      <td>${cliente.empresa || ""}</td>
+      <td>${cliente.email || ""}</td>
+      <td>${cliente.telefone || ""}</td>
+      <td>
+        ${cliente.cidade || ""}
+        ${cliente.uf ? " / " + cliente.uf : ""}
+      </td>
+      <td>
+        <span style="
+          color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
+          font-weight:bold;
+        ">
+          ${cliente.status || "Ativo"}
+        </span>
+      </td>
+      <td>
+        <button
+          onclick="editarCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Editar">✏️</button>
+        <button
+          onclick="excluirCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Excluir">🗑️</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+function filtrarClientes() {
+  const termo = document
+    .getElementById("buscaClientes")
+    .value
+    .toLowerCase()
+    .trim();
+
+  const tabela = document.getElementById("tabelaClientes");
+  if (!tabela) return;
+
+  const clientes = clientesBanco || [];
+
+  const filtrados = clientes.filter(cliente => {
+    return [
+      cliente.nome,
+      cliente.empresa,
+      cliente.email,
+      cliente.telefone,
+      cliente.cidade,
+      cliente.uf,
+      cliente.status
+    ].some(valor =>
+      String(valor || "").toLowerCase().includes(termo)
+    );
+  });
+
+  if (filtrados.length === 0) {
+    tabela.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center;color:#777;">
+          Nenhum cliente encontrado.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tabela.innerHTML = filtrados.map(cliente => `
+    <tr>
+      <td>${cliente.nome || ""}</td>
+      <td>${cliente.empresa || ""}</td>
+      <td>${cliente.email || ""}</td>
+      <td>${cliente.telefone || ""}</td>
+      <td>
+        ${cliente.cidade || ""}
+        ${cliente.uf ? " / " + cliente.uf : ""}
+      </td>
+      <td>
+        <span style="
+          color:${cliente.status === "Ativo" ? "#347638" : "#d9534f"};
+          font-weight:bold;
+        ">
+          ${cliente.status || "Ativo"}
+        </span>
+      </td>
+      <td>
+        <button
+          onclick="editarCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Editar">✏️</button>
+        <button
+          onclick="excluirCliente(${cliente.id})"
+          style="border:none;background:none;cursor:pointer;font-size:18px;"
+          title="Excluir">🗑️</button>
+      </td>
+    </tr>
+  `).join("");
+}
+    
+function mostrarMensagem(mensagem) {
+  alert(mensagem);
+}
+
+
+async function carregarCampanhasDoBanco() {
+  try {
+    const resposta = await fetch("/api/campanhas", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Não foi possível carregar as campanhas." 
+      );
+    }
+
+    window.campanhasBanco = resultado.campanhas || [];
+    mostrarCampanhas();
+    atualizarDashboardCampanhas();
+  } catch (erro) {
+    console.error("Erro ao carregar campanhas:", erro);
+    alert("Não foi possível carregar as campanhas do banco.");
+  }
+}
+
+    
+
+function atualizarDashboardCampanhas() {
+  const campanhas = window.campanhasBanco || [];
+  const totalCampanhas = document.getElementById("totalCampanhas");
+  const totalEmails = document.getElementById("totalEmails");
+  if (totalCampanhas) totalCampanhas.textContent = campanhas.length;
+  if (totalEmails) {
+    totalEmails.textContent = campanhas.reduce(
+      (total, campanha) => total + (Number(campanha.enviados) || 0), 0
+    );
+  }
+}
+
+function mostrarCampanhas() {
+  const area = document.getElementById("listaCampanhas");
+
+  if (!area) return;
+
+  const campanhas = window.campanhasBanco || [];
+
+  if (campanhas.length === 0) {
+    area.innerHTML = "<p>Nenhuma campanha criada.</p>";
+    return;
+  }
+
+  area.innerHTML = campanhas.map(campanha => `
+    <div class="panel-box" style="margin-bottom: 15px;">
+      <h3>${campanha.nome || ""}</h3>
+      <p><strong>Assunto:</strong> ${campanha.assunto || ""}</p>
+      <p><strong>Lista:</strong> ${campanha.lista || ""}</p>
+      <p><strong>Data:</strong> ${campanha.data || campanha.created_at || ""}</p>
+      <p><strong>Enviados:</strong> ${campanha.enviados || 0}</p>
+
+      <button
+        class="primary-button"
+        onclick="mostrarMensagem(decodeURIComponent(this.dataset.mensagem))"
+        data-mensagem="${encodeURIComponent(campanha.mensagem || "")}">
+        Ver mensagem
+      </button>
+    </div>
+  `).join("");
+}
+
+async function enviarTeste() {
+  const empresa = document.getElementById("campanhaEmpresa").value;
+  const assunto = document.getElementById("campanhaAssunto").value;
+  const mensagem = document.getElementById("campanhaMensagem").value;
+  const arquivo = document.getElementById("campanhaImagem").files[0];
+
+  if (!assunto || !mensagem) {
+    alert("Preencha o assunto e a mensagem primeiro.");
+    return;
+  }
+
+  const destinatario = prompt("Digite o e-mail que receberá o teste:");
+
+  if (!destinatario) {
+    return;
+  }
+
+  try {
+    let imagem = null;
+    let imagemNome = null;
+
+    if (arquivo) {
+      imagemNome = arquivo.name;
+
+      imagem = await new Promise((resolve, reject) => {
+        const leitor = new FileReader();
+
+        leitor.onload = () => {
+          const base64 = leitor.result.split(",")[1];
+          resolve(base64);
+        };
+
+        leitor.onerror = reject;
+        leitor.readAsDataURL(arquivo);
+      });
+    }
+
+    let mensagemFinal = mensagem;
+
+    if (imagem) {
+      mensagemFinal = `
+        <div>
+          ${mensagem}
+          <br><br>
+          <img src="cid:imagem-campanha" style="max-width:100%; height:auto;">
+        </div>
+      `;
+    }
+
+    const resposta = await fetch("/api/send", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        empresa: empresa,
+        destinatario: destinatario,
+        assunto: assunto,
+        mensagem: mensagemFinal,
+        imagem: imagem,
+        imagemNome: imagemNome
+      })
+    });
+
+    const resultado = await resposta.json();
+
+    if (resposta.ok && resultado.sucesso) {
+      alert("E-mail de teste enviado com sucesso!");
+    } else {
+      alert("Erro ao enviar: " + (resultado.erro || "Erro desconhecido."));
+    }
+
+  } catch (erro) {
+    alert("Erro de conexão com o servidor.");
+    console.error(erro);
+  }
+}
+
+  
+async function importarClientes(event) {
+  const arquivo = event.target.files[0];
+  if (!arquivo) return;
+
+  try {
+    const extensao = arquivo.name.split(".").pop().toLowerCase();
+    let dados = [];
+
+    if (extensao === "xlsx" || extensao === "xls") {
+      const dadosArray = await arquivo.arrayBuffer();
+      const workbook = XLSX.read(dadosArray, { type: "array" });
+      const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
+
+      const linhas = XLSX.utils.sheet_to_json(primeiraAba, {
+        defval: ""
+      });
+
+      dados = linhas.map(linha => {
+        const normalizado = {};
+
+        Object.keys(linha).forEach(chave => {
+          const chaveNormalizada = chave.toString().trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+          normalizado[chaveNormalizada] = linha[chave];
+        });
+
+        return {
+          nome: String(normalizado.nome || "").trim(),
+          empresa: String(normalizado.empresa || "").trim(),
+          email: String(normalizado.email || "").trim(),
+          telefone: String(normalizado.telefone || "").trim(),
+          cidade: String(normalizado.cidade || "").trim(),
+          uf: String(normalizado.uf || "").trim().toUpperCase(),
+          status: String(normalizado.status || "Ativo").trim(),
+          observacao: String(normalizado.observacao || "").trim()
+        };
+      });
+
+    } else if (extensao === "csv") {
+      const texto = await arquivo.text();
+      const linhas = texto.split(/\r?\n/).filter(linha => linha.trim() !== "");
+
+      if (linhas.length < 2) {
+        alert("O arquivo CSV não contém clientes para importar.");
+        return;
+      }
+
+      const separador = linhas[0].includes(";") ? ";" : ",";
+      const cabecalho = linhas[0].split(separador).map(item =>
+        item.trim().toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+      );
+
+      dados = linhas.slice(1).map(linha => {
+        const valores = linha.split(separador);
+        const pegar = nome => {
+          const indice = cabecalho.indexOf(nome);
+          return indice >= 0 ? valores[indice].trim() : "";
+        };
+
+        return {
+          nome: pegar("nome"),
+          empresa: pegar("empresa"),
+          email: pegar("email"),
+          telefone: pegar("telefone"),
+          cidade: pegar("cidade"),
+          uf: pegar("uf").toUpperCase(),
+          status: pegar("status") || "Ativo",
+          observacao: pegar("observacao")
+        };
+      });
+
+    } else {
+      alert("Formato não permitido. Use CSV ou Excel.");
+      return;
+    }
+
+    const respostaAtual = await fetch("/api/clientes", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
+
+    const resultadoAtual = await respostaAtual.json();
+
+    if (!respostaAtual.ok || !resultadoAtual.sucesso) {
+      throw new Error("Não foi possível consultar os clientes existentes.");
+    }
+
+    const existentes = resultadoAtual.clientes || [];
+    const emailsExistentes = new Set(
+      existentes.map(c => (c.email || "").trim().toLowerCase()).filter(Boolean)
+    );
+
+    const novos = [];
+    let duplicados = 0;
+
+    dados.forEach(cliente => {
+      const email = cliente.email.toLowerCase();
+
+      if (!cliente.nome || !cliente.empresa || !email || emailsExistentes.has(email)) {
+        duplicados++;
+        return;
+      }
+
+      emailsExistentes.add(email);
+      novos.push(cliente);
+    });
+
+    let importados = 0;
+
+    for (const cliente of novos) {
+      const resposta = await fetch("/api/clientes", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cliente)
+      });
+
+      const resultado = await resposta.json();
+
+      if (!resposta.ok || !resultado.sucesso) {
+        throw new Error(
+          resultado.erro || "Falha ao importar um cliente. Atualize a lista e confira os registros antes de tentar novamente."
+        );
+      }
+
+      importados++;
+    }
+
+    await carregarClientesDoBanco();
+
+    alert(
+      importados + " cliente(s) importado(s) com sucesso." +
+      (duplicados ? "\n" + duplicados + " linha(s) ignorada(s) por falta de dados obrigatórios ou e-mail duplicado." : "")
+    );
+
+  } catch (erro) {
+    console.error("Erro ao importar clientes:", erro);
+    alert(erro.message || "Erro ao importar o arquivo.");
+  } finally {
+    event.target.value = "";
+  }
+}
+
+async function excluirCliente(id) {
+  const cliente = clientesBanco.find(
+    c => String(c.id) === String(id)
+  );
+
+  if (!cliente) {
+    alert("Cliente não encontrado no banco.");
+    return;
+  }
+
+  const confirmar = confirm(
+    `Deseja realmente excluir o cliente "${cliente.empresa}"?`
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const resposta = await fetch(
+      `/api/clientes?id=${encodeURIComponent(id)}`,
+      {
+        method: "DELETE",
+        credentials: "include"
+      }
+    );
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Não foi possível excluir o cliente."
+      );
+    }
+
+    await carregarClientesDoBanco();
+
+    alert("Cliente excluído com sucesso!");
+  } catch (erro) {
+    console.error("Erro ao excluir cliente:", erro);
+    alert(erro.message || "Erro ao excluir cliente do banco.");
+  }
+}
+
+    function editarCliente(id) {
+  const cliente = clientesBanco.find(
+    c => String(c.id) === String(id)
+  );
+
+  if (!cliente) {
+    alert("Cliente não encontrado no banco.");
+    return;
+  }
+
+  document.getElementById("formularioCliente").style.display = "block";
+
+  document.getElementById("clienteNome").value = cliente.nome || "";
+  document.getElementById("clienteEmpresa").value = cliente.empresa || "";
+  document.getElementById("clienteEmail").value = cliente.email || "";
+  document.getElementById("clienteTelefone").value = cliente.telefone || "";
+  document.getElementById("clienteCidade").value = cliente.cidade || "";
+  document.getElementById("clienteUF").value = cliente.uf || "";
+  document.getElementById("clienteStatus").value = cliente.status || "Ativo";
+  document.getElementById("clienteObservacao").value = cliente.observacao || "";
+
+  window.clienteEditando = cliente.id;
+
+  document.getElementById("clienteNome").focus();
+}
+    
+    
+    
+  // ==========================================
+  // PORTAL DO CLIENTE — funcionalidade adicionada
+  // ==========================================
+  async function carregarPortalCliente() {
+    const select = document.getElementById("portalClienteSelect");
+    const tbody = document.getElementById("tabelaUsuariosPortal");
+    if (!select || !tbody) return;
+
+    select.innerHTML = '<option value="">Carregando clientes...</option>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#777;">Carregando acessos...</td></tr>';
+
+    try {
+      const [clientesResp, usuariosResp] = await Promise.all([
+        fetch("/api/clientes", { credentials: "include", cache: "no-store" }),
+        fetch("/api/usuarios-portal", { credentials: "include", cache: "no-store" })
+      ]);
+      const clientesDados = await clientesResp.json();
+      const usuariosDados = await usuariosResp.json();
+      if (!clientesResp.ok || !clientesDados.sucesso) throw new Error(clientesDados.erro || "Não foi possível carregar os clientes.");
+      if (!usuariosResp.ok || !usuariosDados.sucesso) throw new Error(usuariosDados.erro || "Não foi possível carregar os acessos.");
+
+      const clientes = clientesDados.clientes || [];
+      select.innerHTML = '<option value="">Selecione um cliente</option>' + clientes.map(c =>
+        `<option value="${Number(c.id)}">${escPortal(c.nome || "")}${c.empresa ? " — " + escPortal(c.empresa) : ""}</option>`
+      ).join("");
+      if (!clientes.length) select.innerHTML = '<option value="">Nenhum cliente cadastrado</option>';
+
+      const clientesPorId = Object.fromEntries(clientes.map(c => [String(c.id), c]));
+      const usuarios = usuariosDados.usuarios || [];
+      tbody.innerHTML = usuarios.length ? usuarios.map(u => {
+        const c = clientesPorId[String(u.cliente_id)] || {};
+        return `<tr>
+          <td>${escPortal(u.nome || c.nome || "—")}</td>
+          <td>${escPortal(u.empresa || c.empresa || "—")}</td>
+          <td>${escPortal(u.email || "—")}</td>
+          <td>${u.ativo ? '<span style="color:#347638;font-weight:bold;">Ativo</span>' : '<span style="color:#d9534f;font-weight:bold;">Inativo</span>'}</td>
+          <td><button type="button" class="secondary-button" style="padding:7px 10px;" onclick="alternarUsuarioPortal('${String(u.id).replace(/'/g, "\'")}', ${!u.ativo})">${u.ativo ? "Desativar" : "Ativar"}</button></td>
+        </tr>`;
+      }).join("") : '<tr><td colspan="5" style="text-align:center;color:#777;">Nenhum acesso cadastrado.</td></tr>';
+    } catch (erro) {
+      console.error("Erro no Portal do Cliente:", erro);
+      select.innerHTML = '<option value="">Erro ao carregar clientes</option>';
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:#d9534f;">${escPortal(erro.message || "Erro ao carregar os acessos.")}</td></tr>`;
+    }
+  }
+
+  async function salvarUsuarioPortal(event) {
+    event.preventDefault();
+    const select = document.getElementById("portalClienteSelect");
+    const clienteId = select.value;
+    const email = document.getElementById("portalEmail").value.trim().toLowerCase();
+    const senha = document.getElementById("portalSenha").value;
+    const mensagem = document.getElementById("portalMensagem");
+    const botao = document.getElementById("portalSalvarBtn");
+    if (!clienteId) { mensagem.style.color = "#d9534f"; mensagem.textContent = "Selecione um cliente."; return; }
+    if (senha.length < 8) { mensagem.style.color = "#d9534f"; mensagem.textContent = "A senha deve ter pelo menos 8 caracteres."; return; }
+
+    const clientesResp = await fetch("/api/clientes", { credentials: "include", cache: "no-store" });
+    const clientesDados = await clientesResp.json();
+    const cliente = (clientesDados.clientes || []).find(c => String(c.id) === String(clienteId));
+    if (!cliente) { mensagem.style.color = "#d9534f"; mensagem.textContent = "Cliente não encontrado. Atualize a página e tente novamente."; return; }
+
+    botao.disabled = true;
+    botao.textContent = "CRIANDO...";
+    mensagem.style.color = "#6b7280";
+    mensagem.textContent = "Criando acesso...";
+    try {
+      const resposta = await fetch("/api/usuarios-portal", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: cliente.nome, empresa: cliente.empresa, email, senha, cliente_id: Number(cliente.id) })
+      });
+      const dados = await resposta.json();
+      if (!resposta.ok || !dados.sucesso) throw new Error(dados.erro || "Não foi possível criar o acesso.");
+      document.getElementById("formUsuarioPortal").reset();
+      mensagem.style.color = "#347638";
+      mensagem.textContent = "Acesso criado com sucesso. O cliente já pode entrar no Portal do Cliente.";
+      await carregarPortalCliente();
+      mensagem.style.color = "#347638";
+      mensagem.textContent = "Acesso criado com sucesso. O cliente já pode entrar no Portal do Cliente.";
+    } catch (erro) {
+      console.error("Erro ao criar acesso do portal:", erro);
+      mensagem.style.color = "#d9534f";
+      mensagem.textContent = erro.message || "Erro ao criar o acesso.";
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "Criar acesso";
+    }
+  }
+
+  async function alternarUsuarioPortal(id, ativo) {
+    if (!confirm(`Deseja ${ativo ? "ativar" : "desativar"} este acesso?`)) return;
+    try {
+      const resposta = await fetch("/api/usuarios-portal", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ativo })
+      });
+      const dados = await resposta.json();
+      if (!resposta.ok || !dados.sucesso) throw new Error(dados.erro || "Não foi possível atualizar o acesso.");
+      await carregarPortalCliente();
+    } catch (erro) {
+      alert(erro.message || "Erro ao atualizar o acesso.");
+    }
+  }
+
+  function escPortal(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, caractere => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[caractere]));
+  }
+
+  // ==========================================
+  // INICIALIZAÇÃO
+  // ==========================================
+
+
+  // ==========================================
+  // INICIALIZAÇÃO
+  // ==========================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  const formulario = document.getElementById("loginForm");
+  if (formulario) formulario.addEventListener("submit", entrar);
+  verificarSessao();
+});
+
+   
+
+function desenharMapaClientesUF() {
+  const elemento = document.getElementById("mapaClientesUF");
+  if (!elemento) return;
+
+ 
+const clientes = clientesBanco || [];
+
+  const estados = {
+    AC: "Acre", AL: "Alagoas", AP: "Amapá", AM: "Amazonas",
+    BA: "Bahia", CE: "Ceará", DF: "Distrito Federal",
+    ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão",
+    MT: "Mato Grosso", MS: "Mato Grosso do Sul",
+    MG: "Minas Gerais", PA: "Pará", PB: "Paraíba",
+    PR: "Paraná", PE: "Pernambuco", PI: "Piauí",
+    RJ: "Rio de Janeiro", RN: "Rio Grande do Norte",
+    RS: "Rio Grande do Sul", RO: "Rondônia",
+    RR: "Roraima", SC: "Santa Catarina",
+    SP: "São Paulo", SE: "Sergipe", TO: "Tocantins"
+  };
+
+  const contagem = {};
+
+  clientes.forEach(cliente => {
+    const uf = (cliente.uf || "").trim().toUpperCase();
+    if (!estados[uf]) return;
+
+    if (!contagem[uf]) {
+      contagem[uf] = { ativos: 0, inativos: 0 };
+    }
+
+    if ((cliente.status || "Ativo").toLowerCase() === "ativo") {
+      contagem[uf].ativos++;
+    } else {
+      contagem[uf].inativos++;
+    }
+  });
+
+  google.charts.load("current", { packages: ["geochart"] });
+
+  google.charts.setOnLoadCallback(function () {
+    const dados = new google.visualization.DataTable();
+
+    dados.addColumn("string", "Estado");
+    dados.addColumn("number", "Total de clientes");
+    dados.addColumn({
+      type: "string",
+      role: "tooltip",
+      p: { html: true }
+    });
+
+    Object.keys(estados).forEach(uf => {
+      const ativos = contagem[uf]?.ativos || 0;
+      const inativos = contagem[uf]?.inativos || 0;
+      const total = ativos + inativos;
+
+      const tooltip = `
+        <div style="padding:10px 14px;font-family:Arial;min-width:160px;">
+          <div style="font-size:15px;font-weight:bold;margin-bottom:8px;">
+            ${estados[uf]} (${uf})
+          </div>
+          <div style="margin-bottom:6px;">
+            Total: <strong>${total}</strong> cliente(s)
+          </div>
+          <div style="color:#218838;margin-bottom:4px;">
+            ● Ativos: <strong>${ativos}</strong>
+          </div>
+          <div style="color:#d93025;">
+            ● Inativos: <strong>${inativos}</strong>
+          </div>
+        </div>
+      `;
+
+      dados.addRow(["BR-" + uf, total, tooltip]);
+    });
+
+    const mapa = new google.visualization.GeoChart(elemento);
+
+    mapa.draw(dados, {
+      width: "100%",
+      height: 300,
+      region: "BR",
+      resolution: "provinces",
+      displayMode: "regions",
+      colorAxis: {
+        colors: ["#dbeafe", "#93c5fd"]
+      },
+      backgroundColor: "#ffffff",
+      datalessRegionColor: "#eeeeee",
+      legend: { textStyle: { color: "#333333" } },
+      tooltip: { isHtml: true }
+    });
+  });
+}
+  
+  
+</script>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+  
+ 
+</body>
+</html>
