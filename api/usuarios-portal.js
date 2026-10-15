@@ -70,8 +70,10 @@ export default async function handler(req, res) {
         });
       }
 
-      return res.status(200).json(dados);
-    }
+      return res.status(200).json({
+  sucesso: true,
+  usuarios: dados
+});
 
     if (req.method === "POST") {
       const { nome, empresa, email, senha, cliente_id } = req.body || {};
