@@ -1,6 +1,6 @@
 
-export default async function handler(req, res) {
-  const crypto = await import("node:crypto");
+module.exports = async function handler(req, res) {
+  const crypto = require("crypto");
 
   const {
     SUPABASE_URL,
