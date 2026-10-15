@@ -80,6 +80,9 @@
       line-height: 1;
     }
 
+
+
+    
 .login-container {
     width: min(92%, 520px);
     margin: 0 auto;
@@ -1375,25 +1378,27 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
   // AUTENTICAÇÃO DO PAINEL
   // ==========================================
 
-  async function verificarSessao() {
-    try {
-      const resposta = await fetch("/api/login", {
-        method: "GET",
-        credentials: "include",
-        cache: "no-store"
-      });
+  
+async function verificarSessao() {
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
 
-      if (resposta.ok) {
-        mostrarPainel();
-      } else {
-        mostrarLogin();
-      }
+    if (error) {
+      throw error;
+    }
 
-    } catch (erro) {
-      console.error("Erro ao verificar sessão:", erro);
+    if (data.session) {
+      mostrarPainel();
+    } else {
       mostrarLogin();
     }
+
+  } catch (erro) {
+    console.error("Erro ao verificar sessão:", erro);
+    mostrarLogin();
   }
+}
+
 
 
  function mostrarPainel() {
@@ -1411,78 +1416,69 @@ const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
   }
 
 
-  async function entrar(event) {
-    event.preventDefault();
+  
+async function entrar(event) {
+  event.preventDefault();
 
-    const email = document.getElementById("loginEmail").value.trim();
-    const senha = document.getElementById("loginSenha").value;
-    const elementoErro = document.getElementById("loginError");
-    const botao = document.querySelector(".login-button");
+  const email = document.getElementById("loginEmail").value.trim();
+  const senha = document.getElementById("loginSenha").value;
+  const elementoErro = document.getElementById("loginError");
+  const botao = document.querySelector(".login-button");
 
-    elementoErro.style.display = "none";
-    botao.disabled = true;
-    botao.textContent = "ENTRANDO...";
+  elementoErro.style.display = "none";
+  botao.disabled = true;
+  botao.textContent = "ENTRANDO...";
 
-    try {
-      const resposta = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: email,
-          senha: senha
-        })
-      });
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password: senha
+    });
 
-      let dados = {};
-
-      try {
-        dados = await resposta.json();
-      } catch (erroJson) {
-        dados = {};
-      }
-
-      if (!resposta.ok || !dados.sucesso) {
-        throw new Error(
-          dados.erro || "E-mail ou senha incorretos."
-        );
-      }
-
-      mostrarPainel();
-
-    } catch (erro) {
-      console.error("Erro no login:", erro);
-
-      elementoErro.textContent =
-        erro.message || "Não foi possível conectar ao servidor.";
-
-      elementoErro.style.display = "block";
-
-    } finally {
-      botao.disabled = false;
-      botao.textContent = "ENTRAR NO PAINEL";
+    if (error) {
+      throw error;
     }
+
+    if (!data.session) {
+      throw new Error("Não foi possível iniciar a sessão.");
+    }
+
+    mostrarPainel();
+
+  } catch (erro) {
+    console.error("Erro no login Supabase:", erro);
+
+    elementoErro.textContent =
+      erro.message || "Não foi possível entrar no painel.";
+
+    elementoErro.style.display = "block";
+
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "ENTRAR NO PAINEL";
   }
+}
 
 
-  async function sair() {
-    try {
-      await fetch("/api/login", {
-        method: "DELETE",
-        credentials: "include",
-        cache: "no-store"
-      });
-    } catch (erro) {
-      console.error("Erro ao sair:", erro);
+  
+async function sair() {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      throw error;
     }
 
     mostrarLogin();
 
     document.getElementById("loginEmail").value = "";
     document.getElementById("loginSenha").value = "";
+
+  } catch (erro) {
+    console.error("Erro ao sair do Supabase:", erro);
+    alert("Não foi possível encerrar a sessão. Tente novamente.");
   }
+}
 
 
   // ==========================================
