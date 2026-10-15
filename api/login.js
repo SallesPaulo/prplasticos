@@ -1,3 +1,4 @@
+
 const crypto = require("crypto");
 
 function criarToken(email, senha, segredo) {
@@ -15,15 +16,32 @@ function obterCookie(req, nome) {
     .map(cookie => cookie.trim())
     .find(cookie => cookie.startsWith(nome + "="));
 
-  if (!item) {
+  if (!item) return null;
+
+  try {
+    return decodeURIComponent(
+      item.substring(nome.length + 1)
+    );
+  } catch {
     return null;
   }
+}
 
-  return decodeURIComponent(
-    item.substring(nome.length + 1)
+function tokenValido(token, esperado) {
+  if (
+    typeof token !== "string" ||
+    token.length !== esperado.length ||
+    !/^[a-f0-9]{64}$/i.test(token)
+  ) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(
+    Buffer.from(token),
+    Buffer.from(esperado)
   );
 }
- 
+
 function criarCookieLogin(token) {
   return [
     `painel_token=${encodeURIComponent(token)}`,
@@ -47,19 +65,33 @@ function criarCookieLogout() {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
+  if (!["GET", "POST", "DELETE"].includes(req.method)) {
+    res.setHeader("Allow", "GET, POST, DELETE");
+
+    return res.status(405).json({
+      sucesso: false,
+      erro: "Método não permitido."
+    });
+  }
+
+  if (req.method === "DELETE") {
+    res.setHeader("Set-Cookie", criarCookieLogout());
+
+    return res.status(200).json({
+      sucesso: true
+    });
+  }
 
   const emailCorreto = process.env.PAINEL_EMAIL;
   const senhaCorreta = process.env.PAINEL_SENHA;
   const segredo = process.env.SEGREDO_DO_PAINEL;
 
-  /*
-  ==========================================
-  VERIFICAR CONFIGURAÇÃO
-  ==========================================
-  */
-
   if (!emailCorreto || !senhaCorreta || !segredo) {
-    console.error("Variáveis de ambiente do painel não configuradas.");
+    console.error(
+      "Variáveis de ambiente do painel não configuradas."
+    );
 
     return res.status(500).json({
       sucesso: false,
@@ -67,23 +99,16 @@ module.exports = async (req, res) => {
     });
   }
 
-  /*
-  ==========================================
-  VERIFICAR SESSÃO
-  ==========================================
-  */
+  const tokenCorreto = criarToken(
+    emailCorreto,
+    senhaCorreta,
+    segredo
+  );
 
   if (req.method === "GET") {
-
     const token = obterCookie(req, "painel_token");
 
-    const tokenCorreto = criarToken(
-      emailCorreto,
-      senhaCorreta,
-      segredo
-    );
-
-    if (token && token === tokenCorreto) {
+    if (tokenValido(token, tokenCorreto)) {
       return res.status(200).json({
         sucesso: true
       });
@@ -95,109 +120,42 @@ module.exports = async (req, res) => {
     });
   }
 
-  /*
-  ==========================================
-  FAZER LOGIN
-  ==========================================
-  */
+  try {
+    const body = req.body || {};
+    const email = String(body.email || "").trim();
+    const senha = String(body.senha || "");
 
-  if (req.method === "POST") {
-
-    try {
-
-      const body = req.body || {};
-
-      const email = String(body.email || "").trim();
-      const senha = String(body.senha || "");
-
-      console.log("Tentativa de login:", email);
-
-      if (!email || !senha) {
-        return res.status(400).json({
-          sucesso: false,
-          erro: "E-mail e senha são obrigatórios."
-        });
-      }
-
-      /*
-      ==========================================
-      COMPARAÇÃO DO LOGIN
-      ==========================================
-      */
-
-      if (
-        email !== emailCorreto ||
-        senha !== senhaCorreta
-      ) {
-
-        console.log("Login recusado:", email);
-
-        return res.status(401).json({
-          sucesso: false,
-          erro: "E-mail ou senha incorretos."
-        });
-      }
-
-      /*
-      ==========================================
-      LOGIN CORRETO
-      ==========================================
-      */
-
-      const token = criarToken(
-        emailCorreto,
-        senhaCorreta,
-        segredo
-      );
-
-      res.setHeader(
-        "Set-Cookie",
-        criarCookieLogin(token)
-      );
-
-      console.log("Login autorizado:", email);
-
-      return res.status(200).json({
-        sucesso: true
-      });
-
-    } catch (erro) {
-
-      console.error("Erro no login:", erro);
-
-      return res.status(500).json({
+    if (!email || !senha) {
+      return res.status(400).json({
         sucesso: false,
-        erro: "Erro interno no servidor."
+        erro: "E-mail e senha são obrigatórios."
       });
     }
-  }
 
-  /*
-  ==========================================
-  LOGOUT
-  ==========================================
-  */
-
-  if (req.method === "DELETE") {
+    if (
+      email !== emailCorreto ||
+      senha !== senhaCorreta
+    ) {
+      return res.status(401).json({
+        sucesso: false,
+        erro: "E-mail ou senha incorretos."
+      });
+    }
 
     res.setHeader(
       "Set-Cookie",
-      criarCookieLogout()
+      criarCookieLogin(tokenCorreto)
     );
 
     return res.status(200).json({
       sucesso: true
     });
+  } catch (erro) {
+    console.error("Erro no login:", erro);
+
+    return res.status(500).json({
+      sucesso: false,
+      erro: "Erro interno no servidor."
+    });
   }
-
-  /*
-  ==========================================
-  MÉTODO NÃO PERMITIDO
-  ==========================================
-  */
-
-  return res.status(405).json({
-    sucesso: false,
-    erro: "Método não permitido."
-  });
 };
