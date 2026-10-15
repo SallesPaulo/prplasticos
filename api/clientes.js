@@ -46,7 +46,48 @@ module.exports = async (req, res) => {
     });
   }
 
-  const urlBase = process.env.SUPABASE_URL;
+  
+async function validarSessaoSupabase(req) {
+  const autorizacao = req.headers.authorization || "";
+  const token = autorizacao.startsWith("Bearer ")
+    ? autorizacao.slice(7)
+    : null;
+
+  if (!token) return false;
+
+  const url = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
+  const chave = process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLIC_KEY;
+
+  if (!url || !chave) return false;
+
+  try {
+    const resposta = await fetch(`${url}/auth/v1/user`, {
+      headers: {
+        apikey: chave,
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!resposta.ok) return false;
+
+    const usuario = await resposta.json();
+    return Boolean(usuario.id);
+  } catch (erro) {
+    console.error("Erro ao validar sessão Supabase:", erro);
+    return false;
+  }
+}
+
+module.exports = async (req, res) => {
+  if (!(await validarSessaoSupabase(req))) {
+    return res.status(401).json({
+      sucesso: false,
+      erro: "Sessão Supabase não autorizada."
+    });
+  }
+
+
 
   if (!urlBase || !process.env.CHAVE_SECRETA_SUPABASE) {
     return res.status(500).json({
