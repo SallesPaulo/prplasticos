@@ -1634,6 +1634,7 @@ async function abrirDetalhesPedidoStatus(pedido) {
 }
 
 
+
 async function salvarStatusPedido() {
   if (!pedidoSelecionadoStatus) {
     alert("Selecione um pedido primeiro.");
@@ -1650,9 +1651,7 @@ async function salvarStatusPedido() {
     return;
   }
 
-  const statusAtual = pedidoSelecionadoStatus.status || "Recebido";
-
-  if (novoStatus === statusAtual) {
+  if (novoStatus === (pedidoSelecionadoStatus.status || "Recebido")) {
     alert("Este pedido já está com esse status.");
     return;
   }
@@ -1667,36 +1666,46 @@ async function salvarStatusPedido() {
   }
 
   try {
-    const { data, error } = await supabaseClient
-      .from("pedidos")
-      .update({ status: novoStatus })
-      .eq("id", pedidoSelecionadoStatus.id)
-      .select("id, numero, status, nome, empresa, data_pedido, total, cliente_id")
-      .single();
+    const resposta = await fetch("/api/admin-pedidos", {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: pedidoSelecionadoStatus.id,
+        status: novoStatus
+      })
+    });
 
-    if (error) throw error;
+    const resultado = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(resultado.erro || resultado.detalhe?.message || "Falha ao salvar o status.");
+    }
 
     pedidoSelecionadoStatus = {
       ...pedidoSelecionadoStatus,
-      ...data
+      ...resultado.pedido
     };
 
     alert("Status atualizado com sucesso!");
 
-    await abrirDetalhesPedidoStatus(pedidoSelecionadoStatus);
     await consultarPedidosStatus();
 
+    await abrirDetalhesPedidoStatus(pedidoSelecionadoStatus);
+
   } catch (erro) {
-  console.error("Erro ao atualizar status:", erro);
-  alert("Erro ao salvar: " + (erro.message || JSON.stringify(erro)));
-}
-  finally {
+    console.error("Erro ao atualizar status:", erro);
+    alert("Erro ao salvar: " + erro.message);
+  } finally {
     if (botao) {
       botao.disabled = false;
       botao.textContent = "Salvar status";
     }
   }
 }
+
     
     // ==========================================
   // STATUS PEDIDO
