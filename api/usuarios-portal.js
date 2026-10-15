@@ -69,6 +69,10 @@ export default async function handler(req, res) {
           detalhes: dados
         });
       }
+      return res.status(200).json({
+  sucesso: true,
+  usuarios: dados
+});
 
       return res.status(200).json({
   sucesso: true,
