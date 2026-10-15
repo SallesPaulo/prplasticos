@@ -1,37 +1,56 @@
+
 const crypto = require("crypto");
 
+function obterCookie(req, nome) {
+  const cookies = req.headers.cookie || "";
+  const item = cookies
+    .split(";")
+    .map(cookie => cookie.trim())
+    .find(cookie => cookie.startsWith(nome + "="));
+
+  if (!item) return null;
+
+  try {
+    return decodeURIComponent(
+      item.substring(nome.length + 1)
+    );
+  } catch {
+    return null;
+  }
+}
+
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+
     return res.status(405).json({
       autorizado: false,
-      erro: "Método não permitido"
+      erro: "Método não permitido."
     });
   }
 
   try {
-    const cookies = req.headers.cookie || "";
-
-    const cookieToken = cookies
-      .split(";")
-      .map(cookie => cookie.trim())
-      .find(cookie => cookie.startsWith("painel_token="));
-
-    if (!cookieToken) {
-      return res.status(401).json({
-        autorizado: false
-      });
-    }
-
-    const token = cookieToken.split("=")[1];
-
     const email = process.env.PAINEL_EMAIL;
     const senha = process.env.PAINEL_SENHA;
     const segredo = process.env.SEGREDO_DO_PAINEL;
+    const token = obterCookie(req, "painel_token");
 
     if (!email || !senha || !segredo) {
+      console.error(
+        "Variáveis de ambiente do painel não configuradas."
+      );
+
       return res.status(500).json({
         autorizado: false,
         erro: "Configuração do painel incompleta."
+      });
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        autorizado: false
       });
     }
 
@@ -40,7 +59,14 @@ module.exports = async (req, res) => {
       .update(email + senha + segredo)
       .digest("hex");
 
-    if (token !== tokenEsperado) {
+    if (
+      token.length !== tokenEsperado.length ||
+      !/^[a-f0-9]{64}$/i.test(token) ||
+      !crypto.timingSafeEqual(
+        Buffer.from(token),
+        Buffer.from(tokenEsperado)
+      )
+    ) {
       return res.status(401).json({
         autorizado: false
       });
@@ -49,9 +75,8 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       autorizado: true
     });
-
   } catch (erro) {
-    console.error(erro);
+    console.error("Erro ao verificar sessão:", erro);
 
     return res.status(500).json({
       autorizado: false,
