@@ -1,3 +1,4 @@
+
 const crypto = require("crypto");
 
 function obterCookie(req, nome) {
@@ -34,9 +35,11 @@ function tokenValido(token, esperado) {
 module.exports = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
 
-  if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
-    return res.status(405).json({ erro: "Método não permitido." });
+  if (!["GET", "PATCH"].includes(req.method)) {
+    res.setHeader("Allow", "GET, PATCH");
+    return res.status(405).json({
+      erro: "Método não permitido."
+    });
   }
 
   const email = process.env.PAINEL_EMAIL;
@@ -68,13 +71,87 @@ module.exports = async (req, res) => {
     .replace(/\/rest\/v1\/?$/, "")
     .replace(/\/+$/, "");
 
-  const parametros = new URLSearchParams({
-    select: "id,numero,data_pedido,nome,empresa,cnpj,email,telefone,cidade,itens,total,observacoes,status,cliente_id,criado_em",
-    order: "data_pedido.desc",
-    limit: "100"
-  });
-
   try {
+    // ATUALIZAR STATUS
+    if (req.method === "PATCH") {
+      const corpo = req.body || {};
+      const id = corpo.id;
+      const novoStatus = corpo.status;
+
+      const statusPermitidos = [
+        "Recebido",
+        "Em produção",
+        "Separação",
+        "Faturado",
+        "Enviado",
+        "Entregue"
+      ];
+
+      if (id === undefined || id === null || !String(id).trim()) {
+        return res.status(400).json({
+          erro: "ID do pedido não informado."
+        });
+      }
+
+      if (!statusPermitidos.includes(novoStatus)) {
+        return res.status(400).json({
+          erro: "Status inválido."
+        });
+      }
+
+      const resposta = await fetch(
+        `${supabaseUrl}/rest/v1/pedidos?id=eq.${encodeURIComponent(String(id))}&select=id,numero,data_pedido,nome,empresa,email,total,status,cliente_id`,
+        {
+          method: "PATCH",
+          headers: {
+            apikey: chave,
+            Authorization: `Bearer ${chave}`,
+            "Content-Type": "application/json",
+            Prefer: "return=representation"
+          },
+          body: JSON.stringify({
+            status: novoStatus
+          }),
+          cache: "no-store"
+        }
+      );
+
+      const texto = await resposta.text();
+      let dados = [];
+
+      try {
+        dados = texto ? JSON.parse(texto) : [];
+      } catch {
+        dados = [];
+      }
+
+      if (!resposta.ok) {
+        console.error("Erro ao atualizar pedido:", resposta.status, dados);
+        return res.status(502).json({
+          erro: "O Supabase não permitiu atualizar o pedido.",
+          detalhe: dados
+        });
+      }
+
+      if (!Array.isArray(dados) || dados.length === 0) {
+        return res.status(404).json({
+          erro: "Nenhum pedido foi atualizado. Verifique o ID do pedido."
+        });
+      }
+
+      return res.status(200).json({
+        sucesso: true,
+        pedido: dados[0]
+      });
+    }
+
+    // CONSULTAR PEDIDOS — MANTIDO
+    const parametros = new URLSearchParams({
+      select: "id,numero,data_pedido,nome,empresa,cnpj,email,telefone,cidade,itens,total,observacoes,status,cliente_id,criado_em",
+      order: "data_pedido.desc",
+      limit: "100"
+    });
+
     const resposta = await fetch(
       `${supabaseUrl}/rest/v1/pedidos?${parametros}`,
       {
@@ -96,10 +173,11 @@ module.exports = async (req, res) => {
     }
 
     return res.status(200).json(dados);
+
   } catch (erro) {
     console.error("Erro na API administrativa:", erro);
     return res.status(500).json({
-      erro: "Falha ao consultar os pedidos."
+      erro: "Falha ao processar a solicitação."
     });
   }
 };
