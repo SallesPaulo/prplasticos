@@ -2,7 +2,6 @@ const crypto = require("crypto");
 
 function obterCookie(req, nome) {
   const cookies = req.headers.cookie || "";
-
   const item = cookies
     .split(";")
     .map(cookie => cookie.trim())
@@ -11,9 +10,7 @@ function obterCookie(req, nome) {
   if (!item) return null;
 
   try {
-    return decodeURIComponent(
-      item.substring(nome.length + 1)
-    );
+    return decodeURIComponent(item.substring(nome.length + 1));
   } catch {
     return null;
   }
@@ -39,9 +36,7 @@ module.exports = async (req, res) => {
 
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
-    return res.status(405).json({
-      erro: "Método não permitido."
-    });
+    return res.status(405).json({ erro: "Método não permitido." });
   }
 
   const email = process.env.PAINEL_EMAIL;
@@ -94,20 +89,17 @@ module.exports = async (req, res) => {
     const dados = await resposta.json();
 
     if (!resposta.ok) {
-      console.error(
-        "Erro Supabase ao consultar pedidos:",
-        resposta.status,
-        dados
-      );
-
+      console.error("Erro Supabase:", resposta.status, dados);
       return res.status(502).json({
         erro: "Não foi possível consultar os pedidos."
       });
     }
 
     return res.status(200).json(dados);
-
   } catch (erro) {
     console.error("Erro na API administrativa:", erro);
-
-   
+    return res.status(500).json({
+      erro: "Falha ao consultar os pedidos."
+    });
+  }
+};
