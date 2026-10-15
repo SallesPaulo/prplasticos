@@ -1474,51 +1474,48 @@
   // STATUS PEDIDO
   // ==========================================
 
-async function consultarPedidosStatus() {
+    async function consultarPedidosStatus() {
+  const resultado = document.getElementById("resultadoPedidosStatus");
   const busca = document
     .getElementById("buscarPedidoStatus")
-    .value.trim();
-
-  const resultado = document.getElementById("resultadoPedidosStatus");
+    .value.trim().toLowerCase();
 
   resultado.textContent = "Consultando pedidos...";
 
   try {
-    let consulta = supabaseClient
-      .from("pedidos")
-      .select(
-        "id, numero, data_pedido, nome, empresa, cnpj, email, telefone, cidade, itens, total, observacoes, status, cliente_id, criado_em"
-      )
-      .order("data_pedido", { ascending: false })
-      .limit(100);
+    const resposta = await fetch("/api/admin-pedidos", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
 
-    if (busca) {
-      const termo = busca.replace(/[,%()]/g, " ").trim();
+    const dados = await resposta.json();
 
-      if (!termo) {
-        resultado.textContent = "Digite um número de pedido ou nome de cliente.";
-        return;
-      }
-
-      consulta = consulta.or(
-        `numero.ilike.%${termo}%,nome.ilike.%${termo}%,empresa.ilike.%${termo}%`
+    if (!resposta.ok) {
+      throw new Error(
+        dados.erro || "Não foi possível consultar os pedidos."
       );
     }
 
-    const { data, error } = await consulta;
+    const pedidos = dados.filter(pedido => {
+      const texto = [
+        pedido.numero,
+        pedido.nome,
+        pedido.empresa,
+        pedido.email
+      ].join(" ").toLowerCase();
 
-    if (error) {
-      throw error;
-    }
+      return texto.includes(busca);
+    });
 
-    if (!data || data.length === 0) {
+    if (!pedidos.length) {
       resultado.textContent = "Nenhum pedido encontrado.";
       return;
     }
 
     resultado.replaceChildren();
 
-    data.forEach((pedido) => {
+    pedidos.forEach(pedido => {
       const card = document.createElement("div");
 
       card.style.cssText =
@@ -1530,12 +1527,20 @@ async function consultarPedidosStatus() {
 
       const detalhes = document.createElement("p");
       detalhes.textContent =
-        `Data: ${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR") : "Não informada"} | Status: ${pedido.status || "Recebido"} | Total: ${pedido.total == null ? "Não informado" : Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
+        `Data: ${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR") : "Não informada"} | Status: ${pedido.status || "Recebido"} | Total: ${
+          pedido.total == null
+            ? "Não informado"
+            : Number(pedido.total).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+              })
+        }`;
 
       const botao = document.createElement("button");
       botao.type = "button";
       botao.className = "primary-button";
       botao.textContent = "Ver pedido e linha do tempo";
+
       botao.addEventListener("click", () => {
         abrirDetalhesPedidoStatus(pedido);
       });
@@ -1547,12 +1552,9 @@ async function consultarPedidosStatus() {
   } catch (erro) {
     console.error("Erro ao consultar pedidos:", erro);
     resultado.textContent =
-      "Não foi possível consultar os pedidos. Verifique as permissões do Supabase.";
+      erro.message || "Não foi possível carregar os pedidos.";
   }
 }
-
-
-let pedidoSelecionadoStatus = null;
 
 async function abrirDetalhesPedidoStatus(pedido) {
   pedidoSelecionadoStatus = pedido;
