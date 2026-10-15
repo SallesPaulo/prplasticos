@@ -2053,7 +2053,7 @@ function mostrarClientes() {
   if (clientes.length === 0) {
     tabela.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align:center;color:#777;">
+        <td colspan="8" style="text-align:center;color:#777;">
           Nenhum cliente cadastrado.
         </td>
       </tr>
@@ -2062,10 +2062,10 @@ function mostrarClientes() {
   }
 
   tabela.innerHTML = clientes.map(cliente => `
-   <tr>
-  <td>
-    <input type="checkbox" id="clienteCampanha_${cliente.id}">
-  </td>
+    <tr>
+      <td>
+        <input type="checkbox" id="clienteCampanha_${cliente.id}">
+      </td>
       <td>${cliente.nome || ""}</td>
       <td>${cliente.empresa || ""}</td>
       <td>${cliente.email || ""}</td>
@@ -2084,19 +2084,100 @@ function mostrarClientes() {
       </td>
       <td>
         <button
+          onclick="liberarAcessoPortal(${cliente.id})"
+          title="Liberar acesso ao portal"
+          style="border:none;background:none;cursor:pointer;font-size:18px;">
+          🔑
+        </button>
+        <button
           onclick="editarCliente(${cliente.id})"
-          style="border:none;background:none;cursor:pointer;font-size:18px;"
-          title="Editar">✏️</button>
+          title="Editar"
+          style="border:none;background:none;cursor:pointer;font-size:18px;">
+          ✏️
+        </button>
         <button
           onclick="excluirCliente(${cliente.id})"
-          style="border:none;background:none;cursor:pointer;font-size:18px;"
-          title="Excluir">🗑️</button>
+          title="Excluir"
+          style="border:none;background:none;cursor:pointer;font-size:18px;">
+          🗑️
+        </button>
       </td>
     </tr>
   `).join("");
 }
 
-function filtrarClientes() {
+async function liberarAcessoPortal(id) {
+  const cliente = clientesBanco.find(
+    c => String(c.id) === String(id)
+  );
+
+  if (!cliente) {
+    alert("Cliente não encontrado.");
+    return;
+  }
+
+  if (!cliente.email) {
+    alert("Cadastre o e-mail do cliente antes de liberar o acesso.");
+    return;
+  }
+
+  const senhaInicial = prompt(
+    "Defina uma senha inicial com pelo menos 12 caracteres para " +
+    cliente.empresa + ":"
+  );
+
+  if (senhaInicial === null) return;
+
+  if (senhaInicial.length < 12) {
+    alert("A senha deve ter pelo menos 12 caracteres.");
+    return;
+  }
+
+  const confirmar = confirm(
+    "Criar acesso ao portal para:\n\n" +
+    cliente.nome + "\n" +
+    cliente.empresa + "\n" +
+    cliente.email + "\n\n" +
+    "Confirma?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const resposta = await fetch("/api/acesso-portal", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        cliente_id: cliente.id,
+        senhaInicial: senhaInicial
+      })
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Não foi possível liberar o acesso."
+      );
+    }
+
+    alert(
+      "Acesso criado com sucesso!\n\n" +
+      "Cliente: " + cliente.empresa + "\n" +
+      "E-mail: " + cliente.email + "\n\n" +
+      "Envie ao cliente o endereço do portal e a senha inicial por um canal seguro."
+    );
+
+  } catch (erro) {
+    console.error("Erro ao liberar acesso:", erro);
+    alert(erro.message || "Erro ao liberar acesso ao portal.");
+  }
+}
+
+    function filtrarClientes() {
   const termo = document
     .getElementById("buscaClientes")
     .value
