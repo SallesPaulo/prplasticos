@@ -1696,10 +1696,9 @@ async function salvarStatusPedido() {
     await consultarPedidosStatus();
 
   } catch (erro) {
-    console.error("Erro ao atualizar status:", erro);
-    alert(
-      "Não foi possível atualizar o status. Verifique as permissões administrativas no Supabase."
-    );
+  console.error("Erro ao atualizar status:", erro);
+  alert("Erro ao salvar: " + (erro.message || JSON.stringify(erro)));
+}
   } finally {
     if (botao) {
       botao.disabled = false;
