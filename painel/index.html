@@ -1465,21 +1465,47 @@
 
         
 <!-- MAPA DE CLIENTES -->
+
 <section id="mapaClientes" class="section">
   <h1 class="page-title">Mapa de Clientes</h1>
   <p class="page-subtitle">
-    Visualize a localização dos clientes e organize suas visitas comerciais.
+    Visualize os clientes com visitas agendadas e organize suas rotas comerciais.
   </p>
 
   <div class="panel-box">
+    <div style="display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin-bottom:16px;">
+      <div>
+        <label for="mapaDataFiltro" style="display:block; margin-bottom:6px;">
+          Data das visitas
+        </label>
+        <input
+          type="date"
+          id="mapaDataFiltro"
+          style="padding:10px; border:1px solid #ccc; border-radius:8px;"
+        >
+      </div>
+
+      <button
+        type="button"
+        class="menu-button"
+        style="width:auto;"
+        onclick="iniciarMapaClientes()"
+      >
+        Filtrar mapa
+      </button>
+    </div>
+
     <div id="mapaClientesAviso" class="agenda-message" role="status">
-      Preparando o mapa de clientes...
+      Selecione uma data e clique em Filtrar mapa.
     </div>
-    <div id="mapaClientesContainer"
-         style="width:100%; height:500px; border-radius:12px; overflow:hidden;">
-    </div>
+
+    <div
+      id="mapaClientesContainer"
+      style="width:100%; height:500px; border-radius:12px; overflow:hidden;"
+    ></div>
   </div>
 </section>
+
 
         
         <!-- PORTAL DO CLIENTE: nova seção adicionada sem alterar as seções existentes -->
@@ -1983,6 +2009,7 @@ let marcadoresMapaClientes = [];
 async function iniciarMapaClientes() {
   const container = document.getElementById('mapaClientesContainer');
   const aviso = document.getElementById('mapaClientesAviso');
+  const filtroData = document.getElementById('mapaDataFiltro');
 
   if (!container || !aviso) return;
 
@@ -1991,14 +2018,13 @@ async function iniciarMapaClientes() {
     return;
   }
 
-  aviso.textContent = 'Carregando clientes com visitas agendadas...';
+  aviso.textContent = 'Carregando visitas e localizações...';
 
   try {
     if (!Array.isArray(clientesBanco) || clientesBanco.length === 0) {
       await carregarClientesDoBanco();
     }
 
-    // Atualiza a agenda do mês selecionado
     await carregarVisitasAgenda();
 
     if (!mapaLeafletClientes) {
@@ -2010,10 +2036,25 @@ async function iniciarMapaClientes() {
       }).addTo(mapaLeafletClientes);
     }
 
-    marcadoresMapaClientes.forEach(m => mapaLeafletClientes.removeLayer(m));
+    marcadoresMapaClientes.forEach(m =>
+      mapaLeafletClientes.removeLayer(m)
+    );
     marcadoresMapaClientes = [];
 
-    const visitas = Array.isArray(visitasAgenda) ? visitasAgenda : [];
+    const todasVisitas = Array.isArray(visitasAgenda) ? visitasAgenda : [];
+    const dataFiltro = filtroData ? filtroData.value : '';
+
+    const visitas = todasVisitas.filter(v =>
+      !dataFiltro || String(v.data_visita || '').slice(0, 10) === dataFiltro
+    );
+
+    if (!visitas.length) {
+      aviso.textContent = dataFiltro
+        ? 'Não há visitas agendadas para essa data.'
+        : 'Não há visitas agendadas no período carregado pela agenda.';
+      mapaLeafletClientes.invalidateSize();
+      return;
+    }
 
     const idsAgendados = new Set(
       visitas
@@ -2026,9 +2067,8 @@ async function iniciarMapaClientes() {
     );
 
     if (!clientes.length) {
-      aviso.textContent = visitas.length
-        ? 'Há visitas agendadas, mas não foi possível relacioná-las aos clientes com cidade cadastrada.'
-        : 'Não há visitas agendadas neste mês.';
+      aviso.textContent =
+        'As visitas foram encontradas, mas os clientes precisam ter cidade cadastrada.';
       mapaLeafletClientes.invalidateSize();
       return;
     }
@@ -2042,7 +2082,7 @@ async function iniciarMapaClientes() {
     ).values()];
 
     const escapar = valor =>
-      String(valor).replace(/[&<>"']/g, c => ({
+      String(valor ?? '').replace(/[&<>"']/g, c => ({
         '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
@@ -2050,69 +2090,108 @@ async function iniciarMapaClientes() {
         "'": '&#39;'
       }[c]));
 
+    const formatarData = data => {
+      if (!data) return '';
+      const partes = String(data).slice(0, 10).split('-');
+      return partes.length === 3
+        ? `${partes[2]}/${partes[1]}/${partes[0]}`
+        : data;
+    };
+
     const pontos = [];
 
-     
-for (const local of cidades) {
-  try {
-    const consulta = new URLSearchParams({
-      cidade: local.cidade,
-      uf: local.uf
-    });
-
-    const resposta = await fetch(
-      `/api/localizar-cidade?${consulta}`,
-      { cache: 'no-store' }
-    );
-
-    if (resposta.ok) {
-      const resultado = await resposta.json();
-
-      if (resultado.sucesso) {
-        pontos.push({
-          ...local,
-          lat: resultado.lat,
-          lon: resultado.lon
+    for (const local of cidades) {
+      try {
+        const consulta = new URLSearchParams({
+          cidade: local.cidade,
+          uf: local.uf
         });
+
+        const resposta = await fetch(
+          `/api/localizar-cidade?${consulta}`,
+          { cache: 'no-store' }
+        );
+
+        if (resposta.ok) {
+          const resultado = await resposta.json();
+
+          if (
+            resultado.sucesso &&
+            Number.isFinite(Number(resultado.lat)) &&
+            Number.isFinite(Number(resultado.lon))
+          ) {
+            pontos.push({
+              ...local,
+              lat: Number(resultado.lat),
+              lon: Number(resultado.lon)
+            });
+          }
+        }
+      } catch (erro) {
+        console.warn('Erro ao localizar cidade:', local.cidade, erro);
       }
+
+      await new Promise(resolve => setTimeout(resolve, 1100));
     }
-  } catch (erro) {
-    console.warn(
-      'Erro ao localizar cidade:',
-      local.cidade,
-      erro
-    );
-  }
 
-  await new Promise(resolve => setTimeout(resolve, 1100));
-}
-
-
-        pontos.forEach(ponto => {
+    pontos.forEach(ponto => {
       const clientesCidade = clientes.filter(c =>
         String(c.cidade).trim() === ponto.cidade &&
         String(c.uf || '').trim().toUpperCase() === ponto.uf
       );
 
-      const listaClientes = clientesCidade.map(c => {
+      const blocos = [];
+
+      clientesCidade.forEach(c => {
         const visitasCliente = visitas.filter(v =>
           String(v.cliente_id) === String(c.id)
         );
 
-        const datas = [...new Set(
-          visitasCliente.map(v => v.data_visita).filter(Boolean)
-        )];
+        visitasCliente.forEach(v => {
+          const empresa = c.empresa || 'Empresa não informada';
+          const comprador = c.nome || 'Comprador não informado';
+          const vendedor = v.vendedor || 'Não informado';
+          const data = formatarData(v.data_visita);
+          const inicio = String(v.hora_inicio || '').slice(0, 5);
+          const fim = String(v.hora_fim || '').slice(0, 5);
 
-        return `${escapar(c.nome || c.empresa || 'Cliente')} — ${datas.map(escapar).join(', ')}`;
+          blocos.push(`
+            <div style="
+              color:#278344;
+              font-size:11px;
+              line-height:1.5;
+              margin-top:7px;
+              padding-top:6px;
+              border-top:1px solid #dcebdc;
+            ">
+              <div style="font-weight:700;">
+                Empresa: ${escapar(empresa)}
+              </div>
+              <div>Comprador: ${escapar(comprador)}</div>
+              <div>Vendedor: ${escapar(vendedor)}</div>
+              <div>Data: ${escapar(data)}</div>
+              <div>Horário: ${escapar(inicio)} às ${escapar(fim)}</div>
+            </div>
+          `);
+        });
       });
+
+      const popup = `
+        <div style="min-width:180px;max-width:260px;">
+          <div style="
+            color:#278344;
+            font-size:12px;
+            font-weight:700;
+          ">
+            ${escapar(ponto.cidade)}${ponto.uf ? ' / ' + escapar(ponto.uf) : ''}
+          </div>
+          ${blocos.join('')}
+        </div>
+      `;
 
       const marcador = L.marker([ponto.lat, ponto.lon])
         .addTo(mapaLeafletClientes)
-        .bindPopup(
-          `<strong>${escapar(ponto.cidade)}` +
-          `${ponto.uf ? ' / ' + escapar(ponto.uf) : ''}</strong><br>` +
-          listaClientes.join('<br>')
-        );
+        .bindPopup(popup);
 
       marcadoresMapaClientes.push(marcador);
     });
@@ -2125,7 +2204,7 @@ for (const local of cidades) {
     }
 
     aviso.textContent = pontos.length
-      ? `${clientes.length} clientes com visitas agendadas, em ${pontos.length} cidades.`
+      ? `${visitas.length} visitas encontradas em ${pontos.length} cidades. Clique nos marcadores para ver os detalhes.`
       : 'Não foi possível localizar as cidades dos clientes agendados.';
 
     setTimeout(() => mapaLeafletClientes.invalidateSize(), 200);
