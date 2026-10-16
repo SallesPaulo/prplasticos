@@ -1321,7 +1321,7 @@ function atualizarGraficos(pedidos) {
     botao.disabled = false;
   }
 });
-```
+
 
       
       const botao = $("loginButton");
@@ -1367,6 +1367,8 @@ function atualizarGraficos(pedidos) {
       mostrarLogin();
     });
 
+
+   
     async function iniciarPortal() {
       try {
         const { data, error } = await cliente.auth.getSession();
