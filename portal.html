@@ -605,18 +605,69 @@
           <div id="recentOrders" class="empty">Carregando pedidos...</div>
         </section>
 
-        <section id="page-dados" class="page">
-          <div class="page-heading">
-            <h1>Meus dados</h1>
-            <p>Consulte as informações vinculadas ao seu acesso.</p>
-          </div>
 
-          <div class="panel">
-            <h2>Dados cadastrais</h2>
-            <div id="profileData" class="empty">Carregando cadastro...</div>
-          </div>
-        </section>
+<section id="page-dados" class="page">
+  <div class="page-heading">
+    <h1>Meus dados</h1>
+    <p>Consulte suas informações cadastrais e gerencie sua senha.</p>
+  </div>
 
+  <div class="panel">
+    <h2>Dados cadastrais</h2>
+    <div id="profileData" class="empty">Carregando cadastro...</div>
+  </div>
+
+  <div class="panel" style="margin-top:20px;">
+    <h2>Alterar senha</h2>
+    <p>Escolha uma nova senha para acessar o Portal do Cliente.</p>
+
+    <form id="formAlterarSenha">
+      <div class="field" style="margin-top:16px;">
+        <label for="senhaAtual">Senha atual</label>
+        <input
+          type="password"
+          id="senhaAtual"
+          autocomplete="current-password"
+          required
+          style="width:100%;"
+        >
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label for="novaSenha">Nova senha</label>
+        <input
+          type="password"
+          id="novaSenha"
+          autocomplete="new-password"
+          minlength="8"
+          required
+          style="width:100%;"
+        >
+        <small>Use pelo menos 8 caracteres.</small>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label for="confirmarNovaSenha">Confirmar nova senha</label>
+        <input
+          type="password"
+          id="confirmarNovaSenha"
+          autocomplete="new-password"
+          minlength="8"
+          required
+          style="width:100%;"
+        >
+      </div>
+
+      <button type="submit" class="primary-button" id="btnAlterarSenha" style="margin-top:18px;">
+        Alterar senha
+      </button>
+
+      <div id="mensagemAlterarSenha" role="status" style="margin-top:14px;"></div>
+    </form>
+  </div>
+</section>
+
+        
         <div class="footer">PR Plásticos Recicláveis</div>
       </main>
     </div>
@@ -1274,6 +1325,81 @@ function atualizarGraficos(pedidos) {
     }
 
     iniciarPortal();
+
+    
+document.getElementById("formAlterarSenha")?.addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const senhaAtual = document.getElementById("senhaAtual").value;
+  const novaSenha = document.getElementById("novaSenha").value;
+  const confirmarSenha = document.getElementById("confirmarNovaSenha").value;
+  const mensagem = document.getElementById("mensagemAlterarSenha");
+  const botao = document.getElementById("btnAlterarSenha");
+
+  if (novaSenha.length < 8) {
+    mensagem.textContent = "A nova senha precisa ter pelo menos 8 caracteres.";
+    return;
+  }
+
+  if (novaSenha !== confirmarSenha) {
+    mensagem.textContent = "A confirmação da nova senha não corresponde.";
+    return;
+  }
+
+  if (novaSenha === senhaAtual) {
+    mensagem.textContent = "Escolha uma senha diferente da atual.";
+    return;
+  }
+
+  botao.disabled = true;
+  botao.textContent = "SALVANDO...";
+  mensagem.textContent = "Validando senha atual...";
+
+  try {
+    const { data: sessaoData, error: sessaoErro } =
+      await cliente.auth.getSession();
+
+    if (sessaoErro) throw sessaoErro;
+
+    const usuario = sessaoData?.session?.user;
+
+    if (!usuario?.email) {
+      throw new Error("Sua sessão expirou. Entre novamente no portal.");
+    }
+
+    const { error: validacaoErro } =
+      await cliente.auth.signInWithPassword({
+        email: usuario.email,
+        password: senhaAtual
+      });
+
+    if (validacaoErro) {
+      throw new Error("A senha atual está incorreta.");
+    }
+
+    const { error: atualizacaoErro } =
+      await cliente.auth.updateUser({
+        password: novaSenha
+      });
+
+    if (atualizacaoErro) throw atualizacaoErro;
+
+    mensagem.style.color = "var(--green, #278344)";
+    mensagem.textContent = "Senha alterada com sucesso!";
+
+    document.getElementById("formAlterarSenha").reset();
+
+  } catch (erro) {
+    console.error("Erro ao alterar senha:", erro);
+    mensagem.style.color = "var(--danger, #c62828)";
+    mensagem.textContent = erro.message || "Não foi possível alterar a senha.";
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "Alterar senha";
+  }
+});
+
+    
   </script>
 </body>
 </html>
