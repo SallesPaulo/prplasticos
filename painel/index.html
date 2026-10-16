@@ -2025,7 +2025,33 @@ async function iniciarMapaClientes() {
       await carregarClientesDoBanco();
     }
 
-    await carregarVisitasAgenda();
+    
+const dataFiltro = document.getElementById('mapaDataFiltro')?.value;
+
+let visitasMapa = [];
+
+if (dataFiltro) {
+  const respostaAgenda = await fetch(
+    `/api/agenda-visitas?inicio=${dataFiltro}&fim=${dataFiltro}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store'
+    }
+  );
+
+  const dadosAgenda = await respostaAgenda.json();
+
+  if (!respostaAgenda.ok || !dadosAgenda.sucesso) {
+    throw new Error(dadosAgenda.erro || 'Não foi possível carregar as visitas dessa data.');
+  }
+
+  visitasMapa = dadosAgenda.visitas || [];
+} else {
+  await carregarVisitasAgenda();
+  visitasMapa = Array.isArray(visitasAgenda) ? visitasAgenda : [];
+}
+
 
     if (!mapaLeafletClientes) {
       mapaLeafletClientes = L.map(container).setView([-14.235, -51.925], 4);
@@ -2041,13 +2067,8 @@ async function iniciarMapaClientes() {
     );
     marcadoresMapaClientes = [];
 
-    const todasVisitas = Array.isArray(visitasAgenda) ? visitasAgenda : [];
-    const dataFiltro = filtroData ? filtroData.value : '';
-
-    const visitas = todasVisitas.filter(v =>
-      !dataFiltro || String(v.data_visita || '').slice(0, 10) === dataFiltro
-    );
-
+    const visitas = visitasMapa;
+    
     if (!visitas.length) {
       aviso.textContent = dataFiltro
         ? 'Não há visitas agendadas para essa data.'
