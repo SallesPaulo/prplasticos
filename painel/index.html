@@ -1365,35 +1365,47 @@
               >
               <button type="button" class="primary-button" onclick="consultarPedidosStatus()">🔎 Buscar pedidos</button>
             </div>
-            <div id="resultadoPedidosStatus" style="margin-top:20px;">Carregue os pedidos para consultar.</div>
-          </div>
 
-          <div id="detalhesPedidoStatus" class="panel-box" style="display:none;">
-            <h2 id="tituloPedidoStatus">Detalhes do pedido</h2>
-            <div id="informacoesPedidoStatus" style="margin:18px 0;"></div>
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr)); gap:20px; align-items:start; margin-top:20px;">
 
-            <div class="field">
-              <label for="novoStatusPedido">Novo status</label>
-              <select id="novoStatusPedido" style="width:100%;padding:13px;border:1px solid var(--border);border-radius:9px;">
-                <option value="Recebido">Recebido</option>
-                <option value="Em produção">Em produção</option>
-                <option value="Separação">Separação</option>
-                <option value="Faturado">Faturado</option>
-                <option value="Enviado">Enviado</option>
-                <option value="Entregue">Entregue</option>
-              </select>
-            </div>
+  <div id="colunaListaPedidos">
+    <h3 style="margin-top:0;">Pedidos encontrados</h3>
+    <div id="resultadoPedidosStatus">Carregue os pedidos para consultar.</div>
+  </div>
 
-            <div class="button-row">
-              <button type="button" class="primary-button" id="salvarStatusPedidoBtn" onclick="salvarStatusPedido()">💾 Salvar status</button>
-            </div>
-            <div id="mensagemStatusPedido" role="status" style="margin-top:15px;"></div>
+  <div id="colunaDetalhesPedido">
+    <div id="detalhesPedidoStatus" class="panel-box" style="display:none;">
+      <h2 id="tituloPedidoStatus">Detalhes do pedido</h2>
+      <div id="informacoesPedidoStatus" style="margin:18px 0;"></div>
 
-            <div style="margin-top:28px;">
-              <h2>Linha do tempo</h2>
-              <div id="linhaTempoPedido" style="margin-top:18px;">Selecione um pedido para ver o histórico.</div>
-            </div>
-          </div>
+      <div class="field">
+        <label for="novoStatusPedido">Novo status</label>
+        <select id="novoStatusPedido" style="width:100%;padding:13px;border:1px solid var(--border);border-radius:9px;">
+          <option value="Recebido">Recebido</option>
+          <option value="Em produção">Em produção</option>
+          <option value="Separação">Separação</option>
+          <option value="Faturado">Faturado</option>
+          <option value="Enviado">Enviado</option>
+          <option value="Entregue">Entregue</option>
+        </select>
+      </div>
+
+      <div class="button-row">
+        <button type="button" class="primary-button" id="salvarStatusPedidoBtn" onclick="salvarStatusPedido()">💾 Salvar status</button>
+      </div>
+
+      <div id="mensagemStatusPedido" role="status" style="margin-top:15px;"></div>
+
+      <div style="margin-top:28px;">
+        <h2>Linha do tempo</h2>
+        <div id="linhaTempoPedido" style="margin-top:18px;">Selecione um pedido para ver o histórico.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+            
         </section>
 
         <!-- AGENDA DE VISITAS -->
