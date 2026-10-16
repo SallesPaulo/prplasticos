@@ -445,6 +445,34 @@
       font-size: 13px;
     }
 
+
+    /* AGENDA DE VISITAS */
+    .agenda-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+    .agenda-month-title { color:var(--blue); font-size:22px; font-weight:bold; }
+    .agenda-calendar { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px; }
+    .agenda-weekday { text-align:center; color:var(--muted); font-size:12px; font-weight:bold; padding:8px 2px; }
+    .agenda-day { min-height:74px; border:1px solid var(--border); background:#fff; border-radius:9px; padding:8px; cursor:pointer; text-align:left; color:var(--text); }
+    .agenda-day:hover { border-color:var(--blue); background:#f5faff; }
+    .agenda-day.selected { border:2px solid var(--blue); background:#edf6ff; }
+    .agenda-day.today .agenda-day-number { color:var(--green-dark); font-weight:bold; }
+    .agenda-day.muted { opacity:.45; }
+    .agenda-day-number { font-size:13px; }
+    .agenda-day-count { display:block; margin-top:8px; font-size:11px; color:var(--blue); }
+    .agenda-day-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); margin-right:4px; }
+    .agenda-layout { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr); gap:20px; }
+    .agenda-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .agenda-form-grid .field { margin-bottom:0; }
+    .agenda-form-grid input,.agenda-form-grid select,.agenda-form-grid textarea { width:100%; padding:12px; border:1px solid var(--border); border-radius:9px; font:inherit; }
+    .agenda-form-grid .wide { grid-column:1/-1; }
+    .agenda-visit { border:1px solid var(--border); border-radius:10px; padding:13px; margin-top:10px; }
+    .agenda-visit-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .agenda-status { font-size:11px; font-weight:bold; color:var(--green-dark); background:#e9f7e9; padding:4px 7px; border-radius:20px; white-space:nowrap; }
+    .agenda-status.cancelada { color:#a33; background:#fff0f0; }
+    .agenda-muted { color:var(--muted); font-size:12px; margin-top:5px; }
+    .agenda-message { font-size:13px; margin-top:12px; }
+    @media(max-width:900px) { .agenda-layout { grid-template-columns:1fr; } }
+    @media(max-width:520px) { .agenda-day { min-height:56px; padding:5px; } .agenda-day-count { font-size:9px; } .agenda-form-grid { grid-template-columns:1fr; } .agenda-form-grid .wide { grid-column:auto; } }
+
     /* RESPONSIVO */
 
     @media(max-width: 1000px) {
@@ -623,6 +651,14 @@
 
         <button
           class="menu-button"
+          onclick="abrirSecao('agendaVisitas', this); iniciarAgenda()"
+        >
+          <span class="menu-icon">🗓️</span>
+          Agenda de visitas
+        </button>
+
+        <button
+          class="menu-button"
           onclick="abrirSecao('campanhas', this)"
         >
           <span class="menu-icon">📧</span>
@@ -655,19 +691,19 @@
 
         <button
           class="menu-button"
+          onclick="abrirSecao('statusPedidos', this); consultarPedidosStatus()"
+        >
+          <span class="menu-icon">📦</span>
+          Status dos Pedidos
+        </button>
+
+        <button
+          class="menu-button"
           onclick="abrirSecao('portalCliente', this); carregarPortalCliente()"
         >
           <span class="menu-icon">🔐</span>
           Portal do Cliente
         </button>
-
-        <button
-  class="menu-button"
-  onclick="abrirSecao('statusPedidos', this); consultarPedidosStatus()"
->
-  <span class="menu-icon">📦</span>
-  Status dos Pedidos
-</button>
 
       </aside>
 
@@ -813,96 +849,10 @@
 
           </div>
 
-          </section>
-<!-- STATUS DOS PEDIDOS -->
-<section id="statusPedidos" class="section">
+        </section>
 
-  <h1 class="page-title">Status dos Pedidos</h1>
-  <p class="page-subtitle">
-    Consulte os pedidos, atualize o andamento e acompanhe o histórico.
-  </p>
 
-  <div class="panel-box">
-    <div class="button-row">
-      <input
-        type="text"
-        id="buscarPedidoStatus"
-        placeholder="Buscar por número, cliente ou empresa..."
-        style="flex:1;min-width:220px;padding:13px;border:1px solid #dfe5ea;border-radius:9px;"
-        onkeydown="if(event.key==='Enter') consultarPedidosStatus()"
-      >
-
-      <button
-        type="button"
-        class="primary-button"
-        onclick="consultarPedidosStatus()"
-      >
-        Buscar pedidos
-      </button>
-    </div>
-  </div>
-
-  <div class="panel-box">
-    <h2>Pedidos encontrados</h2>
-    <div id="resultadoPedidosStatus">
-      Clique em “Buscar pedidos” para consultar.
-    </div>
-  </div>
-
-  <div
-    id="detalhesPedidoStatus"
-    class="panel-box"
-    style="display:none;"
-  >
-    <h2 id="tituloPedidoStatus">Detalhes do pedido</h2>
-
-    <div id="dadosPedidoStatus" style="margin:18px 0;"></div>
-
-    <div class="field">
-      <label for="novoStatusPedido">Atualizar status</label>
-      <select
-        id="novoStatusPedido"
-        style="width:100%;padding:13px;border:1px solid #dfe5ea;border-radius:9px;"
-      >
-        <option value="Recebido">Recebido</option>
-        <option value="Em produção">Em produção</option>
-        <option value="Separação">Separação</option>
-        <option value="Faturado">Faturado</option>
-        <option value="Enviado">Enviado</option>
-        <option value="Entregue">Entregue</option>
-      </select>
-    </div>
-<div class="field">
-      <label for="observacaoStatusPedido">Observação (opcional)</label>
-      <textarea
-        id="observacaoStatusPedido"
-        rows="3"
-        placeholder="Informação sobre a atualização..."
-        style="width:100%;padding:13px;border:1px solid #dfe5ea;border-radius:9px;"
-      ></textarea>
-    </div>
-    
-    <button
-      type="button"
-      class="primary-button"
-      onclick="salvarStatusPedido()"
-    >
-      Salvar novo status
-    </button>
-
-    <div id="mensagemStatusPedido" style="margin-top:15px;"></div>
-
-    <div style="margin-top:28px;">
-      <h2>Linha do tempo</h2>
-      <div id="linhaTempoPedido" style="margin-top:18px;">
-        Carregando histórico...
-      </div>
-    </div>
-  </div>
-
-</section>
-          
-               <!-- CLIENTES -->
+        <!-- CLIENTES -->
 <section id="clientes" class="section">
 
   <h1 class="page-title">
@@ -1383,6 +1333,121 @@
 
         </section>
 
+        <!-- STATUS DOS PEDIDOS -->
+        <section id="statusPedidos" class="section">
+          <h1 class="page-title">Status dos Pedidos</h1>
+          <p class="page-subtitle">Consulte os pedidos, atualize o andamento e acompanhe o histórico.</p>
+
+          <div class="panel-box">
+            <h2>Consultar pedidos</h2>
+            <div class="button-row">
+              <input
+                type="text"
+                id="buscarPedidoStatus"
+                placeholder="Buscar por número, cliente, empresa ou e-mail..."
+                style="flex:1;min-width:220px;padding:13px;border:1px solid var(--border);border-radius:9px;"
+                onkeydown="if(event.key==='Enter') consultarPedidosStatus()"
+              >
+              <button type="button" class="primary-button" onclick="consultarPedidosStatus()">🔎 Buscar pedidos</button>
+            </div>
+            <div id="resultadoPedidosStatus" style="margin-top:20px;">Carregue os pedidos para consultar.</div>
+          </div>
+
+          <div id="detalhesPedidoStatus" class="panel-box" style="display:none;">
+            <h2 id="tituloPedidoStatus">Detalhes do pedido</h2>
+            <div id="informacoesPedidoStatus" style="margin:18px 0;"></div>
+
+            <div class="field">
+              <label for="novoStatusPedido">Novo status</label>
+              <select id="novoStatusPedido" style="width:100%;padding:13px;border:1px solid var(--border);border-radius:9px;">
+                <option value="Recebido">Recebido</option>
+                <option value="Em produção">Em produção</option>
+                <option value="Separação">Separação</option>
+                <option value="Faturado">Faturado</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Entregue">Entregue</option>
+              </select>
+            </div>
+
+            <div class="button-row">
+              <button type="button" class="primary-button" id="salvarStatusPedidoBtn" onclick="salvarStatusPedido()">💾 Salvar status</button>
+            </div>
+            <div id="mensagemStatusPedido" role="status" style="margin-top:15px;"></div>
+
+            <div style="margin-top:28px;">
+              <h2>Linha do tempo</h2>
+              <div id="linhaTempoPedido" style="margin-top:18px;">Selecione um pedido para ver o histórico.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AGENDA DE VISITAS -->
+        <section id="agendaVisitas" class="section">
+          <h1 class="page-title">Agenda de visitas</h1>
+          <p class="page-subtitle">Agenda compartilhada dos vendedores. Selecione uma data para consultar os compromissos e horários ocupados.</p>
+
+          <div class="agenda-layout">
+            <div class="panel-box">
+              <div class="agenda-toolbar">
+                <button class="secondary-button" type="button" onclick="mudarMesAgenda(-1)">← Anterior</button>
+                <div id="agendaMesTitulo" class="agenda-month-title">Calendário</div>
+                <button class="secondary-button" type="button" onclick="mudarMesAgenda(1)">Próximo →</button>
+              </div>
+              <div id="agendaCalendario" class="agenda-calendar"></div>
+              <div class="agenda-muted" style="margin-top:12px"><span class="agenda-day-dot"></span> Dia com visita agendada</div>
+              <div id="agendaAviso" class="agenda-message" role="status"></div>
+            </div>
+
+            <div class="panel-box">
+              <h2 id="agendaDiaTitulo">Nova visita</h2>
+              <p id="agendaDiaResumo">Selecione uma data no calendário.</p>
+              <form id="formAgendaVisita" onsubmit="salvarVisitaAgenda(event)">
+                <div class="agenda-form-grid">
+                  <div class="field wide">
+                    <label for="agendaCliente">Cliente</label>
+                    <select id="agendaCliente" required>
+                      <option value="">Selecione um cliente</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="agendaVendedor">Vendedor</label>
+                    <select id="agendaVendedor" required>
+                      <option value="">Selecione</option>
+                      <option>Paulo Salles</option>
+                      <option>Jean Marcos</option>
+                      <option>Jeferson Bueno</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="agendaData">Data</label>
+                    <input type="date" id="agendaData" required>
+                  </div>
+                  <div class="field">
+                    <label for="agendaHoraInicio">Horário de início</label>
+                    <input type="time" id="agendaHoraInicio" value="08:00" required>
+                  </div>
+                  <div class="field">
+                    <label for="agendaHoraFim">Horário de término</label>
+                    <input type="time" id="agendaHoraFim" value="09:00" required>
+                  </div>
+                  <div class="field wide">
+                    <label for="agendaObservacoes">Observações</label>
+                    <textarea id="agendaObservacoes" rows="2" placeholder="Objetivo da visita, contato, assuntos..."></textarea>
+                  </div>
+                  <div class="wide">
+                    <button type="submit" class="primary-button" id="agendaSalvarBtn">+ Agendar visita</button>
+                  </div>
+                </div>
+              </form>
+              <div id="agendaMensagemForm" class="agenda-message" role="status"></div>
+              <div style="margin-top:24px">
+                <h2 style="font-size:18px">Visitas do dia</h2>
+                <div id="agendaVisitasDia"><p class="agenda-muted">Selecione uma data para consultar.</p></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- PORTAL DO CLIENTE: nova seção adicionada sem alterar as seções existentes -->
         <section id="portalCliente" class="section">
           <h1 class="page-title">Portal do Cliente</h1>
@@ -1439,10 +1504,10 @@
   const SUPABASE_URL = "https://tyetobhxkdhrvtsludym.supabase.co/rest/v1/";
   const SUPABASE_ANON_KEY = "sb_publishable_aoEHgmcZzHbSjXjlcJiuhw_5ty-5mhJ";
 
- const supabaseClient = window.supabase.createClient(
-  "https://tyetobhxkdhrvtsludym.supabase.co",
-  SUPABASE_ANON_KEY
-);
+  const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
   // ==========================================
   // AUTENTICAÇÃO DO PAINEL
@@ -1467,257 +1532,6 @@
       mostrarLogin();
     }
   }
-
-    
-  // ==========================================
-  // STATUS PEDIDO
-  // ==========================================
-
-    async function consultarPedidosStatus() {
-  const resultado = document.getElementById("resultadoPedidosStatus");
-  const busca = document
-    .getElementById("buscarPedidoStatus")
-    .value.trim().toLowerCase();
-
-  resultado.textContent = "Consultando pedidos...";
-
-  try {
-    const resposta = await fetch("/api/admin-pedidos", {
-      method: "GET",
-      credentials: "include",
-      cache: "no-store"
-    });
-
-    const dados = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(
-        dados.erro || "Não foi possível consultar os pedidos."
-      );
-    }
-
-    const pedidos = dados.filter(pedido => {
-      const texto = [
-        pedido.numero,
-        pedido.nome,
-        pedido.empresa,
-        pedido.email
-      ].join(" ").toLowerCase();
-
-      return texto.includes(busca);
-    });
-
-    if (!pedidos.length) {
-      resultado.textContent = "Nenhum pedido encontrado.";
-      return;
-    }
-
-    resultado.replaceChildren();
-
-    pedidos.forEach(pedido => {
-      const card = document.createElement("div");
-
-      card.style.cssText =
-        "border:1px solid #ddd;border-radius:10px;padding:15px;margin:12px 0;";
-
-      const titulo = document.createElement("h3");
-      titulo.textContent =
-        `Pedido ${pedido.numero || pedido.id} — ${pedido.empresa || pedido.nome || "Cliente"}`;
-
-      const detalhes = document.createElement("p");
-      detalhes.textContent =
-        `Data: ${pedido.data_pedido ? new Date(pedido.data_pedido).toLocaleDateString("pt-BR") : "Não informada"} | Status: ${pedido.status || "Recebido"} | Total: ${
-          pedido.total == null
-            ? "Não informado"
-            : Number(pedido.total).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-              })
-        }`;
-
-      const botao = document.createElement("button");
-      botao.type = "button";
-      botao.className = "primary-button";
-      botao.textContent = "Ver pedido e linha do tempo";
-
-      botao.addEventListener("click", () => {
-        abrirDetalhesPedidoStatus(pedido);
-      });
-
-      card.append(titulo, detalhes, botao);
-      resultado.appendChild(card);
-    });
-
-  } catch (erro) {
-    console.error("Erro ao consultar pedidos:", erro);
-    resultado.textContent =
-      erro.message || "Não foi possível carregar os pedidos.";
-  }
-}
-
-async function abrirDetalhesPedidoStatus(pedido) {
-  pedidoSelecionadoStatus = pedido;
-
-  const painel = document.getElementById("detalhesPedidoStatus");
-  const dados = document.getElementById("dadosPedidoStatus");
-  const linhaTempo = document.getElementById("linhaTempoPedido");
-  const seletor = document.getElementById("novoStatusPedido");
-
-  painel.style.display = "block";
-  dados.replaceChildren();
-  linhaTempo.textContent = "Carregando histórico...";
-  seletor.value = pedido.status || "Recebido";
-
-  const titulo = document.createElement("h3");
-  titulo.textContent = `Pedido ${pedido.numero || pedido.id}`;
-
-  const cliente = document.createElement("p");
-  cliente.textContent =
-    `Cliente: ${pedido.empresa || pedido.nome || "Não informado"}`;
-
-  const status = document.createElement("p");
-  status.textContent = `Status atual: ${pedido.status || "Recebido"}`;
-
-  const total = document.createElement("p");
-  total.textContent =
-    `Total: ${pedido.total == null ? "Não informado" : Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`;
-
-  dados.append(titulo, cliente, status, total);
-
-  painel.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("historico_status_pedidos")
-      .select("status, data_status, observacao")
-      .eq("pedido_id", pedido.id)
-      .order("data_status", { ascending: true });
-
-    if (error) throw error;
-
-    linhaTempo.replaceChildren();
-
-    const tituloHistorico = document.createElement("h3");
-    tituloHistorico.textContent = "Linha do tempo";
-    linhaTempo.appendChild(tituloHistorico);
-
-    if (!data || data.length === 0) {
-      const aviso = document.createElement("p");
-      aviso.textContent =
-        "Ainda não há registros de histórico para este pedido.";
-      linhaTempo.appendChild(aviso);
-      return;
-    }
-
-    data.forEach((evento) => {
-      const item = document.createElement("div");
-      item.style.cssText =
-        "border-left:3px solid #245da8;padding:8px 12px;margin:10px 0;";
-
-      const nomeStatus = document.createElement("strong");
-      nomeStatus.textContent = evento.status;
-
-      const dataStatus = document.createElement("p");
-      dataStatus.style.margin = "5px 0";
-      dataStatus.textContent = new Date(
-        evento.data_status
-      ).toLocaleString("pt-BR");
-
-      item.append(nomeStatus, dataStatus);
-
-      if (evento.observacao) {
-        const observacao = document.createElement("p");
-        observacao.textContent = evento.observacao;
-        item.appendChild(observacao);
-      }
-
-      linhaTempo.appendChild(item);
-    });
-
-  } catch (erro) {
-    console.error("Erro ao carregar histórico:", erro);
-    linhaTempo.textContent =
-      "Não foi possível carregar o histórico. Verifique as permissões no Supabase.";
-  }
-}
-
-
-
-async function salvarStatusPedido() {
-  if (!pedidoSelecionadoStatus) {
-    alert("Selecione um pedido primeiro.");
-    return;
-  }
-
-  const novoStatus = document.getElementById("novoStatusPedido").value;
-  const botao = document.querySelector(
-    '#detalhesPedidoStatus button[onclick="salvarStatusPedido()"]'
-  );
-
-  if (!novoStatus) {
-    alert("Selecione um status.");
-    return;
-  }
-
-  if (novoStatus === (pedidoSelecionadoStatus.status || "Recebido")) {
-    alert("Este pedido já está com esse status.");
-    return;
-  }
-
-  if (!confirm(`Alterar o status do pedido para "${novoStatus}"?`)) {
-    return;
-  }
-
-  if (botao) {
-    botao.disabled = true;
-    botao.textContent = "Salvando...";
-  }
-
-  try {
-    const resposta = await fetch("/api/admin-pedidos", {
-      method: "PATCH",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: pedidoSelecionadoStatus.id,
-        status: novoStatus
-      })
-    });
-
-    const resultado = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(resultado.erro || resultado.detalhe?.message || "Falha ao salvar o status.");
-    }
-
-    pedidoSelecionadoStatus = {
-      ...pedidoSelecionadoStatus,
-      ...resultado.pedido
-    };
-
-    alert("Status atualizado com sucesso!");
-
-    await consultarPedidosStatus();
-
-    await abrirDetalhesPedidoStatus(pedidoSelecionadoStatus);
-
-  } catch (erro) {
-    console.error("Erro ao atualizar status:", erro);
-    alert("Erro ao salvar: " + erro.message);
-  } finally {
-    if (botao) {
-      botao.disabled = false;
-      botao.textContent = "Salvar status";
-    }
-  }
-}
-
-    
-    // ==========================================
-  // STATUS PEDIDO
-  // ==========================================
 
 
  function mostrarPainel() {
@@ -2731,12 +2545,213 @@ async function excluirCliente(id) {
     return String(valor ?? "").replace(/[&<>"']/g, caractere => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[caractere]));
   }
 
+  // ==========================================
+  // STATUS DOS PEDIDOS
+  // ==========================================
 
-    
+  let pedidoSelecionadoStatus = null;
+  let pedidosCarregadosStatus = [];
+
+  function escaparStatus(valor) {
+    return String(valor ?? "").replace(/[&<>"']/g, caractere => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[caractere]));
+  }
+
+  function formatarDataStatus(valor) {
+    if (!valor) return "Data não informada";
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) return escaparStatus(valor);
+    return data.toLocaleString("pt-BR");
+  }
+
+  function cabecalhosStatus() {
+    return {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+      "Content-Type": "application/json"
+    };
+  }
+
+  async function consultarPedidosStatus() {
+    const area = document.getElementById("resultadoPedidosStatus");
+    if (!area) return;
+    const campoBusca = document.getElementById("buscarPedidoStatus");
+    const busca = (campoBusca?.value || "").trim().toLowerCase();
+    area.innerHTML = "Consultando pedidos...";
+
+    try {
+      const url = SUPABASE_URL +
+        "pedidos?select=id,numero,data_pedido,nome,empresa,cnpj,email,telefone,cidade,itens,total,observacoes,status,cliente_id,criado_em&order=data_pedido.desc&limit=200";
+      const resposta = await fetch(url, {
+        method: "GET",
+        headers: cabecalhosStatus(),
+        cache: "no-store"
+      });
+      const dados = await resposta.json();
+      if (!resposta.ok) {
+        throw new Error(dados.message || dados.msg || dados.error || "Não foi possível consultar os pedidos.");
+      }
+
+      pedidosCarregadosStatus = Array.isArray(dados) ? dados : [];
+      const filtrados = pedidosCarregadosStatus.filter(pedido => {
+        const texto = [pedido.numero, pedido.nome, pedido.empresa, pedido.email, pedido.cnpj]
+          .map(valor => String(valor || "")).join(" ").toLowerCase();
+        return texto.includes(busca);
+      });
+
+      if (!filtrados.length) {
+        area.innerHTML = "<p>Nenhum pedido encontrado para essa pesquisa.</p>";
+        return;
+      }
+
+      area.innerHTML = filtrados.map(pedido => {
+        const idSeguro = JSON.stringify(String(pedido.id));
+        return `
+          <div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;">
+              <div>
+                <strong style="color:var(--blue);">Pedido ${escaparStatus(pedido.numero || pedido.id)}</strong>
+                <p style="margin:8px 0 4px;">${escaparStatus(pedido.nome || "Cliente não informado")}${pedido.empresa ? " — " + escaparStatus(pedido.empresa) : ""}</p>
+                <p style="margin:0 0 8px;">Data: ${formatarDataStatus(pedido.data_pedido || pedido.criado_em)}</p>
+                <strong>Status: ${escaparStatus(pedido.status || "Recebido")}</strong>
+              </div>
+              <button type="button" class="primary-button" onclick='abrirDetalhesPedidoStatus(${idSeguro})'>Ver / atualizar</button>
+            </div>
+          </div>`;
+      }).join("");
+    } catch (erro) {
+      console.error("Erro ao consultar pedidos:", erro);
+      area.innerHTML = `<p style="color:var(--danger);">${escaparStatus(erro.message || "Erro ao consultar pedidos.")}</p>`;
+    }
+  }
+
+  async function abrirDetalhesPedidoStatus(id) {
+    const pedido = pedidosCarregadosStatus.find(item => String(item.id) === String(id));
+    if (!pedido) {
+      alert("Pedido não encontrado. Atualize a consulta.");
+      return;
+    }
+
+    pedidoSelecionadoStatus = pedido;
+    document.getElementById("detalhesPedidoStatus").style.display = "block";
+    document.getElementById("tituloPedidoStatus").textContent = "Pedido " + (pedido.numero || pedido.id);
+    document.getElementById("novoStatusPedido").value = pedido.status || "Recebido";
+    document.getElementById("mensagemStatusPedido").textContent = "";
+
+    const total = pedido.total == null ? "—" : Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    const itens = typeof pedido.itens === "string" ? pedido.itens : JSON.stringify(pedido.itens || []);
+    document.getElementById("informacoesPedidoStatus").innerHTML = `
+      <p><strong>Cliente:</strong> ${escaparStatus(pedido.nome || "—")}</p>
+      <p><strong>Empresa:</strong> ${escaparStatus(pedido.empresa || "—")}</p>
+      <p><strong>E-mail:</strong> ${escaparStatus(pedido.email || "—")}</p>
+      <p><strong>Telefone:</strong> ${escaparStatus(pedido.telefone || "—")}</p>
+      <p><strong>Cidade:</strong> ${escaparStatus(pedido.cidade || "—")}</p>
+      <p><strong>Total:</strong> ${escaparStatus(total)}</p>
+      <p><strong>Itens:</strong> ${escaparStatus(itens)}</p>
+      <p><strong>Observações:</strong> ${escaparStatus(pedido.observacoes || "—")}</p>`;
+
+    await carregarLinhaTempoPedido(pedido.id);
+    document.getElementById("detalhesPedidoStatus").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function carregarLinhaTempoPedido(pedidoId) {
+    const area = document.getElementById("linhaTempoPedido");
+    area.innerHTML = "Carregando histórico...";
+    try {
+      const url = SUPABASE_URL +
+        "historico_status_pedidos?select=status,data_status,observacao&pedido_id=eq." +
+        encodeURIComponent(pedidoId) + "&order=data_status.asc";
+      const resposta = await fetch(url, {
+        method: "GET",
+        headers: cabecalhosStatus(),
+        cache: "no-store"
+      });
+      const historico = await resposta.json();
+      if (!resposta.ok) {
+        throw new Error(historico.message || historico.msg || historico.error || "Não foi possível carregar o histórico.");
+      }
+      if (!Array.isArray(historico) || !historico.length) {
+        area.innerHTML = "<p>Nenhuma atualização de status registrada.</p>";
+        return;
+      }
+      area.innerHTML = historico.map(item => `
+        <div style="border-left:3px solid var(--green);padding:0 0 22px 18px;margin-left:5px;">
+          <div style="font-weight:bold;color:var(--blue);">${escaparStatus(item.status || "Status atualizado")}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:5px;">${formatarDataStatus(item.data_status)}</div>
+          ${item.observacao ? `<p style="margin-top:7px;">${escaparStatus(item.observacao)}</p>` : ""}
+        </div>`).join("");
+    } catch (erro) {
+      console.error("Erro ao carregar histórico do pedido:", erro);
+      area.innerHTML = `<p style="color:var(--danger);">${escaparStatus(erro.message || "Erro ao carregar histórico.")}</p>`;
+    }
+  }
+
+  async function salvarStatusPedido() {
+    if (!pedidoSelecionadoStatus) {
+      alert("Selecione um pedido primeiro.");
+      return;
+    }
+
+    const novoStatus = document.getElementById("novoStatusPedido").value;
+    const mensagem = document.getElementById("mensagemStatusPedido");
+    const botao = document.getElementById("salvarStatusPedidoBtn");
+    const statusAnterior = pedidoSelecionadoStatus.status || "Recebido";
+
+    if (novoStatus === statusAnterior) {
+      mensagem.style.color = "var(--muted)";
+      mensagem.textContent = "O pedido já está com esse status.";
+      return;
+    }
+    if (!confirm(`Atualizar o pedido ${pedidoSelecionadoStatus.numero || pedidoSelecionadoStatus.id} para "${novoStatus}"?`)) return;
+
+    botao.disabled = true;
+    botao.textContent = "SALVANDO...";
+    mensagem.style.color = "var(--muted)";
+    mensagem.textContent = "Salvando atualização...";
+
+    try {
+      const url = SUPABASE_URL + "pedidos?id=eq." + encodeURIComponent(pedidoSelecionadoStatus.id);
+      const resposta = await fetch(url, {
+        method: "PATCH",
+        headers: { ...cabecalhosStatus(), "Prefer": "return=representation" },
+        body: JSON.stringify({ status: novoStatus })
+      });
+      const resultado = await resposta.json();
+      if (!resposta.ok) {
+        throw new Error(resultado.message || resultado.msg || resultado.error || "Não foi possível atualizar o pedido.");
+      }
+      if (!Array.isArray(resultado) || !resultado.length) {
+        throw new Error("Nenhum pedido foi atualizado. Verifique as permissões do Supabase.");
+      }
+
+      pedidoSelecionadoStatus = resultado[0];
+      mensagem.style.color = "var(--green-dark)";
+      mensagem.textContent = "Status atualizado com sucesso.";
+
+      // O trigger já existente registra a mudança de status no histórico.
+      // Não inserimos uma segunda linha para evitar duplicidade.
+      await consultarPedidosStatus();
+      await carregarLinhaTempoPedido(pedidoSelecionadoStatus.id);
+      document.getElementById("novoStatusPedido").value = novoStatus;
+    } catch (erro) {
+      console.error("Erro ao atualizar status do pedido:", erro);
+      mensagem.style.color = "var(--danger)";
+      mensagem.textContent = erro.message || "Erro ao atualizar o status.";
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "💾 Salvar status";
+    }
+  }
+
   // ==========================================
   // INICIALIZAÇÃO
   // ==========================================
 
+
+  // ==========================================
+  // INICIALIZAÇÃO
+  // ==========================================
 
 document.addEventListener("DOMContentLoaded", function () {
   const formulario = document.getElementById("loginForm");
@@ -2841,6 +2856,212 @@ const clientes = clientesBanco || [];
 }
   
   
+
+// ==========================================
+// AGENDA COMPARTILHADA DE VISITAS
+// ==========================================
+let agendaDataSelecionada = dataLocalAgenda(new Date());
+let agendaMesAtual = new Date();
+let visitasAgenda = [];
+let agendaCarregada = false;
+
+function dataLocalAgenda(data) {
+  const ano = data.getFullYear();
+  const mes = String(data.getMonth() + 1).padStart(2, '0');
+  const dia = String(data.getDate()).padStart(2, '0');
+  return `${ano}-${mes}-${dia}`;
+}
+
+function escaparAgenda(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatarDataAgenda(valor) {
+  if (!valor) return '';
+  const partes = String(valor).split('-');
+  return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : valor;
+}
+
+async function iniciarAgenda() {
+  if (!clientesBanco || clientesBanco.length === 0) await carregarClientesDoBanco();
+  preencherClientesAgenda();
+  const campoData = document.getElementById('agendaData');
+  if (campoData && !campoData.value) campoData.value = agendaDataSelecionada;
+  await carregarVisitasAgenda();
+}
+
+function preencherClientesAgenda() {
+  const select = document.getElementById('agendaCliente');
+  if (!select) return;
+  const atual = select.value;
+  const lista = [...(clientesBanco || [])].sort((a,b) => String(a.empresa || a.nome || '').localeCompare(String(b.empresa || b.nome || ''), 'pt-BR'));
+  select.innerHTML = '<option value="">Selecione um cliente</option>' + lista.map(c => {
+    const titulo = c.empresa || c.nome || `Cliente ${c.id}`;
+    const local = [c.cidade, c.uf].filter(Boolean).join('/');
+    return `<option value="${escaparAgenda(c.id)}">${escaparAgenda(titulo)}${local ? ' — ' + escaparAgenda(local) : ''}</option>`;
+  }).join('');
+  if (atual) select.value = atual;
+}
+
+async function carregarVisitasAgenda() {
+  const aviso = document.getElementById('agendaAviso');
+  if (aviso) aviso.textContent = 'Carregando agenda...';
+  try {
+    const ano = agendaMesAtual.getFullYear();
+    const mes = agendaMesAtual.getMonth();
+    const inicio = dataLocalAgenda(new Date(ano, mes, 1));
+    const fim = dataLocalAgenda(new Date(ano, mes + 1, 0));
+    const resposta = await fetch(`/api/agenda-visitas?inicio=${inicio}&fim=${fim}`, {
+      method: 'GET', credentials: 'include', cache: 'no-store'
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok || !dados.sucesso) throw new Error(dados.erro || 'Não foi possível carregar a agenda.');
+    visitasAgenda = dados.visitas || [];
+    agendaCarregada = true;
+    renderizarCalendarioAgenda();
+    renderizarVisitasDiaAgenda();
+    if (aviso) aviso.textContent = '';
+  } catch (erro) {
+    console.error('Erro ao carregar agenda:', erro);
+    if (aviso) aviso.textContent = erro.message || 'Erro ao carregar a agenda.';
+  }
+}
+
+function mudarMesAgenda(delta) {
+  agendaMesAtual = new Date(agendaMesAtual.getFullYear(), agendaMesAtual.getMonth() + delta, 1);
+  carregarVisitasAgenda();
+}
+
+function selecionarDiaAgenda(data) {
+  agendaDataSelecionada = data;
+  const campo = document.getElementById('agendaData');
+  if (campo) campo.value = data;
+  renderizarCalendarioAgenda();
+  renderizarVisitasDiaAgenda();
+  const titulo = document.getElementById('agendaDiaTitulo');
+  if (titulo) titulo.textContent = `Visitas de ${formatarDataAgenda(data)}`;
+  const resumo = document.getElementById('agendaDiaResumo');
+  if (resumo) resumo.textContent = 'Confira os horários ocupados antes de agendar uma nova visita.';
+}
+
+function renderizarCalendarioAgenda() {
+  const calendario = document.getElementById('agendaCalendario');
+  const titulo = document.getElementById('agendaMesTitulo');
+  if (!calendario || !titulo) return;
+  titulo.textContent = agendaMesAtual.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+  const diasSemana = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  let html = diasSemana.map(d => `<div class="agenda-weekday">${d}</div>`).join('');
+  const primeiro = new Date(agendaMesAtual.getFullYear(), agendaMesAtual.getMonth(), 1);
+  const deslocamento = (primeiro.getDay() + 6) % 7;
+  const quantidade = new Date(agendaMesAtual.getFullYear(), agendaMesAtual.getMonth()+1, 0).getDate();
+  const total = Math.ceil((deslocamento + quantidade) / 7) * 7;
+  const hoje = dataLocalAgenda(new Date());
+  for (let i=0; i<total; i++) {
+    const numero = i - deslocamento + 1;
+    if (numero < 1 || numero > quantidade) {
+      html += '<div></div>';
+      continue;
+    }
+    const data = dataLocalAgenda(new Date(agendaMesAtual.getFullYear(), agendaMesAtual.getMonth(), numero));
+    const visitasDia = visitasAgenda.filter(v => v.data_visita === data && v.status !== 'cancelada');
+    const classes = ['agenda-day', data === agendaDataSelecionada ? 'selected' : '', data === hoje ? 'today' : ''].filter(Boolean).join(' ');
+    const resumo = visitasDia.length ? `<span class="agenda-day-count"><span class="agenda-day-dot"></span>${visitasDia.length} visita(s)</span>` : '<span class="agenda-day-count" style="color:#8a8f94">Livre</span>';
+    html += `<button type="button" class="${classes}" onclick="selecionarDiaAgenda('${data}')"><span class="agenda-day-number">${numero}</span>${resumo}</button>`;
+  }
+  calendario.innerHTML = html;
+}
+
+function renderizarVisitasDiaAgenda() {
+  const area = document.getElementById('agendaVisitasDia');
+  const titulo = document.getElementById('agendaDiaTitulo');
+  const resumo = document.getElementById('agendaDiaResumo');
+  if (!area) return;
+  if (titulo) titulo.textContent = `Visitas de ${formatarDataAgenda(agendaDataSelecionada)}`;
+  const visitas = visitasAgenda.filter(v => v.data_visita === agendaDataSelecionada).sort((a,b) => String(a.hora_inicio).localeCompare(String(b.hora_inicio)));
+  const ativas = visitas.filter(v => v.status !== 'cancelada');
+  if (resumo) resumo.textContent = ativas.length ? `${ativas.length} visita(s) agendada(s). Os horários abaixo estão ocupados.` : 'Nenhuma visita agendada nesta data. A agenda está livre.';
+  if (!visitas.length) {
+    area.innerHTML = '<p class="agenda-muted" style="margin-top:12px">Nenhuma visita marcada para este dia.</p>';
+    return;
+  }
+  area.innerHTML = visitas.map(v => {
+    const cliente = clientesBanco.find(c => String(c.id) === String(v.cliente_id));
+    const nome = cliente ? (cliente.empresa || cliente.nome) : (v.cliente_nome || `Cliente #${v.cliente_id}`);
+    const local = cliente ? [cliente.cidade, cliente.uf].filter(Boolean).join(' / ') : '';
+    const cancelada = v.status === 'cancelada';
+    return `<div class="agenda-visit">
+      <div class="agenda-visit-top"><div><strong>${escaparAgenda(v.hora_inicio?.slice(0,5))}–${escaparAgenda(v.hora_fim?.slice(0,5))} · ${escaparAgenda(nome)}</strong><div class="agenda-muted">Vendedor: ${escaparAgenda(v.vendedor || 'Não informado')}${local ? ' · ' + escaparAgenda(local) : ''}</div></div><span class="agenda-status ${cancelada ? 'cancelada' : ''}">${cancelada ? 'Cancelada' : v.status === 'realizada' ? 'Realizada' : 'Ocupado'}</span></div>
+      ${v.observacoes ? `<div class="agenda-muted">${escaparAgenda(v.observacoes)}</div>` : ''}
+      ${!cancelada ? `<div style="margin-top:10px"><button type="button" class="secondary-button" style="padding:7px 10px;font-size:12px" onclick="cancelarVisitaAgenda(${Number(v.id)})">Cancelar visita</button></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+document.addEventListener('change', event => {
+  if (event.target && event.target.id === 'agendaData' && event.target.value) {
+    const data = event.target.value;
+    agendaDataSelecionada = data;
+    const partes = data.split('-').map(Number);
+    agendaMesAtual = new Date(partes[0], partes[1]-1, 1);
+    carregarVisitasAgenda();
+  }
+});
+
+async function salvarVisitaAgenda(event) {
+  event.preventDefault();
+  const mensagem = document.getElementById('agendaMensagemForm');
+  const botao = document.getElementById('agendaSalvarBtn');
+  const payload = {
+    cliente_id: Number(document.getElementById('agendaCliente').value),
+    vendedor: document.getElementById('agendaVendedor').value,
+    data_visita: document.getElementById('agendaData').value,
+    hora_inicio: document.getElementById('agendaHoraInicio').value,
+    hora_fim: document.getElementById('agendaHoraFim').value,
+    observacoes: document.getElementById('agendaObservacoes').value.trim()
+  };
+  if (!payload.cliente_id || !payload.vendedor || !payload.data_visita || !payload.hora_inicio || !payload.hora_fim) {
+    mensagem.style.color = '#b42318'; mensagem.textContent = 'Preencha cliente, vendedor, data e horários.'; return;
+  }
+  if (payload.hora_fim <= payload.hora_inicio) {
+    mensagem.style.color = '#b42318'; mensagem.textContent = 'O horário final precisa ser depois do horário inicial.'; return;
+  }
+  botao.disabled = true; botao.textContent = 'SALVANDO...';
+  mensagem.style.color = 'var(--muted)'; mensagem.textContent = 'Salvando visita...';
+  try {
+    const resposta = await fetch('/api/agenda-visitas', {
+      method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok || !dados.sucesso) throw new Error(dados.erro || 'Não foi possível salvar a visita.');
+    mensagem.style.color = 'var(--green-dark)'; mensagem.textContent = 'Visita agendada com sucesso.';
+    document.getElementById('agendaObservacoes').value = '';
+    agendaDataSelecionada = payload.data_visita;
+    const partes = payload.data_visita.split('-').map(Number);
+    agendaMesAtual = new Date(partes[0], partes[1]-1, 1);
+    await carregarVisitasAgenda();
+  } catch (erro) {
+    mensagem.style.color = '#b42318'; mensagem.textContent = erro.message || 'Erro ao salvar visita.';
+  } finally {
+    botao.disabled = false; botao.textContent = '+ Agendar visita';
+  }
+}
+
+async function cancelarVisitaAgenda(id) {
+  if (!confirm('Deseja cancelar esta visita? O registro será mantido no histórico.')) return;
+  const mensagem = document.getElementById('agendaMensagemForm');
+  try {
+    const resposta = await fetch('/api/agenda-visitas', {
+      method:'PATCH', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id, status:'cancelada'})
+    });
+    const dados = await resposta.json();
+    if (!resposta.ok || !dados.sucesso) throw new Error(dados.erro || 'Não foi possível cancelar a visita.');
+    mensagem.style.color = 'var(--green-dark)'; mensagem.textContent = 'Visita cancelada; o histórico foi preservado.';
+    await carregarVisitasAgenda();
+  } catch (erro) {
+    mensagem.style.color = '#b42318'; mensagem.textContent = erro.message || 'Erro ao cancelar visita.';
+  }
+}
+
 </script>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
