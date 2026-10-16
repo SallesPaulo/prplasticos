@@ -3008,68 +3008,77 @@ async function consultarPedidosStatus() {
     }
   }
 
-  async function salvarStatusPedido() {
-    if (!pedidoSelecionadoStatus) {
-      alert("Selecione um pedido primeiro.");
-      return;
-    }
-
-    const novoStatus = document.getElementById("novoStatusPedido").value;
-    const mensagem = document.getElementById("mensagemStatusPedido");
-    const botao = document.getElementById("salvarStatusPedidoBtn");
-    const statusAnterior = pedidoSelecionadoStatus.status || "Recebido";
-
-    if (novoStatus === statusAnterior) {
-      mensagem.style.color = "var(--muted)";
-      mensagem.textContent = "O pedido já está com esse status.";
-      return;
-    }
-    if (!confirm(`Atualizar o pedido ${pedidoSelecionadoStatus.numero || pedidoSelecionadoStatus.id} para "${novoStatus}"?`)) return;
-
-    botao.disabled = true;
-    botao.textContent = "SALVANDO...";
-    mensagem.style.color = "var(--muted)";
-    mensagem.textContent = "Salvando atualização...";
-
-    try {
-      const url = SUPABASE_URL + "pedidos?id=eq." + encodeURIComponent(pedidoSelecionadoStatus.id);
-      const resposta = await fetch(url, {
-        method: "PATCH",
-        headers: { ...cabecalhosStatus(), "Prefer": "return=representation" },
-        body: JSON.stringify({ status: novoStatus })
-      });
-      const resultado = await resposta.json();
-      if (!resposta.ok) {
-        throw new Error(resultado.message || resultado.msg || resultado.error || "Não foi possível atualizar o pedido.");
-      }
-      if (!Array.isArray(resultado) || !resultado.length) {
-        throw new Error("Nenhum pedido foi atualizado. Verifique as permissões do Supabase.");
-      }
-
-      pedidoSelecionadoStatus = resultado[0];
-      mensagem.style.color = "var(--green-dark)";
-      mensagem.textContent = "Status atualizado com sucesso.";
-
-      // O trigger já existente registra a mudança de status no histórico.
-      // Não inserimos uma segunda linha para evitar duplicidade.
-      await consultarPedidosStatus();
-      await carregarLinhaTempoPedido(pedidoSelecionadoStatus.id);
-      document.getElementById("novoStatusPedido").value = novoStatus;
-    } catch (erro) {
-      console.error("Erro ao atualizar status do pedido:", erro);
-      mensagem.style.color = "var(--danger)";
-      mensagem.textContent = erro.message || "Erro ao atualizar o status.";
-    } finally {
-      botao.disabled = false;
-      botao.textContent = "💾 Salvar status";
-    }
+  
+async function salvarStatusPedido() {
+  if (!pedidoSelecionadoStatus) {
+    alert("Selecione um pedido primeiro.");
+    return;
   }
 
-  // ==========================================
-  // INICIALIZAÇÃO
-  // ==========================================
+  const novoStatus = document.getElementById("novoStatusPedido").value;
+  const mensagem = document.getElementById("mensagemStatusPedido");
+  const botao = document.getElementById("salvarStatusPedidoBtn");
+  const statusAnterior = pedidoSelecionadoStatus.status || "Recebido";
+
+  if (novoStatus === statusAnterior) {
+    mensagem.style.color = "var(--muted)";
+    mensagem.textContent = "O pedido já está com esse status.";
+    return;
+  }
+
+  if (!confirm(`Atualizar o pedido ${pedidoSelecionadoStatus.numero || pedidoSelecionadoStatus.id} para "${novoStatus}"?`)) {
+    return;
+  }
+
+  botao.disabled = true;
+  botao.textContent = "SALVANDO...";
+  mensagem.style.color = "var(--muted)";
+  mensagem.textContent = "Salvando atualização...";
+
+  try {
+    const resposta = await fetch("/api/admin-pedidos", {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: pedidoSelecionadoStatus.id,
+        status: novoStatus
+      }),
+      cache: "no-store"
+    });
+
+    const resultado = await resposta.json();
+
+    if (!resposta.ok || !resultado.sucesso) {
+      throw new Error(
+        resultado.erro || "Não foi possível atualizar o pedido."
+      );
+    }
+
+    pedidoSelecionadoStatus = resultado.pedido;
+
+    mensagem.style.color = "var(--green-dark)";
+    mensagem.textContent = "Status atualizado com sucesso.";
+
+    await consultarPedidosStatus();
+    await carregarLinhaTempoPedido(pedidoSelecionadoStatus.id);
+
+    document.getElementById("novoStatusPedido").value = novoStatus;
+
+  } catch (erro) {
+    console.error("Erro ao atualizar status do pedido:", erro);
+    mensagem.style.color = "var(--danger)";
+    mensagem.textContent = erro.message || "Erro ao atualizar o status.";
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "💾 Salvar status";
+  }
+}
 
 
+  
   // ==========================================
   // INICIALIZAÇÃO
   // ==========================================
