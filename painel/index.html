@@ -2054,12 +2054,29 @@ async function iniciarMapaClientes() {
 
     for (const local of cidades) {
       try {
-        const consulta = new URLSearchParams({
-          q: `${local.cidade}${local.uf ? ', ' + local.uf : ''}, Brasil`,
-          format: 'jsonv2',
-          countrycodes: 'br',
-          limit: '1'
-        });
+        
+const consulta = new URLSearchParams({
+  cidade: local.cidade,
+  uf: local.uf
+});
+
+const resposta = await fetch(
+  `/api/localizar-cidade?${consulta}`,
+  { cache: 'no-store' }
+);
+
+if (resposta.ok) {
+  const resultado = await resposta.json();
+
+  if (resultado.sucesso) {
+    pontos.push({
+      ...local,
+      lat: resultado.lat,
+      lon: resultado.lon
+    });
+  }
+}
+
 
         const resposta = await fetch(
           `https://nominatim.openstreetmap.org/search?${consulta}`
