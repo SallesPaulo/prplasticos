@@ -2052,55 +2052,43 @@ async function iniciarMapaClientes() {
 
     const pontos = [];
 
-    for (const local of cidades) {
-      try {
-        
-const consulta = new URLSearchParams({
-  cidade: local.cidade,
-  uf: local.uf
-});
-
-const resposta = await fetch(
-  `/api/localizar-cidade?${consulta}`,
-  { cache: 'no-store' }
-);
-
-if (resposta.ok) {
-  const resultado = await resposta.json();
-
-  if (resultado.sucesso) {
-    pontos.push({
-      ...local,
-      lat: resultado.lat,
-      lon: resultado.lon
+     
+for (const local of cidades) {
+  try {
+    const consulta = new URLSearchParams({
+      cidade: local.cidade,
+      uf: local.uf
     });
+
+    const resposta = await fetch(
+      `/api/localizar-cidade?${consulta}`,
+      { cache: 'no-store' }
+    );
+
+    if (resposta.ok) {
+      const resultado = await resposta.json();
+
+      if (resultado.sucesso) {
+        pontos.push({
+          ...local,
+          lat: resultado.lat,
+          lon: resultado.lon
+        });
+      }
+    }
+  } catch (erro) {
+    console.warn(
+      'Erro ao localizar cidade:',
+      local.cidade,
+      erro
+    );
   }
+
+  await new Promise(resolve => setTimeout(resolve, 1100));
 }
 
 
-        const resposta = await fetch(
-          `https://nominatim.openstreetmap.org/search?${consulta}`
-        );
-
-        if (resposta.ok) {
-          const resultados = await resposta.json();
-
-          if (resultados.length) {
-            pontos.push({
-              ...local,
-              lat: Number(resultados[0].lat),
-              lon: Number(resultados[0].lon)
-            });
-          }
-        }
-      } catch (erro) {
-        console.warn('Erro ao localizar cidade:', local.cidade, erro);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1100));
-    }
-
-    pontos.forEach(ponto => {
+        pontos.forEach(ponto => {
       const clientesCidade = clientes.filter(c =>
         String(c.cidade).trim() === ponto.cidade &&
         String(c.uf || '').trim().toUpperCase() === ponto.uf
