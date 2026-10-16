@@ -2888,6 +2888,8 @@ async function excluirCliente(id) {
       }
 
       pedidosCarregadosStatus = Array.isArray(dados) ? dados : [];
+      console.log("Pedidos retornados pelo Supabase:", dados);
+console.log("Quantidade de pedidos:", pedidosCarregadosStatus.length);
       const filtrados = pedidosCarregadosStatus.filter(pedido => {
         const texto = [pedido.numero, pedido.nome, pedido.empresa, pedido.email, pedido.cnpj]
           .map(valor => String(valor || "")).join(" ").toLowerCase();
