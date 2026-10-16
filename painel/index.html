@@ -2867,61 +2867,86 @@ async function excluirCliente(id) {
     };
   }
 
-  async function consultarPedidosStatus() {
-    const area = document.getElementById("resultadoPedidosStatus");
-    if (!area) return;
-    const campoBusca = document.getElementById("buscarPedidoStatus");
-    const busca = (campoBusca?.value || "").trim().toLowerCase();
-    area.innerHTML = "Consultando pedidos...";
+    
+async function consultarPedidosStatus() {
+  const area = document.getElementById("resultadoPedidosStatus");
+  if (!area) return;
 
-    try {
-      const url = SUPABASE_URL +
-        "pedidos?select=id,numero,data_pedido,nome,empresa,cnpj,email,telefone,cidade,itens,total,observacoes,status,cliente_id,criado_em&order=data_pedido.desc&limit=200";
-      const resposta = await fetch(url, {
-        method: "GET",
-        headers: cabecalhosStatus(),
-        cache: "no-store"
-      });
-      const dados = await resposta.json();
-      if (!resposta.ok) {
-        throw new Error(dados.message || dados.msg || dados.error || "Não foi possível consultar os pedidos.");
-      }
+  const campoBusca = document.getElementById("buscarPedidoStatus");
+  const busca = (campoBusca?.value || "").trim().toLowerCase();
 
-      pedidosCarregadosStatus = Array.isArray(dados) ? dados : [];
-      console.log("Pedidos retornados pelo Supabase:", dados);
-console.log("Quantidade de pedidos:", pedidosCarregadosStatus.length);
-      const filtrados = pedidosCarregadosStatus.filter(pedido => {
-        const texto = [pedido.numero, pedido.nome, pedido.empresa, pedido.email, pedido.cnpj]
-          .map(valor => String(valor || "")).join(" ").toLowerCase();
-        return texto.includes(busca);
-      });
+  area.innerHTML = "Consultando pedidos...";
 
-      if (!filtrados.length) {
-        area.innerHTML = "<p>Nenhum pedido encontrado para essa pesquisa.</p>";
-        return;
-      }
+  try {
+    const resposta = await fetch("/api/admin-pedidos", {
+      method: "GET",
+      credentials: "include",
+      cache: "no-store"
+    });
 
-      area.innerHTML = filtrados.map(pedido => {
-        const idSeguro = JSON.stringify(String(pedido.id));
-        return `
-          <div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0;">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;">
-              <div>
-                <strong style="color:var(--blue);">Pedido ${escaparStatus(pedido.numero || pedido.id)}</strong>
-                <p style="margin:8px 0 4px;">${escaparStatus(pedido.nome || "Cliente não informado")}${pedido.empresa ? " — " + escaparStatus(pedido.empresa) : ""}</p>
-                <p style="margin:0 0 8px;">Data: ${formatarDataStatus(pedido.data_pedido || pedido.criado_em)}</p>
-                <strong>Status: ${escaparStatus(pedido.status || "Recebido")}</strong>
-              </div>
-              <button type="button" class="primary-button" onclick='abrirDetalhesPedidoStatus(${idSeguro})'>Ver / atualizar</button>
-            </div>
-          </div>`;
-      }).join("");
-    } catch (erro) {
-      console.error("Erro ao consultar pedidos:", erro);
-      area.innerHTML = `<p style="color:var(--danger);">${escaparStatus(erro.message || "Erro ao consultar pedidos.")}</p>`;
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados.erro || dados.message || "Não foi possível consultar os pedidos."
+      );
     }
-  }
 
+    pedidosCarregadosStatus = Array.isArray(dados) ? dados : [];
+
+    const filtrados = pedidosCarregadosStatus.filter(pedido => {
+      const texto = [
+        pedido.numero,
+        pedido.nome,
+        pedido.empresa,
+        pedido.email,
+        pedido.cnpj
+      ]
+        .map(valor => String(valor || ""))
+        .join(" ")
+        .toLowerCase();
+
+      return texto.includes(busca);
+    });
+
+    if (!filtrados.length) {
+      area.innerHTML = "<p>Nenhum pedido encontrado para essa pesquisa.</p>";
+      return;
+    }
+
+    area.innerHTML = filtrados.map(pedido => {
+      const idSeguro = JSON.stringify(String(pedido.id));
+
+      return `
+        <div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;">
+            <div>
+              <strong style="color:var(--blue);">
+                Pedido ${escaparStatus(pedido.numero || pedido.id)}
+              </strong>
+              <p style="margin:8px 0 4px;">
+                ${escaparStatus(pedido.nome || "Cliente não informado")}${pedido.empresa ? " — " + escaparStatus(pedido.empresa) : ""}
+              </p>
+              <p style="margin:0 0 8px;">
+                Data: ${formatarDataStatus(pedido.data_pedido || pedido.criado_em)}
+              </p>
+              <strong>Status: ${escaparStatus(pedido.status || "Recebido")}</strong>
+            </div>
+            <button
+              type="button"
+              class="primary-button"
+              onclick='abrirDetalhesPedidoStatus(${idSeguro})'
+            >Ver / atualizar</button>
+          </div>
+        </div>`;
+    }).join("");
+
+  } catch (erro) {
+    console.error("Erro ao consultar pedidos:", erro);
+    area.innerHTML = `<p style="color:var(--danger);">${escaparStatus(erro.message || "Erro ao consultar pedidos.")}</p>`;
+  }
+}
+  
   async function abrirDetalhesPedidoStatus(id) {
     const pedido = pedidosCarregadosStatus.find(item => String(item.id) === String(id));
     if (!pedido) {
