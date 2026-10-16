@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 
 const SUPABASE_URL = (process.env.SUPABASE_URL || 'https://tyetobhxkdhrvtsludym.supabase.co').replace(/\/$/, '');
+const SUPABASE_REST_URL = `${SUPABASE_URL}/rest/v1`;
 const SUPABASE_KEY = process.env.CHAVE_SECRETA_SUPABASE || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 function resposta(res, status, dados) {
@@ -21,7 +22,9 @@ function autorizado(req) {
 
 async function supabaseFetch(path, options = {}) {
   if (!SUPABASE_KEY) throw new Error('Configure CHAVE_SECRETA_SUPABASE nas variáveis de ambiente.');
-  const response = await fetch(`${SUPABASE_URL}${path}`, {
+  const url = new URL(path, `${SUPABASE_URL}/`).toString();
+console.log('URL consultada no Supabase:', url);
+const response = await fetch(url, {
     ...options,
     headers: {
       apikey: SUPABASE_KEY,
