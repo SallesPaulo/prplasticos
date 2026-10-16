@@ -471,45 +471,21 @@
           required
         >
 
-      <button id="loginButton" type="submit">Entrar no portal</button>
-    </form>
+        <button id="loginButton" type="submit">Entrar no portal</button>
+      </form>
 
-    <div id="loginMessage" role="status" aria-live="polite"></div>
-
-    <button
-      id="forgotPasswordButton"
-      type="button"
-      class="secondary-button"
-      style="margin-top:12px;background:white;color:var(--blue);width:100%;"
-    >
-      Esqueci minha senha
-    </button>
-
-    <div id="recoveryForm" style="display:none;margin-top:20px;">
-      <h3>Redefinir senha</h3>
-
-      <input
-        id="novaSenha"
-        type="password"
-        placeholder="Digite sua nova senha"
-        autocomplete="new-password"
-        minlength="6"
-        required
-      >
-
-      <button id="salvarNovaSenha" type="button">
-        Salvar nova senha
-      </button>
-
-      <div id="recoveryMessage" role="status" aria-live="polite"></div>
+      <div id="loginMessage" role="status" aria-live="polite"></div>
     </div>
-  </div>
-
-
-    
   </section>
 
-      
+      <button
+        id="forgotPasswordButton"
+        type="button"
+        class="secondary-button"
+        style="margin-top:12px;background:white;color:var(--blue);width:100%;"
+      >
+        Esqueci minha senha
+      </button>
   
   
   <div id="app" class="app">
@@ -660,46 +636,6 @@
       SUPABASE_ANON_KEY
     );
 
-cliente.auth.onAuthStateChange((event, session) => {
-  if (event === "PASSWORD_RECOVERY") {
-    $("recoveryForm").style.display = "block";
-    $("loginMessage").textContent =
-      "Digite sua nova senha abaixo.";
-  }
-});
-
-    
-$("salvarNovaSenha").addEventListener("click", async () => {
-  const senha = $("novaSenha").value;
-  const mensagem = $("recoveryMessage");
-  const botao = $("salvarNovaSenha");
-
-  if (senha.length < 6) {
-    mensagem.textContent = "A senha deve ter pelo menos 6 caracteres.";
-    return;
-  }
-
-  botao.disabled = true;
-  mensagem.textContent = "Atualizando senha...";
-
-  try {
-    const { error } = await cliente.auth.updateUser({
-      password: senha
-    });
-
-    if (error) throw error;
-
-    mensagem.textContent = "Senha alterada com sucesso! Você já pode entrar no portal.";
-    $("novaSenha").value = "";
-  } catch (error) {
-    console.error("Erro ao atualizar senha:", error);
-    mensagem.textContent = "Não foi possível alterar a senha. Solicite um novo link.";
-  } finally {
-    botao.disabled = false;
-  }
-});
-
-    
     const $ = (id) => document.getElementById(id);
 
     let perfilAtual = null;
@@ -1265,65 +1201,9 @@ function atualizarGraficos(pedidos) {
       $("loginMessage").textContent = "";
     }
 
-    $("logoutButton").addEventListener("click", async () => {
+    $("loginForm").addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      $("forgotPasswordButton").addEventListener("click", async () => {
-  const email = $("email").value.trim();
-  const mensagem = $("loginMessage");
-  const botao = $("forgotPasswordButton");
-
-  if (!email) {
-    mensagem.textContent = "Digite seu e-mail primeiro.";
-    $("email").focus();
-    return;
-  }
-
-  botao.disabled = true;
-  mensagem.textContent = "Enviando link de recuperação...";
-
-  try {
-    const { error } = await cliente.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/portal.html"
-    });
-
-     if (error) throw error;
-
-    mensagem.textContent =
-      "Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.";
-  } catch (error) {
-    console.error("Erro na recuperação:", error);
-    mensagem.textContent =
-      "Não foi possível enviar o link. Tente novamente.";
-  } finally {
-    botao.disabled = false;
-  }
-});
-
-  const botao = $("forgotPasswordButton");
-  botao.disabled = true;
-  $("loginMessage").textContent = "Enviando link de recuperação...";
-
-  try {
-    const { error } = await cliente.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + "/portal.html"
-    });
-
-    if (error) throw error;
-
-    $("loginMessage").textContent =
-      "Se o e-mail estiver cadastrado, você receberá um link para redefinir sua senha.";
-  } catch (error) {
-    console.error("Erro na recuperação:", error);
-    $("loginMessage").textContent =
-      "Não foi possível enviar o link. Tente novamente.";
-  } finally {
-    botao.disabled = false;
-  }
-});
-
-
-      
       const botao = $("loginButton");
       botao.disabled = true;
       $("loginMessage").textContent = "Verificando acesso...";
@@ -1367,8 +1247,6 @@ function atualizarGraficos(pedidos) {
       mostrarLogin();
     });
 
-
-   
     async function iniciarPortal() {
       try {
         const { data, error } = await cliente.auth.getSession();
