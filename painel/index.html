@@ -1473,27 +1473,26 @@
   </p>
 
 <div class="panel-box">
-  <div style="display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin-bottom:16px;">
-    <div>
-      <label for="mapaDataFiltro" style="display:block; margin-bottom:6px;">
-        Data das visitas
-      </label>
-      <input
-        type="date"
-        id="mapaDataFiltro"
-        style="padding:10px; border:1px solid #ccc; border-radius:8px;"
-      >
-    </div>
-
-    <button
-      type="button"
-      class="menu-button"
-      style="width:auto; height:10px;"
-      onclick="iniciarMapaClientes()"
+<div style="display:flex; flex-wrap:wrap; align-items:end; gap:10px; margin-bottom:16px;">
+  <div style="display:flex; flex-direction:column; gap:6px;">
+    <label for="mapaDataFiltro">Data das visitas</label>
+    <input
+      type="date"
+      id="mapaDataFiltro"
+      style="height:42px; box-sizing:border-box; padding:0 12px; border:1px solid #d1d5db; border-radius:8px; background:#fff; font-size:14px;"
     >
-      Filtrar mapa
-    </button>
   </div>
+
+  <button
+    type="button"
+    class="menu-button"
+    onclick="iniciarMapaClientes()"
+    style="width:auto; min-width:120px; height:42px; padding:0 18px; border-radius:8px;"
+  >
+    <span>Filtrar mapa</span>
+  </button>
+</div>
+
 
     <div id="mapaClientesAviso" class="agenda-message" role="status">
       Selecione uma data e clique em Filtrar mapa.
