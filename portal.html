@@ -822,7 +822,7 @@
     async function carregarPerfil(usuario) {
       const { data, error } = await cliente
         .from("usuarios_portal")
-        .select("cliente_id, nome, empresa, ativo")
+        .select("cliente_id, nome, empresa, ativo, admin")
         .eq("id", usuario.id)
         .single();
 
@@ -869,12 +869,17 @@
       $("allOrders").textContent = "Carregando pedidos...";
       $("trackingOrders").textContent = "Carregando pedidos...";
 
-      const { data, error } = await cliente
-        .from("pedidos")
-        .select("id, numero, data_pedido, status, itens, total")
-        .eq("cliente_id", perfilAtual.cliente_id)
-        .order("data_pedido", { ascending: false })
-        .limit(50);
+      let consulta = cliente
+  .from("pedidos")
+  .select("id, numero, data_pedido, status, itens, total")
+  .order("data_pedido", { ascending: false })
+  .limit(50);
+
+if (!perfilAtual.admin) {
+  consulta = consulta.eq("cliente_id", perfilAtual.cliente_id);
+}
+
+const { data, error } = await consulta;
 
       if (error) {
         console.error("Erro ao carregar pedidos:", error);
