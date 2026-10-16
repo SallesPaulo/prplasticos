@@ -1979,6 +1979,7 @@ async function carregarClientesDoBanco() {
 let mapaLeafletClientes = null;
 let marcadoresMapaClientes = [];
 
+
 async function iniciarMapaClientes() {
   const container = document.getElementById('mapaClientesContainer');
   const aviso = document.getElementById('mapaClientesAviso');
@@ -2009,7 +2010,9 @@ async function iniciarMapaClientes() {
     marcadoresMapaClientes.forEach(m => mapaLeafletClientes.removeLayer(m));
     marcadoresMapaClientes = [];
 
-    const clientes = (clientesBanco || []).filter(c => c.cidade && c.uf);
+    const clientes = (clientesBanco || []).filter(
+      c => c.cidade && c.uf
+    );
 
     if (!clientes.length) {
       aviso.textContent = 'Nenhum cliente possui cidade e estado cadastrados.';
@@ -2018,10 +2021,12 @@ async function iniciarMapaClientes() {
     }
 
     const cidades = [...new Map(
-      clientes.map(c => [
-        `${c.cidade.trim()}-${c.uf.trim()}`,
-        { cidade: c.cidade.trim(), uf: c.uf.trim() }
-      ])
+      clientes.map(c => {
+        const cidade = String(c.cidade).trim();
+        const uf = String(c.uf).trim().toUpperCase();
+
+        return [`${cidade}-${uf}`, { cidade, uf }];
+      })
     ).values()];
 
     const pontos = [];
@@ -2029,28 +2034,34 @@ async function iniciarMapaClientes() {
     for (const local of cidades) {
       try {
         const consulta = new URLSearchParams({
+          q: `${local.cidade}, ${local.uf}, Brasil`,
           format: 'jsonv2',
-          city: local.cidade,
-          state: local.uf,
-          country: 'Brasil',
+          countrycodes: 'br',
           limit: '1'
         });
 
         const resposta = await fetch(
           `https://nominatim.openstreetmap.org/search?${consulta}`
         );
-        if (!resposta.ok) continue;
 
-        const resultados = await resposta.json();
-        if (resultados.length) {
-          pontos.push({
-            ...local,
-            lat: Number(resultados[0].lat),
-            lon: Number(resultados[0].lon)
-          });
+        if (resposta.ok) {
+          const resultados = await resposta.json();
+
+          if (resultados.length) {
+            pontos.push({
+              ...local,
+              lat: Number(resultados[0].lat),
+              lon: Number(resultados[0].lon)
+            });
+          }
         }
       } catch (erro) {
-        console.warn('Não foi possível localizar:', local.cidade, local.uf);
+        console.warn(
+          'Não foi possível localizar:',
+          local.cidade,
+          local.uf,
+          erro
+        );
       }
 
       await new Promise(resolve => setTimeout(resolve, 1100));
@@ -2059,21 +2070,25 @@ async function iniciarMapaClientes() {
     pontos.forEach(ponto => {
       const nomes = clientes
         .filter(c =>
-          c.cidade.trim() === ponto.cidade &&
-          c.uf.trim() === ponto.uf
+          String(c.cidade).trim() === ponto.cidade &&
+          String(c.uf).trim().toUpperCase() === ponto.uf
         )
         .map(c => c.nome || 'Cliente');
+
+      const escapar = valor =>
+        String(valor).replace(/[&<>"']/g, c => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[c]));
 
       const marcador = L.marker([ponto.lat, ponto.lon])
         .addTo(mapaLeafletClientes)
         .bindPopup(
-          `<strong>${ponto.cidade} / ${ponto.uf}</strong><br>` +
-          nomes.map(nome =>
-            String(nome).replace(/[&<>"']/g, c => ({
-              '&': '&amp;', '<': '&lt;', '>': '&gt;',
-              '"': '&quot;', "'": '&#39;'
-            }[c]))
-          ).join('<br>')
+          `<strong>${escapar(ponto.cidade)} / ${escapar(ponto.uf)}</strong><br>` +
+          nomes.map(escapar).join('<br>')
         );
 
       marcadoresMapaClientes.push(marcador);
@@ -2087,7 +2102,7 @@ async function iniciarMapaClientes() {
     }
 
     aviso.textContent = pontos.length
-      ? `${clientes.length} clientes encontrados em ${pontos.length} localidades. Os marcadores representam as cidades, não o endereço exato de cada cliente.`
+      ? `${clientes.length} clientes encontrados em ${pontos.length} localidades. Os marcadores representam as cidades, não os endereços exatos.`
       : 'Não foi possível localizar as cidades. Confira os campos de cidade e estado dos clientes.';
 
     setTimeout(() => mapaLeafletClientes.invalidateSize(), 200);
