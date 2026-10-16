@@ -1472,18 +1472,29 @@
     Visualize os clientes com visitas agendadas e organize suas rotas comerciais.
   </p>
 
-  <div class="panel-box">
-    <div style="display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin-bottom:16px;">
-      <div>
-        <label for="mapaDataFiltro" style="display:block; margin-bottom:6px;">
-          Data das visitas
-        </label>
-        <input
-          type="date"
-          id="mapaDataFiltro"
-          style="padding:10px; border:1px solid #ccc; border-radius:8px;"
-        >
-      </div>
+<div class="panel-box">
+  <div style="display:flex; flex-wrap:wrap; align-items:end; gap:12px; margin-bottom:16px;">
+    <div>
+      <label for="mapaDataFiltro" style="display:block; margin-bottom:6px;">
+        Data das visitas
+      </label>
+      <input
+        type="date"
+        id="mapaDataFiltro"
+        style="padding:10px; border:1px solid #ccc; border-radius:8px;"
+      >
+    </div>
+
+    <button
+      type="button"
+      class="menu-button"
+      style="width:auto; height:40px;"
+      onclick="iniciarMapaClientes()"
+    >
+      Filtrar mapa
+    </button>
+  </div>
+
 
       <button
         type="button"
