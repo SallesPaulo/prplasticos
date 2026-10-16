@@ -1991,12 +1991,15 @@ async function iniciarMapaClientes() {
     return;
   }
 
-  aviso.textContent = 'Carregando clientes no mapa...';
+  aviso.textContent = 'Carregando clientes com visitas agendadas...';
 
   try {
     if (!Array.isArray(clientesBanco) || clientesBanco.length === 0) {
       await carregarClientesDoBanco();
     }
+
+    // Atualiza a agenda do mês selecionado
+    await carregarVisitasAgenda();
 
     if (!mapaLeafletClientes) {
       mapaLeafletClientes = L.map(container).setView([-14.235, -51.925], 4);
@@ -2010,12 +2013,22 @@ async function iniciarMapaClientes() {
     marcadoresMapaClientes.forEach(m => mapaLeafletClientes.removeLayer(m));
     marcadoresMapaClientes = [];
 
-    const clientes = (clientesBanco || []).filter(
-      c => c.cidade && c.uf
+    const visitas = Array.isArray(visitasAgenda) ? visitasAgenda : [];
+
+    const idsAgendados = new Set(
+      visitas
+        .filter(v => v.cliente_id != null)
+        .map(v => String(v.cliente_id))
+    );
+
+    const clientes = (clientesBanco || []).filter(c =>
+      idsAgendados.has(String(c.id)) && c.cidade
     );
 
     if (!clientes.length) {
-      aviso.textContent = 'Nenhum cliente possui cidade e estado cadastrados.';
+      aviso.textContent = visitas.length
+        ? 'Há visitas agendadas, mas não foi possível relacioná-las aos clientes com cidade cadastrada.'
+        : 'Não há visitas agendadas neste mês.';
       mapaLeafletClientes.invalidateSize();
       return;
     }
@@ -2023,18 +2036,26 @@ async function iniciarMapaClientes() {
     const cidades = [...new Map(
       clientes.map(c => {
         const cidade = String(c.cidade).trim();
-        const uf = String(c.uf).trim().toUpperCase();
-
+        const uf = String(c.uf || '').trim().toUpperCase();
         return [`${cidade}-${uf}`, { cidade, uf }];
       })
     ).values()];
+
+    const escapar = valor =>
+      String(valor).replace(/[&<>"']/g, c => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[c]));
 
     const pontos = [];
 
     for (const local of cidades) {
       try {
         const consulta = new URLSearchParams({
-          q: `${local.cidade}, ${local.uf}, Brasil`,
+          q: `${local.cidade}${local.uf ? ', ' + local.uf : ''}, Brasil`,
           format: 'jsonv2',
           countrycodes: 'br',
           limit: '1'
@@ -2056,39 +2077,36 @@ async function iniciarMapaClientes() {
           }
         }
       } catch (erro) {
-        console.warn(
-          'Não foi possível localizar:',
-          local.cidade,
-          local.uf,
-          erro
-        );
+        console.warn('Erro ao localizar cidade:', local.cidade, erro);
       }
 
       await new Promise(resolve => setTimeout(resolve, 1100));
     }
 
     pontos.forEach(ponto => {
-      const nomes = clientes
-        .filter(c =>
-          String(c.cidade).trim() === ponto.cidade &&
-          String(c.uf).trim().toUpperCase() === ponto.uf
-        )
-        .map(c => c.nome || 'Cliente');
+      const clientesCidade = clientes.filter(c =>
+        String(c.cidade).trim() === ponto.cidade &&
+        String(c.uf || '').trim().toUpperCase() === ponto.uf
+      );
 
-      const escapar = valor =>
-        String(valor).replace(/[&<>"']/g, c => ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[c]));
+      const listaClientes = clientesCidade.map(c => {
+        const visitasCliente = visitas.filter(v =>
+          String(v.cliente_id) === String(c.id)
+        );
+
+        const datas = [...new Set(
+          visitasCliente.map(v => v.data_visita).filter(Boolean)
+        )];
+
+        return `${escapar(c.nome || c.empresa || 'Cliente')} — ${datas.map(escapar).join(', ')}`;
+      });
 
       const marcador = L.marker([ponto.lat, ponto.lon])
         .addTo(mapaLeafletClientes)
         .bindPopup(
-          `<strong>${escapar(ponto.cidade)} / ${escapar(ponto.uf)}</strong><br>` +
-          nomes.map(escapar).join('<br>')
+          `<strong>${escapar(ponto.cidade)}` +
+          `${ponto.uf ? ' / ' + escapar(ponto.uf) : ''}</strong><br>` +
+          listaClientes.join('<br>')
         );
 
       marcadoresMapaClientes.push(marcador);
@@ -2102,14 +2120,14 @@ async function iniciarMapaClientes() {
     }
 
     aviso.textContent = pontos.length
-      ? `${clientes.length} clientes encontrados em ${pontos.length} localidades. Os marcadores representam as cidades, não os endereços exatos.`
-      : 'Não foi possível localizar as cidades. Confira os campos de cidade e estado dos clientes.';
+      ? `${clientes.length} clientes com visitas agendadas, em ${pontos.length} cidades.`
+      : 'Não foi possível localizar as cidades dos clientes agendados.';
 
     setTimeout(() => mapaLeafletClientes.invalidateSize(), 200);
 
   } catch (erro) {
     console.error('Erro ao carregar mapa de clientes:', erro);
-    aviso.textContent = 'Erro ao carregar os clientes no mapa.';
+    aviso.textContent = 'Erro ao carregar o mapa. Confira o Console.';
   }
 }
 
