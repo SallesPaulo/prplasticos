@@ -516,6 +516,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+  
 </head>
 
 
@@ -657,6 +662,16 @@
           Agenda de visitas
         </button>
 
+        
+<button
+  class="menu-button"
+  onclick="abrirSecao('mapaClientes', this); iniciarMapaClientes()"
+>
+  <span class="menu-icon">📍</span>
+  Mapa de Clientes
+</button>
+
+        
         <button
           class="menu-button"
           onclick="abrirSecao('campanhas', this)"
@@ -1448,6 +1463,25 @@
           </div>
         </section>
 
+        
+<!-- MAPA DE CLIENTES -->
+<section id="mapaClientes" class="section">
+  <h1 class="page-title">Mapa de Clientes</h1>
+  <p class="page-subtitle">
+    Visualize a localização dos clientes e organize suas visitas comerciais.
+  </p>
+
+  <div class="panel-box">
+    <div id="mapaClientesAviso" class="agenda-message" role="status">
+      Preparando o mapa de clientes...
+    </div>
+    <div id="mapaClientesContainer"
+         style="width:100%; height:500px; border-radius:12px; overflow:hidden;">
+    </div>
+  </div>
+</section>
+
+        
         <!-- PORTAL DO CLIENTE: nova seção adicionada sem alterar as seções existentes -->
         <section id="portalCliente" class="section">
           <h1 class="page-title">Portal do Cliente</h1>
@@ -1938,6 +1972,129 @@ async function carregarClientesDoBanco() {
     alert(
       "Não foi possível carregar os clientes do banco. Atualize a página e tente novamente."
     );
+  }
+}
+
+    
+let mapaLeafletClientes = null;
+let marcadoresMapaClientes = [];
+
+async function iniciarMapaClientes() {
+  const container = document.getElementById('mapaClientesContainer');
+  const aviso = document.getElementById('mapaClientesAviso');
+
+  if (!container || !aviso) return;
+
+  if (typeof L === 'undefined') {
+    aviso.textContent = 'Não foi possível carregar o mapa. Atualize a página.';
+    return;
+  }
+
+  aviso.textContent = 'Carregando clientes no mapa...';
+
+  try {
+    if (!Array.isArray(clientesBanco) || clientesBanco.length === 0) {
+      await carregarClientesDoBanco();
+    }
+
+    if (!mapaLeafletClientes) {
+      mapaLeafletClientes = L.map(container).setView([-14.235, -51.925], 4);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(mapaLeafletClientes);
+    }
+
+    marcadoresMapaClientes.forEach(m => mapaLeafletClientes.removeLayer(m));
+    marcadoresMapaClientes = [];
+
+    const clientes = (clientesBanco || []).filter(c => c.cidade && c.uf);
+
+    if (!clientes.length) {
+      aviso.textContent = 'Nenhum cliente possui cidade e estado cadastrados.';
+      mapaLeafletClientes.invalidateSize();
+      return;
+    }
+
+    const cidades = [...new Map(
+      clientes.map(c => [
+        `${c.cidade.trim()}-${c.uf.trim()}`,
+        { cidade: c.cidade.trim(), uf: c.uf.trim() }
+      ])
+    ).values()];
+
+    const pontos = [];
+
+    for (const local of cidades) {
+      try {
+        const consulta = new URLSearchParams({
+          format: 'jsonv2',
+          city: local.cidade,
+          state: local.uf,
+          country: 'Brasil',
+          limit: '1'
+        });
+
+        const resposta = await fetch(
+          `https://nominatim.openstreetmap.org/search?${consulta}`
+        );
+        if (!resposta.ok) continue;
+
+        const resultados = await resposta.json();
+        if (resultados.length) {
+          pontos.push({
+            ...local,
+            lat: Number(resultados[0].lat),
+            lon: Number(resultados[0].lon)
+          });
+        }
+      } catch (erro) {
+        console.warn('Não foi possível localizar:', local.cidade, local.uf);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 1100));
+    }
+
+    pontos.forEach(ponto => {
+      const nomes = clientes
+        .filter(c =>
+          c.cidade.trim() === ponto.cidade &&
+          c.uf.trim() === ponto.uf
+        )
+        .map(c => c.nome || 'Cliente');
+
+      const marcador = L.marker([ponto.lat, ponto.lon])
+        .addTo(mapaLeafletClientes)
+        .bindPopup(
+          `<strong>${ponto.cidade} / ${ponto.uf}</strong><br>` +
+          nomes.map(nome =>
+            String(nome).replace(/[&<>"']/g, c => ({
+              '&': '&amp;', '<': '&lt;', '>': '&gt;',
+              '"': '&quot;', "'": '&#39;'
+            }[c]))
+          ).join('<br>')
+        );
+
+      marcadoresMapaClientes.push(marcador);
+    });
+
+    if (pontos.length) {
+      mapaLeafletClientes.fitBounds(
+        L.latLngBounds(pontos.map(p => [p.lat, p.lon])),
+        { padding: [30, 30], maxZoom: 10 }
+      );
+    }
+
+    aviso.textContent = pontos.length
+      ? `${clientes.length} clientes encontrados em ${pontos.length} localidades. Os marcadores representam as cidades, não o endereço exato de cada cliente.`
+      : 'Não foi possível localizar as cidades. Confira os campos de cidade e estado dos clientes.';
+
+    setTimeout(() => mapaLeafletClientes.invalidateSize(), 200);
+
+  } catch (erro) {
+    console.error('Erro ao carregar mapa de clientes:', erro);
+    aviso.textContent = 'Erro ao carregar os clientes no mapa.';
   }
 }
 
