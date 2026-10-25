@@ -170,11 +170,11 @@
       height: 72px;
       background: whith;
       border-bottom: 1px solid var(--border);
-      display: flex;
+      display: block;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      position: fixed;
+      padding: 0 30px;    
+      position: sticky;
       top: 0;
       z-index: 10;
     }
@@ -640,55 +640,6 @@
 }
 
     
-/* MENU RESPONSIVO PARA CELULAR */
-.mobile-menu-toggle {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  #panelScreen {
-    position: relative;
-    overflow-x: hidden;
-  }
-
-  .mobile-menu-toggle {
-    display: block;
-    position: sticky;
-    top: 0;
-    z-index: 1001;
-    width: 100%;
-    padding: 10px 14px;
-    border: none;
-    background: #ffffff;
-    color: #083f73;
-    text-align: left;
-    font-size: 15px;
-    font-weight: 600;
-  }
-
-  .sidebar {
-    display: none;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 10px;
-  }
-
-  #panelScreen.menu-aberto .sidebar {
-    display: block;
-  }
-
-  .sidebar .menu-button {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 14px;
-    margin-bottom: 4px;
-  }
-
-  .sidebar .menu-icon {
-    font-size: 16px;
-  }
-}
 
     
   </style>
