@@ -640,6 +640,57 @@
 }
 
     
+/* MENU RESPONSIVO PARA CELULAR */
+.mobile-menu-toggle {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #panelScreen {
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: #ffffff;
+    color: #083f73;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .sidebar {
+    display: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+  }
+
+  #panelScreen.menu-aberto .sidebar {
+    display: block;
+  }
+
+  .sidebar .menu-button {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar .menu-icon {
+    font-size: 16px;
+  }
+}
+
+    
   </style>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -756,6 +807,11 @@
 
       <!-- MENU -->
 
+      
+<button class="mobile-menu-toggle" onclick="document.getElementById('panelScreen').classList.toggle('menu-aberto')">
+  ☰ Menu
+</button>
+      
       <aside class="sidebar">
 
         <div class="sidebar-title">
