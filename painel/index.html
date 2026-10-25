@@ -174,7 +174,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 30px;
-      position: sticky;
+      position: fixed;
       top: 0;
       z-index: 10;
     }
@@ -511,6 +511,59 @@
         padding: 25px 20px;
       }
     }
+
+/* AJUSTES PARA CELULAR */
+    
+@media (max-width: 768px) {
+
+  header {
+    padding: 8px 12px;
+  }
+
+  header img {
+    max-width: 130px;
+    height: auto;
+  }
+
+  h1 {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 19px;
+  }
+
+  h3 {
+    font-size: 16px;
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  section {
+    padding: 20px 14px;
+  }
+
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  button,
+  .btn {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+    
   </style>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
