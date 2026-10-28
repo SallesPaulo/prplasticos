@@ -1731,20 +1731,40 @@
   }
 
 
- function mostrarPainel() {
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("panelScreen").style.display = "block";
-  document.getElementById("loginError").style.display = "none";
+ 
+function mostrarPainel() {
+  const loginScreen = document.getElementById("loginScreen");
+  const panelScreen = document.getElementById("panelScreen");
+  const loginError = document.getElementById("loginError");
+
+  if (loginScreen) {
+    loginScreen.style.display = "none";
+  }
+
+  if (panelScreen) {
+    panelScreen.style.display = "block";
+  }
+
+  if (loginError) {
+    loginError.style.display = "none";
+  }
 
   carregarClientesDoBanco();
   carregarCampanhasDoBanco();
 }
 
+function mostrarLogin() {
+  const panelScreen = document.getElementById("panelScreen");
+  const loginScreen = document.getElementById("loginScreen");
 
-  function mostrarLogin() {
-    document.getElementById("panelScreen").style.display = "none";
-    document.getElementById("loginScreen").style.display = "flex";
+  if (panelScreen) {
+    panelScreen.style.display = "none";
   }
+
+  if (loginScreen) {
+    loginScreen.style.display = "flex";
+  }
+}
 
 
   async function entrar(event) {
