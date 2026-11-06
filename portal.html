@@ -1079,6 +1079,7 @@ $("totalWeight").textContent =
     }
 
     
+
 function desenharGrafico(elementoId, valores, cor, formato) {
   const elemento = document.getElementById(elementoId);
   if (!elemento) return;
@@ -1086,42 +1087,54 @@ function desenharGrafico(elementoId, valores, cor, formato) {
   const maximo = Math.max(...valores.map(v => v.valor), 1);
 
   elemento.replaceChildren();
+  elemento.style.overflowX = "auto";
 
   const grafico = document.createElement("div");
+
   grafico.style.cssText =
-    "display:grid;grid-template-columns:repeat(6,minmax(0,1fr));" +
-    "gap:8px;align-items:end;height:240px;";
+    "display:grid;" +
+    "grid-template-columns:repeat(" + valores.length + ",minmax(65px,1fr));" +
+    "gap:10px;" +
+    "align-items:end;" +
+    "height:260px;" +
+    "min-width:" + Math.max(600, valores.length * 85) + "px;" +
+    "padding:10px 5px;";
 
   valores.forEach(item => {
     const coluna = document.createElement("div");
+
     coluna.style.cssText =
       "display:flex;flex-direction:column;align-items:center;" +
       "justify-content:flex-end;height:100%;gap:6px;min-width:0;";
 
+    const rotulo = document.createElement("span");
+    rotulo.textContent = formato(item.valor);
+
+    rotulo.style.cssText =
+      "font-size:10px;font-weight:600;color:#334155;" +
+      "text-align:center;white-space:nowrap;";
+
     const barra = document.createElement("div");
+
     barra.style.cssText =
-      "width:70%;max-width:30px;min-height:" +
+      "width:65%;max-width:32px;min-height:" +
       (item.valor > 0 ? "5px" : "0") + ";" +
       "height:" + (item.valor / maximo * 100) + "%;" +
-      "background:" + cor + ";border-radius:5px 5px 0 0;";
+      "background:" + cor + ";" +
+      "border-radius:5px 5px 0 0;";
 
     barra.title = formato(item.valor);
 
     const mes = document.createElement("span");
     mes.textContent = item.mes;
-    mes.style.cssText = "font-size:11px;color:#64748b;";
 
-    
-const rotulo = document.createElement("span");
-rotulo.textContent = formato(item.valor);
-rotulo.style.cssText =
-  "font-size:10px;font-weight:600;color:#334155;" +
-  "text-align:center;white-space:nowrap;";
+    mes.style.cssText =
+      "font-size:11px;color:#64748b;white-space:nowrap;";
 
-coluna.appendChild(rotulo);
-coluna.appendChild(barra);
-
+    coluna.appendChild(rotulo);
+    coluna.appendChild(barra);
     coluna.appendChild(mes);
+
     grafico.appendChild(coluna);
   });
 
@@ -1130,36 +1143,94 @@ coluna.appendChild(barra);
 
 
 function atualizarGraficos(pedidos) {
+
+  if (!pedidos || pedidos.length === 0) {
+    desenharGrafico("chartPurchases", [], "#2563eb", moeda);
+    desenharGrafico("chartWeight", [], "#16a34a",
+      valor => valor.toLocaleString("pt-BR") + " kg");
+    return;
+  }
+
+  function obterAnoMes(valor) {
+    if (!valor) return null;
+
+    const texto = String(valor);
+    const match = texto.match(/^(\d{4})-(\d{2})/);
+
+    if (match) {
+      return {
+        ano: Number(match[1]),
+        mes: Number(match[2]) - 1
+      };
+    }
+
+    const data = new Date(valor);
+
+    if (isNaN(data.getTime())) return null;
+
+    return {
+      ano: data.getFullYear(),
+      mes: data.getMonth()
+    };
+  }
+
+  const datas = pedidos
+    .map(p => obterAnoMes(p.data_pedido))
+    .filter(Boolean);
+
+  if (datas.length === 0) return;
+
+  datas.sort((a, b) =>
+    (a.ano * 12 + a.mes) - (b.ano * 12 + b.mes)
+  );
+
+  const primeiro = datas[0];
+
   const hoje = new Date();
+
+  const ultimoAno = hoje.getFullYear();
+  const ultimoMes = hoje.getMonth();
+
   const meses = [];
 
-  for (let i = 5; i >= 0; i--) {
-    const data = new Date(
-      hoje.getFullYear(),
-      hoje.getMonth() - i,
-      1
-    );
+  let ano = primeiro.ano;
+  let mes = primeiro.mes;
 
+  while (
+    ano < ultimoAno ||
+    (ano === ultimoAno && mes <= ultimoMes)
+  ) {
     meses.push({
-      ano: data.getFullYear(),
-      mes: data.getMonth(),
-      nome: data.toLocaleDateString("pt-BR", {
-        month: "short"
-      }).replace(".", ""),
+      ano,
+      mes,
+      chave: ano + "-" + String(mes + 1).padStart(2, "0"),
+      nome: new Date(ano, mes, 1)
+        .toLocaleDateString("pt-BR", {
+          month: "short"
+        })
+        .replace(".", "") + "/" + String(ano).slice(-2),
       valor: 0,
       peso: 0
     });
+
+    mes++;
+
+    if (mes > 11) {
+      mes = 0;
+      ano++;
+    }
   }
 
   pedidos.forEach(pedido => {
-    const data = new Date(pedido.data_pedido);
 
-    if (isNaN(data.getTime())) return;
+    const data = obterAnoMes(pedido.data_pedido);
 
-    const periodo = meses.find(m =>
-      m.ano === data.getFullYear() &&
-      m.mes === data.getMonth()
-    );
+    if (!data) return;
+
+    const chave =
+      data.ano + "-" + String(data.mes + 1).padStart(2, "0");
+
+    const periodo = meses.find(m => m.chave === chave);
 
     if (!periodo) return;
 
@@ -1180,6 +1251,7 @@ function atualizarGraficos(pedidos) {
         periodo.peso += Number(item.quantidade || 0);
       });
     }
+
   });
 
   desenharGrafico(
@@ -1191,7 +1263,8 @@ function atualizarGraficos(pedidos) {
     "#2563eb",
     valor => valor.toLocaleString("pt-BR", {
       style: "currency",
-      currency: "BRL"
+      currency: "BRL",
+      maximumFractionDigits: 0
     })
   );
 
@@ -1204,7 +1277,9 @@ function atualizarGraficos(pedidos) {
     "#16a34a",
     valor => valor.toLocaleString("pt-BR") + " kg"
   );
+
 }
+
 
     
     function atualizarSelecaoAcompanhamento() {
