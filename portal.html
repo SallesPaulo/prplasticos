@@ -527,11 +527,21 @@
           </div>
 
           <div class="stats">
-            <div class="stat-card">
-              <div class="stat-label">Total de pedidos</div>
-              <div id="totalOrders" class="stat-number">—</div>
-            </div>
+  <div class="stat-card">
+    <div class="stat-label">Valor faturado</div>
+    <div id="totalBilled" class="stat-number">—</div>
+  </div>
 
+  <div class="stat-card">
+    <div class="stat-label">Peso comprado</div>
+    <div id="totalWeight" class="stat-number">—</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">Entregues</div>
+    <div id="deliveredOrders" class="stat-number">—</div>
+  </div>
+</div>
             <div class="stat-card">
               <div class="stat-label">Em andamento</div>
               <div id="activeOrders" class="stat-number">—</div>
@@ -930,17 +940,37 @@
       $("allOrders").textContent = "Carregando pedidos...";
       $("trackingOrders").textContent = "Carregando pedidos...";
 
-      let consulta = cliente
-  .from("pedidos")
-  .select("id, numero, data_pedido, status, itens, total")
-  .order("data_pedido", { ascending: false })
-  .limit(50);
+     let todosPedidos = [];
+let inicio = 0;
+let error = null;
 
-if (!perfilAtual.admin) {
-  consulta = consulta.eq("cliente_id", perfilAtual.cliente_id);
+while (true) {
+  let consulta = cliente
+    .from("pedidos")
+    .select("id, numero, data_pedido, status, itens, total")
+    .order("data_pedido", { ascending: false })
+    .range(inicio, inicio + 999);
+
+  if (!perfilAtual.admin) {
+    consulta = consulta.eq("cliente_id", perfilAtual.cliente_id);
+  }
+
+  const resultado = await consulta;
+
+  if (resultado.error) {
+    error = resultado.error;
+    break;
+  }
+
+  const pagina = resultado.data || [];
+  todosPedidos.push(...pagina);
+
+  if (pagina.length < 1000) break;
+
+  inicio += 1000;
 }
 
-const { data, error } = await consulta;
+const data = todosPedidos;
 
       if (error) {
         console.error("Erro ao carregar pedidos:", error);
@@ -953,6 +983,38 @@ const { data, error } = await consulta;
       pedidosAtuais = data || [];
       atualizarGraficos(pedidosAtuais);
 
+      // Soma do valor de todos os pedidos
+const valorFaturado = pedidosAtuais.reduce(
+  (soma, pedido) => soma + Number(pedido.total || 0),
+  0
+);
+
+// Soma do peso de todos os pedidos
+const pesoComprado = pedidosAtuais.reduce((soma, pedido) => {
+  let itens = pedido.itens || [];
+
+  if (typeof itens === "string") {
+    try {
+      itens = JSON.parse(itens);
+    } catch {
+      itens = [];
+    }
+  }
+
+  if (!Array.isArray(itens)) return soma;
+
+  return soma + itens.reduce(
+    (total, item) => total + Number(item.quantidade || 0),
+    0
+  );
+}, 0);
+
+$("totalBilled").textContent = moeda(valorFaturado);
+
+$("totalWeight").textContent =
+  pesoComprado.toLocaleString("pt-BR") + " kg";
+
+      
       const entregues = pedidosAtuais.filter(
         p => normalizarStatus(p.status).includes("entregue")
       ).length;
