@@ -710,10 +710,6 @@
       SUPABASE_ANON_KEY
     );
 
-    
-$("filtroClientes").addEventListener("change", atualizarIndicadores);
-
-
     let perfilAtual = null;
     let usuarioAtual = null;
     let pedidosAtuais = [];
@@ -1024,7 +1020,7 @@ function atualizarIndicadores() {
   $("deliveredOrders").textContent = entregues;
 }
 
-    
+   
     async function carregarPedidos() {
       $("recentOrders").textContent = "Carregando pedidos...";
       $("allOrders").textContent = "Carregando pedidos...";
@@ -1134,7 +1130,7 @@ atualizarIndicadores();
       atualizarSelecaoAcompanhamento();
     }
 
-    
+   
 
 function desenharGrafico(elementoId, valores, cor, formato) {
   const elemento = document.getElementById(elementoId);
@@ -1521,7 +1517,7 @@ await carregarPedidos();
 
     iniciarPortal();
 
-    
+document.getElementById("filtroClientes")?.addEventListener("change", atualizarIndicadores);    
 document.getElementById("formAlterarSenha")?.addEventListener("submit", async function (event) {
   event.preventDefault();
 
