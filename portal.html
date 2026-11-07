@@ -526,7 +526,19 @@
             <p>Confira um resumo dos seus pedidos com a PR Plásticos.</p>
           </div>
 
-          <div class="stats">
+
+<div id="filtroClientesContainer" class="panel" style="display:none; margin-bottom:20px;">
+  <h2 style="margin-bottom:12px;">Visão gerencial</h2>
+  <label for="filtroClientes" style="display:block; margin-bottom:8px; color:#708196; font-size:14px;">
+    Filtrar indicadores por cliente
+  </label>
+  <select id="filtroClientes" style="width:100%; max-width:450px; padding:12px; border:1px solid #dce5ed; border-radius:7px; background:white; color:#243b53;">
+    <option value="todos">Todos os clientes</option>
+  </select>
+</div>
+
+          
+          <div class="stats">           
   <div class="stat-card">
     <div class="stat-label">Valor faturado</div>
     <div id="totalBilled" class="stat-number">—</div>
@@ -698,7 +710,9 @@
       SUPABASE_ANON_KEY
     );
 
-    const $ = (id) => document.getElementById(id);
+    
+$("filtroClientes").addEventListener("change", atualizarIndicadores);
+
 
     let perfilAtual = null;
     let usuarioAtual = null;
@@ -926,6 +940,91 @@
       return true;
     }
 
+async function carregarListaClientes() {
+  if (!perfilAtual || !perfilAtual.admin) return;
+
+  const container = $("filtroClientesContainer");
+  const select = $("filtroClientes");
+
+  container.style.display = "block";
+
+  const { data, error } = await cliente
+    .from("clientes")
+    .select("id, empresa, nome")
+    .order("empresa", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao carregar clientes:", error);
+    mostrarMensagem("Não foi possível carregar a lista de clientes.");
+    return;
+  }
+
+  select.replaceChildren();
+
+  const todos = document.createElement("option");
+  todos.value = "todos";
+  todos.textContent = "Todos os clientes";
+  select.appendChild(todos);
+
+  (data || []).forEach(item => {
+    const opcao = document.createElement("option");
+    opcao.value = item.id;
+    opcao.textContent = item.empresa || item.nome || "Cliente " + item.id;
+    select.appendChild(opcao);
+  });
+}
+
+    
+function atualizarIndicadores() {
+  let pedidos = pedidosAtuais;
+
+  if (perfilAtual?.admin && $("filtroClientes")) {
+    const clienteSelecionado = $("filtroClientes").value;
+
+    if (clienteSelecionado !== "todos") {
+      pedidos = pedidosAtuais.filter(
+        p => String(p.cliente_id) === String(clienteSelecionado)
+      );
+    }
+  }
+
+  atualizarGraficos(pedidos);
+
+  const valorFaturado = pedidos.reduce(
+    (soma, pedido) => soma + Number(pedido.total || 0),
+    0
+  );
+
+  const pesoComprado = pedidos.reduce((soma, pedido) => {
+    let itens = pedido.itens || [];
+
+    if (typeof itens === "string") {
+      try {
+        itens = JSON.parse(itens);
+      } catch {
+        itens = [];
+      }
+    }
+
+    if (!Array.isArray(itens)) return soma;
+
+    return soma + itens.reduce(
+      (total, item) => total + Number(item.quantidade || 0),
+      0
+    );
+  }, 0);
+
+  const entregues = pedidos.filter(
+    p => normalizarStatus(p.status).includes("entregue")
+  ).length;
+
+  $("totalBilled").textContent = moeda(valorFaturado);
+  $("totalWeight").textContent =
+    pesoComprado.toLocaleString("pt-BR") + " kg";
+  $("deliveredOrders").textContent = entregues;
+}
+
+    
     async function carregarPedidos() {
       $("recentOrders").textContent = "Carregando pedidos...";
       $("allOrders").textContent = "Carregando pedidos...";
@@ -938,7 +1037,7 @@ let error = null;
 while (true) {
   let consulta = cliente
     .from("pedidos")
-    .select("id, numero, data_pedido, status, itens, total")
+    .select("id, numero, data_pedido, status, itens, total, cliente_id")
     .order("data_pedido", { ascending: false })
     .range(inicio, inicio + 999);
 
@@ -971,61 +1070,10 @@ const data = todosPedidos;
         return;
       }
 
-      pedidosAtuais = data || [];
-      atualizarGraficos(pedidosAtuais);
-
-      // Soma do valor de todos os pedidos
-const valorFaturado = pedidosAtuais.reduce(
-  (soma, pedido) => soma + Number(pedido.total || 0),
-  0
-);
-
-// Soma do peso de todos os pedidos
-const pesoComprado = pedidosAtuais.reduce((soma, pedido) => {
-  let itens = pedido.itens || [];
-
-  if (typeof itens === "string") {
-    try {
-      itens = JSON.parse(itens);
-    } catch {
-      itens = [];
-    }
-  }
-
-  if (!Array.isArray(itens)) return soma;
-
-  return soma + itens.reduce(
-    (total, item) => total + Number(item.quantidade || 0),
-    0
-  );
-}, 0);
-
-$("totalBilled").textContent = moeda(valorFaturado);
-
-$("totalWeight").textContent =
-  pesoComprado.toLocaleString("pt-BR") + " kg";
-
       
-      const entregues = pedidosAtuais.filter(
-        p => normalizarStatus(p.status).includes("entregue")
-      ).length;
+pedidosAtuais = data || [];
+atualizarIndicadores();
 
-      const cancelados = pedidosAtuais.filter(
-        p => normalizarStatus(p.status).includes("cancel")
-      ).length;
-
-     if ($("totalOrders")) {
-  $("totalOrders").textContent = pedidosAtuais.length;
-}
-
-if ($("deliveredOrders")) {
-  $("deliveredOrders").textContent = entregues;
-}
-
-if ($("activeOrders")) {
-  $("activeOrders").textContent =
-    pedidosAtuais.length - entregues - cancelados;
-}
       
 
 
@@ -1398,8 +1446,9 @@ function atualizarGraficos(pedidos) {
 
       if (!valido) return;
 
-      mostrarAplicacao();
-      await carregarPedidos();
+     mostrarAplicacao();
+await carregarListaClientes();
+await carregarPedidos();
       $("loginMessage").textContent = "";
     }
 
