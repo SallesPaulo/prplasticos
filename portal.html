@@ -938,6 +938,7 @@
       return true;
     }
 
+
 async function carregarListaClientes() {
   if (!perfilAtual || !perfilAtual.admin) return;
 
@@ -946,16 +947,41 @@ async function carregarListaClientes() {
 
   container.style.display = "block";
 
-  const { data, error } = await cliente
-    .from("clientes")
-    .select("id, empresa, nome")
-    .order("empresa", { ascending: true });
+  const [usuarios, pedidos] = await Promise.all([
+    cliente
+      .from("usuarios_portal")
+      .select("cliente_id, empresa, nome")
+      .not("cliente_id", "is", null),
 
-  if (error) {
-    console.error("Erro ao carregar clientes:", error);
+    cliente
+      .from("pedidos")
+      .select("cliente_id, empresa, nome")
+      .not("cliente_id", "is", null)
+  ]);
+
+  console.log("Usuários do portal:", usuarios.data, usuarios.error);
+  console.log("Clientes com pedidos:", pedidos.data, pedidos.error);
+
+  if (usuarios.error && pedidos.error) {
+    console.error("Erro ao carregar clientes:", usuarios.error, pedidos.error);
     mostrarMensagem("Não foi possível carregar a lista de clientes.");
     return;
   }
+
+  const lista = new Map();
+
+  [...(usuarios.data || []), ...(pedidos.data || [])].forEach(item => {
+    if (!item.cliente_id) return;
+
+    const id = String(item.cliente_id);
+
+    if (!lista.has(id)) {
+      lista.set(id, {
+        id: item.cliente_id,
+        nome: item.empresa || item.nome || "Cliente " + id
+      });
+    }
+  });
 
   select.replaceChildren();
 
@@ -964,12 +990,18 @@ async function carregarListaClientes() {
   todos.textContent = "Todos os clientes";
   select.appendChild(todos);
 
-  (data || []).forEach(item => {
+  const clientesOrdenados = [...lista.values()].sort(
+    (a, b) => a.nome.localeCompare(b.nome, "pt-BR")
+  );
+
+  clientesOrdenados.forEach(item => {
     const opcao = document.createElement("option");
     opcao.value = item.id;
-    opcao.textContent = item.empresa || item.nome || "Cliente " + item.id;
+    opcao.textContent = item.nome;
     select.appendChild(opcao);
   });
+
+  console.log("Total de clientes no filtro:", clientesOrdenados.length);
 }
 
     
