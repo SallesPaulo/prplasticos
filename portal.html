@@ -940,7 +940,10 @@
 
 
 async function carregarListaClientes() {
-  if (!perfilAtual || !perfilAtual.admin) return;
+  if (!perfilAtual || !perfilAtual.admin) {
+  $("filtroClientesContainer").style.display = "none";
+  return;
+}
 
   const container = $("filtroClientesContainer");
   const select = $("filtroClientes");
