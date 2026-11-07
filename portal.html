@@ -1014,10 +1014,18 @@ $("totalWeight").textContent =
         p => normalizarStatus(p.status).includes("cancel")
       ).length;
 
-      $("totalOrders").textContent = pedidosAtuais.length;
-      $("deliveredOrders").textContent = entregues;
-      $("activeOrders").textContent =
-        pedidosAtuais.length - entregues - cancelados;
+     if ($("totalOrders")) {
+  $("totalOrders").textContent = pedidosAtuais.length;
+}
+
+if ($("deliveredOrders")) {
+  $("deliveredOrders").textContent = entregues;
+}
+
+if ($("activeOrders")) {
+  $("activeOrders").textContent =
+    pedidosAtuais.length - entregues - cancelados;
+}
       
 
 
