@@ -639,7 +639,251 @@
   }
 }
 
-    
+    /* ORDEM DE PRODUÇÃO - PR PLÁSTICOS */
+
+.ordem-producao {
+  background: #fff;
+  color: #171717;
+  border: 2px solid #171717;
+  padding: 25px;
+  font-family: Arial, sans-serif;
+}
+
+.op-cabecalho {
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 4px solid #4f9d4d;
+  padding-bottom: 18px;
+}
+
+.op-logo {
+  height: 85px;
+  border: 1px dashed #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.op-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.op-titulo {
+  text-align: center;
+}
+
+.op-titulo h1 {
+  font-size: 27px;
+  margin: 0 0 8px;
+  color: #171717;
+}
+
+.op-titulo strong {
+  color: #4f9d4d;
+  letter-spacing: 1px;
+}
+
+.op-lote {
+  background: #171717;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  border-radius: 6px;
+}
+
+.op-lote label,
+.op-lote strong {
+  display: block;
+}
+
+.op-lote label {
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.op-lote strong {
+  font-size: 21px;
+  color: #76c66f;
+}
+
+.op-dados {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 15px;
+  margin-top: 22px;
+}
+
+.op-dados > div,
+.op-rodape > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.op-dados label,
+.op-rodape label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #4f9d4d;
+}
+
+.op-dados strong {
+  min-height: 38px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.op-dados input,
+.op-tabela input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.op-embalagem {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  margin: 22px 0;
+  padding: 15px;
+  background: #f1f7f0;
+  border-left: 5px solid #4f9d4d;
+}
+
+.op-embalagem label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.op-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.op-tabela th {
+  background: #171717;
+  color: white;
+  padding: 12px 8px;
+  font-size: 12px;
+}
+
+.op-tabela td {
+  border: 1px solid #ccc;
+  padding: 7px;
+  text-align: center;
+}
+
+.op-tabela td input[type="checkbox"] {
+  width: 19px;
+  height: 19px;
+  accent-color: #4f9d4d;
+}
+
+.op-tabela td:nth-child(1) {
+  font-weight: bold;
+}
+
+.op-acoes {
+  margin-top: 15px;
+}
+
+.op-acoes button,
+.op-botoes button {
+  background: #4f9d4d;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.op-rodape {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 20px;
+  align-items: end;
+  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 2px solid #4f9d4d;
+}
+
+.op-rodape strong {
+  font-size: 19px;
+}
+
+.op-assinatura {
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.op-assinatura span {
+  display: block;
+  border-bottom: 1px solid #171717;
+  height: 35px;
+  margin-bottom: 8px;
+}
+
+.op-botoes {
+  margin-top: 15px;
+  text-align: right;
+}
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #telaOrdemProducao,
+  #telaOrdemProducao * {
+    visibility: visible !important;
+  }
+
+  #telaOrdemProducao {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  .ordem-producao {
+    border: 1px solid #171717;
+    padding: 15px;
+  }
+
+  .op-acoes,
+  .op-botoes {
+    display: none !important;
+  }
+
+  .op-tabela tr {
+    break-inside: avoid;
+  }
+
+  input {
+    color: #000 !important;
+  }
+}
 
     
   </style>
@@ -1519,7 +1763,121 @@
       <div class="button-row">
         <button type="button" class="primary-button" id="salvarStatusPedidoBtn" onclick="salvarStatusPedido()">💾 Salvar status</button>
       </div>
+-----
+      <div id="areaOrdemProducao" style="display:none; margin-top:15px;">
+  <button
+    type="button"
+    class="primary-button"
+    id="btnOrdemProducao"
+    onclick="abrirOrdemProducao()"
+    style="background:#4f9d4d;"
+  >
+    📋 Gerar Ordem de Produção
+  </button>
+</div>
 
+      <div id="telaOrdemProducao" style="display:none; margin-top:25px;">
+
+  <div id="ordemProducaoImpressao" class="ordem-producao">
+
+    <div class="op-cabecalho">
+      <div class="op-logo">
+        <img src="CAMINHO-DA-LOGO.png" alt="Logo PR">
+      </div>
+
+      <div class="op-titulo">
+        <h1>ORDEM DE PRODUÇÃO</h1>
+        <strong>PR PLÁSTICOS RECICLÁVEIS</strong>
+      </div>
+
+      <div class="op-lote">
+        <label>LOTE / PEDIDO</label>
+        <strong id="opLote">—</strong>
+      </div>
+    </div>
+
+    <div class="op-dados">
+      <div>
+        <label>CLIENTE</label>
+        <strong id="opCliente">—</strong>
+      </div>
+
+      <div>
+        <label>DATA DE PRODUÇÃO</label>
+        <input type="date" id="opData">
+      </div>
+
+      <div>
+        <label>QUANTIDADE PRODUZIDA (KG)</label>
+        <input type="number" id="opQuantidade" min="0" step="0.01">
+      </div>
+    </div>
+
+    <div class="op-embalagem">
+      <strong>TIPO DE EMBALAGEM:</strong>
+
+      <label>
+        <input type="radio" name="opEmbalagem" value="Big Bag">
+        Big Bag
+      </label>
+
+      <label>
+        <input type="radio" name="opEmbalagem" value="Sacaria de 25 kg">
+        Sacaria de 25 kg
+      </label>
+    </div>
+
+    <div class="op-tabela-area">
+      <table class="op-tabela">
+        <thead>
+          <tr>
+            <th>VOLUME</th>
+            <th>SELECIONAR</th>
+            <th>PALETE</th>
+            <th>PESO DO VOLUME (KG)</th>
+          </tr>
+        </thead>
+        <tbody id="opVolumes">
+          <tr>
+            <td>1</td>
+            <td><input type="checkbox"></td>
+            <td><input type="number" min="1" value="1"></td>
+            <td><input type="number" min="0" step="0.01"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="op-acoes">
+      <button type="button" onclick="adicionarVolumeOP()">+ Adicionar volume</button>
+    </div>
+
+    <div class="op-rodape">
+      <div>
+        <label>PESO TOTAL (KG)</label>
+        <strong id="opPesoTotal">0,00 kg</strong>
+      </div>
+
+      <div>
+        <label>TOTAL DE VOLUMES</label>
+        <strong id="opTotalVolumes">1</strong>
+      </div>
+
+      <div class="op-assinatura">
+        <span></span>
+        RESPONSÁVEL PELA PRODUÇÃO
+      </div>
+    </div>
+
+  </div>
+
+  <div class="op-botoes">
+    <button type="button" onclick="window.print()">🖨️ Imprimir Ordem</button>
+  </div>
+
+</div>
+      
+------
       <div id="mensagemStatusPedido" role="status" style="margin-top:15px;"></div>
 
       <div style="margin-top:28px;">
@@ -3117,6 +3475,8 @@ async function consultarPedidosStatus() {
     document.getElementById("tituloPedidoStatus").textContent = "Pedido " + (pedido.numero || pedido.id);
     document.getElementById("novoStatusPedido").value = pedido.status || "Recebido";
     document.getElementById("mensagemStatusPedido").textContent = "";
+    document.getElementById("areaOrdemProducao").style.display =
+  pedido.status === "Em produção" ? "block" : "none";
 
     const total = pedido.total == null ? "—" : Number(pedido.total).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     const itens = typeof pedido.itens === "string" ? pedido.itens : JSON.stringify(pedido.itens || []);
@@ -3216,6 +3576,8 @@ async function salvarStatusPedido() {
     }
 
     pedidoSelecionadoStatus = resultado.pedido;
+    document.getElementById("areaOrdemProducao").style.display =
+  novoStatus === "Em produção" ? "block" : "none";
 
     mensagem.style.color = "var(--green-dark)";
     mensagem.textContent = "Status atualizado com sucesso.";
@@ -3550,6 +3912,116 @@ async function cancelarVisitaAgenda(id) {
   }
 }
 
+    
+function abrirOrdemProducao() {
+  if (!pedidoSelecionadoStatus) {
+    alert("Selecione um pedido primeiro.");
+    return;
+  }
+
+  if (pedidoSelecionadoStatus.status !== "Em produção") {
+    alert("A Ordem de Produção só pode ser aberta quando o pedido estiver Em produção.");
+    return;
+  }
+
+  document.getElementById("opLote").textContent =
+    pedidoSelecionadoStatus.numero || pedidoSelecionadoStatus.id;
+
+  document.getElementById("opCliente").textContent =
+    pedidoSelecionadoStatus.empresa || pedidoSelecionadoStatus.nome || "—";
+
+  // Data atual
+  const hoje = new Date();
+  const dataLocal = new Date(
+    hoje.getTime() - hoje.getTimezoneOffset() * 60000
+  ).toISOString().split("T")[0];
+
+  document.getElementById("opData").value = dataLocal;
+
+  // Limpa os campos da ordem
+  document.getElementById("opQuantidade").value = "";
+  document.querySelectorAll('input[name="opEmbalagem"]').forEach(campo => {
+    campo.checked = false;
+  });
+
+  document.getElementById("opVolumes").innerHTML = "";
+
+  // Cria o primeiro volume
+  adicionarVolumeOP();
+
+  document.getElementById("telaOrdemProducao").style.display = "block";
+
+  document.getElementById("telaOrdemProducao").scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
+
+
+function adicionarVolumeOP() {
+  const tabela = document.getElementById("opVolumes");
+  const numero = tabela.querySelectorAll("tr").length + 1;
+
+  const linha = document.createElement("tr");
+
+  linha.innerHTML = `
+    <td class="op-numero-volume"></td>
+
+    <td>
+      <input type="checkbox" aria-label="Selecionar volume">
+    </td>
+
+    <td>
+      <input type="number" min="1" value="1"
+        aria-label="Número do palete">
+    </td>
+
+    <td>
+      <input type="number" min="0" step="0.01"
+        placeholder="Peso em kg"
+        oninput="atualizarTotaisOP()"
+        aria-label="Peso do volume em kg">
+    </td>
+  `;
+
+  tabela.appendChild(linha);
+
+  atualizarTotaisOP();
+}
+
+
+function atualizarTotaisOP() {
+  const tabela = document.getElementById("opVolumes");
+  const linhas = tabela.querySelectorAll("tr");
+
+  let pesoTotal = 0;
+  const totalVolumes = linhas.length;
+
+  linhas.forEach((linha, indice) => {
+    const identificacao = `${indice + 1}/${totalVolumes}`;
+
+    linha.querySelector(".op-numero-volume").textContent =
+      identificacao;
+
+    const campoPeso = linha.querySelector(
+      'input[aria-label="Peso do volume em kg"]'
+    );
+
+    pesoTotal += Number(campoPeso.value) || 0;
+  });
+
+  document.getElementById("opPesoTotal").textContent =
+    pesoTotal.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) + " kg";
+
+  document.getElementById("opTotalVolumes").textContent =
+    totalVolumes;
+}
+
+    
+    
 </script>
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
